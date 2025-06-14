@@ -8,7 +8,9 @@ bool OutputMessage(string message)
 
 	if (out.is_open())
 	{
-		out << GetCurrentTimeMG() << message << endl;
+		out << GetCurrentTimeMG();
+		out << message << endl;
+
 		out.close();
 		return true;
 	}

@@ -16,17 +16,29 @@
     <Filter Include="Исходные файлы\Related">
       <UniqueIdentifier>{55e0d5d4-ebf8-428a-a25d-63d5a4c660e9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\LoadGun">
+    <Filter Include="Исходные файлы\Main">
+      <UniqueIdentifier>{042c9d94-fee7-480a-a2c3-675daf533814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\MainRe">
+      <UniqueIdentifier>{c2537c3b-2f1d-42a3-870e-e7789fab2bdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\class">
+      <UniqueIdentifier>{641e1698-0fda-4ed1-b6ee-a53a6f733504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\Main">
+      <UniqueIdentifier>{5afed5d4-9e39-4acb-a2f0-de8987a1dbfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\other">
+      <UniqueIdentifier>{8eadfcb9-cd1f-4f9e-a981-198755ee0d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Core">
+      <UniqueIdentifier>{1e8413cc-31a7-488a-a9f9-929736435293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Other">
       <UniqueIdentifier>{a8fb2129-8415-4fc6-9f54-ea545674c97e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ModdingGun.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadFont.cpp">
-      <Filter>Исходные файлы\Related</Filter>
-    </ClCompile>
     <ClCompile Include="SearchFile.cpp">
       <Filter>Исходные файлы\Related</Filter>
     </ClCompile>
@@ -36,19 +48,49 @@
     <ClCompile Include="OutputMessage.cpp">
       <Filter>Исходные файлы\Related</Filter>
     </ClCompile>
-    <ClCompile Include="LoadGun.cpp">
-      <Filter>Исходные файлы\LoadGun</Filter>
+    <ClCompile Include="drawNormalGraph.cpp">
+      <Filter>Исходные файлы\Main\MainRe</Filter>
+    </ClCompile>
+    <ClCompile Include="getRandomDouble.cpp">
+      <Filter>Исходные файлы\Related</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacteristicGun.cpp">
+      <Filter>Исходные файлы\Main\class</Filter>
+    </ClCompile>
+    <ClCompile Include="getChance.cpp">
+      <Filter>Исходные файлы\Main\MainRe</Filter>
+    </ClCompile>
+    <ClCompile Include="RunSingleAssembly.cpp">
+      <Filter>Исходные файлы\Main\MainRe</Filter>
+    </ClCompile>
+    <ClCompile Include="ModdingGun.cpp">
+      <Filter>Исходные файлы\Main\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadFont.cpp">
+      <Filter>Исходные файлы\Main\MainRe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="CharacteristicGun.h">
+      <Filter>Исходные файлы\Main\class</Filter>
     </ClInclude>
     <ClInclude Include="ModdingGun.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Исходные файлы\Main\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="GunStats.h">
+      <Filter>Файлы заголовков\other</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\other</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Файлы заголовков\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>Исходные файлы\Other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

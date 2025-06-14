@@ -137,17 +137,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ModdingGun.cpp" />
+    <ClCompile Include="CharacteristicGun.cpp" />
     <ClCompile Include="LoadFont.cpp" />
+    <ClCompile Include="ModdingGun.cpp" />
     <ClCompile Include="SearchFile.cpp" />
     <ClCompile Include="GetCurrentTimeMG.cpp" />
     <ClCompile Include="OutputMessage.cpp" />
-    <ClCompile Include="LoadGun.cpp" />
+    <ClCompile Include="drawNormalGraph.cpp" />
+    <ClCompile Include="getRandomDouble.cpp" />
+    <ClCompile Include="getChance.cpp" />
+    <ClCompile Include="RunSingleAssembly.cpp" />
+    <ClCompile Include="Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CharacteristicGun.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Define.h" />
+    <ClInclude Include="GunStats.h" />
     <ClInclude Include="ModdingGun.h" />
+    <ClInclude Include="Thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

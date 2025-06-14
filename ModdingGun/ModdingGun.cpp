@@ -1,50 +1,112 @@
 ﻿#include "ModdingGun.h"
-#include <random>
-#include <thread>
-#include <mutex>
-
-#pragma comment(lib, "User32.lib")
-
-int getRandomInt(int range);
-
-vector<int> drawNormalGraph(RenderWindow& window, const vector<int>& Average10000, float graphHeight, float marginBottom, const vector<int>& Average10000_RANDOM_GEN);
 
 
-void ChangeCharacteristic(bool Initial_Input_Window, int SelectOption, int Characteriscit, vector<int>& CharacteristicsInitial, vector<int>& CharacteristicsModded, Text& InputCharacteristicsShapeText);
+// колво повторений мода
+unsigned int totalIterations = 500;
+
+vector<int> method = {
+
+    GunStats::ACCURACY,
+    GunStats::RATE_OF_FIRE,
+    GunStats::PENETRATION,
+    GunStats::KICKBACK,
+    GunStats::SWAY,
+    GunStats::MALFUNCTION_CONDITION,
+    GunStats::MALFUNCTION_DIRT
+
+};
+
+tuple Tool_Kit_Skil = 
+{
+    GunStats::GetToolModifier(GunStats::ToolType::OLD_TOOL),
+    GunStats::GetKitModifier(GunStats::KitType::NO_KIT),
+    GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_5)
+};
+
+
+
+
+
+
+
+
+
+
 
 
 
 int main()
 {
+
+    Average10000_RANDOM_GEN.resize(200'000'000);
+    Average10000.resize(200'000'000);
     // создаем вывод в логи
     permissions("Log/log.txt", perms::all);
     remove("Log/log.txt");
     OutputLog("Запуск!");
 
-    ///////////////////////////////////////////////////////////////////////////////////
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// высота окна, от нее зависит длина окна
-    unsigned int SizeWindowHeight = 700;
-
-    /// длина окна
-    unsigned int SizeWindowLength = static_cast<unsigned int>(round(SizeWindowHeight * 1.8));
+    float  SizeWindowHeight = 700;
+    float  SizeWindowLength = SizeWindowHeight * 1.8f;
 
     /// количество клеток на одной стороне
-    size_t CountCellOnLengthWindow = 20;
-    size_t CountCellOnHeightWindow = 5;
+    unsigned int CountCellOnLengthWindow = 20;
+    unsigned int CountCellOnHeightWindow = 5;
 
-    size_t SizeFont = 17;
+    float SizeCell = static_cast<float>(SizeWindowLength / CountCellOnLengthWindow);
 
-    size_t SizeCell = SizeWindowLength / CountCellOnLengthWindow;
+    // создаем диалоговое окно
+    unsigned int HeightCharacteristicsInputWindow = 100;
+    unsigned int LengthCharacteristicsInputWindow = HeightCharacteristicsInputWindow * 5;
+   
+    // создаем диалоговое окно графика
+    unsigned int sizeXGrafWindow = 1300;
+    unsigned int sizeYGrafWindow = 500;
 
-    ///////////////////////////////////////////////////////////////////////////////////
+    unsigned int SizeFont = 17;
+
+    // переменные положения мышки
+    Vector2i PositionMouse;
+    Vector2f MouseWorldPos;
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
     ///////////////////////////////////  FONT   /////////////////////////////////////// 
     /// обнаруживаем все шрифты в папке 
     vector<path> SearchFont = SearchFile("Font/", ".ttf");
-
     /// если шрифтов не найдено вых
     if (SearchFont.empty())
     {
@@ -52,19 +114,36 @@ int main()
         return -1;
     }
     // используем первый в списке шрифт
-
     OutputLog("Шрифт: " + SearchFont[0].string());
-
     Font CurrentFont = LoadFont(SearchFont[0]);
-
     OutputLog("Шрифт загружен - 60" );
-
-
     ///////////////////////////////////////////////////////////////////////////////////
 
-    /// vector textrue ///
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //////////////////////// ИКОНКИ ОРУЖИЯ  И ВЫБРАННОГО ОРУЖИЯ ////////////////////////
+
     vector<tuple<RectangleShape, shared_ptr<Texture>, wstring, int>> VectorTextureGun;
     vector<Text> VectorNameGun;
+
 
     shared_ptr<Texture> PointTextureEmpty = make_shared<Texture>(L"Assets/Standart/Empty.png");
 
@@ -83,7 +162,7 @@ int main()
             return -1;
         }
 
-        for (size_t it = 0; it < CountCellOnLengthWindow; it++)
+        for (unsigned int it = 0; it < CountCellOnLengthWindow; it++)
         {
             shared_ptr<Texture> TempPoint;
 
@@ -118,9 +197,10 @@ int main()
                 }
             }
 
-            TempNameGun.setPosition(Vector2f(SizeCell * it, SizeCell * (Tier - 1)));
+            TempNameGun.setPosition(Vector2f(SizeCell * static_cast<float>(it), static_cast<float>(SizeCell * (Tier - 1))));
             TempNameGun.setOutlineColor(Color::Black);
             TempNameGun.setOutlineThickness(1);
+            TempNameGun.setCharacterSize(14);
 
             VectorTextureGun.push_back(make_tuple(TempShape, TempPoint, TempName, Tier));
             VectorNameGun.push_back(TempNameGun);
@@ -128,42 +208,39 @@ int main()
     }
 
 
+
     RectangleShape SelectedGunShape;
     SelectedGunShape.setSize(Vector2f(SizeCell, SizeCell));
-    SelectedGunShape.setOutlineThickness(-1);
+    SelectedGunShape.setTexture(PointTextureEmpty.get(), true);
+    SelectedGunShape.setOutlineThickness(-2);
     SelectedGunShape.setOutlineColor(Color::Black);
     SelectedGunShape.setPosition(Vector2f(0, SizeCell * (CountCellOnHeightWindow + 1) ));
 
-
-
     OutputLog("загружен vector textrue");
-
     ///////////////////////////////////////////////////////////////////////////////////
 
 
-    // переменные характеристик оружия
-
-    ///кучность 
-    ///темп огня 
-    ///кучность  
-    ///отдача
-    ///качание
-    ///отказ от сост
-    ///отказ от грязи                                   get<>           get<>(get<2>)
-    ///           v1[]      v1[][]                      ---- процент
-    ///     --- куч --- колво варинатов ----- шанс    
-    /// v1 ---- темп                                ------------------- корректировка мода \x7\
-    ///          --- ...
-    vector<vector<tuple<int, int, tuple<int, int, int, int, int, int, int>>>> AllStatMod;
 
 
-    /// характеристики мода
-    vector<int> CharacteristicsModded{ 0, 0, 0, 0, 0, 0, 0 };
 
-    /// начальный мод
-    vector<int> CharacteristicsInitial{ 0, 0, 0, 0, 0, 0, 0 };
-    /// Мод с нуля? t - да \ f - нет
-    bool Initial_OFF = true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //////////////////////// КНОПКА СБОРКИ ////////////////////////
     
     ////////////////////////////////////////////////////////////////////////////////////
 
@@ -171,10 +248,12 @@ int main()
     Calculation.setSize(Vector2f(SizeCell * 2, SizeCell / 2));
     Calculation.setOutlineThickness(-3);
     Calculation.setOutlineColor(Color::Green);
-    Calculation.setPosition(Vector2f(SizeCell + SizeCell / 2, SizeCell * (CountCellOnHeightWindow + 2)));
+    Calculation.setPosition(Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 3)));
+
+    
 
     Text TextCalculation(CurrentFont);
-    TextCalculation.setString(L"Calculation->");
+    TextCalculation.setString(L"Собрать");
     TextCalculation.setCharacterSize(SizeFont+3);
     TextCalculation.setFillColor(Color::Black);
 
@@ -187,33 +266,126 @@ int main()
     TextCalculation.setPosition(Vector2f(rectPos.x + rectSize.x / 2.0f,rectPos.y + rectSize.y / 2.0f)  );
 
 
-    OutputLog("загружен Calculation");
-
     ////////////////////////////////////////////////////////////////////////////////////
 
+    //RectangleShape Calculation;
+    //Calculation.setSize(Vector2f(SizeCell * 2, SizeCell / 2));
+    //Calculation.setOutlineThickness(-3);
+    //Calculation.setOutlineColor(Color::Green);
+    //Calculation.setPosition(Vector2f(SizeCell + SizeCell / 2, SizeCell * (CountCellOnHeightWindow + 2)));
 
-    RectangleShape Box;
-    Box.setSize(Vector2f(SizeCell * 2, SizeCell / 2));
-    Box.setOutlineThickness(-3);
-    Box.setOutlineColor(Color::Green);
-    Box.setPosition(Vector2f(SizeCell + SizeCell / 2, SizeCell * (CountCellOnHeightWindow + 1)));
+    ////Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 2)));
 
-    Text TextBox(CurrentFont);
-    TextBox.setString(L"Old Tool");
-    TextBox.setCharacterSize(SizeFont + 3);
-    TextBox.setFillColor(Color::Black);
-
-
-    textBounds = TextBox.getLocalBounds();
-    rectPos = Box.getPosition();
-    rectSize = Box.getSize();
-
-    TextBox.setOrigin(Vector2f(textBounds.position.x + textBounds.size.x / 2.0f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextBox.setPosition(Vector2f(rectPos.x + rectSize.x / 2.0f, rectPos.y + rectSize.y / 2.0f));
+    //Text TextCalculation(CurrentFont);
+    //TextCalculation.setString(L"Calculation->");
+    //TextCalculation.setCharacterSize(SizeFont + 3);
+    //TextCalculation.setFillColor(Color::Black);
 
 
-    OutputLog("загружен box");
+    //FloatRect textBounds = TextCalculation.getLocalBounds();
+    //Vector2f rectPos = Calculation.getPosition();
+    //Vector2f rectSize = Calculation.getSize();
 
+    //TextCalculation.setOrigin(Vector2f(textBounds.position.x + textBounds.size.x / 2.0f, textBounds.position.y + textBounds.size.y / 2.0f));
+    //TextCalculation.setPosition(Vector2f(rectPos.x + rectSize.x / 2.0f, rectPos.y + rectSize.y / 2.0f));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////// МОДИФИКАТОРЫ ////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    vector<shared_ptr<Texture>> KitTextures;
+    vector<shared_ptr<Texture>> ToolTextures;
+    vector<shared_ptr<Texture>> SkillTextures;
+
+    vector<RectangleShape> ToolShapes;
+    vector<RectangleShape> SkillShapes;
+    vector<RectangleShape> KitShapes;
+
+    vector<path> toolpath = SearchFile("Assets/Tool/", ".png");
+    vector<path> kitpath = SearchFile("Assets/Kit/", ".png");
+    vector<path> skillpath = SearchFile("Assets/Skill/", ".png");
+
+    auto LoadTexturesAndShapes = [&](const vector<path>& paths, float yOffset,
+        vector<shared_ptr<Texture>>& textures,
+        vector<RectangleShape>& shapes)
+        {
+            int i = 1;
+            for (const auto& patht : paths)
+            {
+                auto tex = make_shared<Texture>();
+                if (!tex->loadFromFile(patht)) continue;
+
+                textures.push_back(tex);
+
+                RectangleShape box;
+                box.setOutlineThickness(-1);
+                box.setOutlineColor(Color::Black);
+                box.setSize(Vector2f(SizeCell / 2 + 10, SizeCell / 2 + 10));
+                box.setTexture(tex.get());
+                box.setPosition(Vector2f(SizeCell / 2 + (SizeCell / 2  + 10) * i , SizeCell * yOffset));
+
+                shapes.push_back(box);
+                ++i;
+            }
+        };
+
+    // Загружаем всё:
+    LoadTexturesAndShapes(toolpath, CountCellOnHeightWindow + 1.0f, ToolTextures, ToolShapes);
+    LoadTexturesAndShapes(kitpath, CountCellOnHeightWindow + 2.f, KitTextures, KitShapes);
+    LoadTexturesAndShapes(skillpath, CountCellOnHeightWindow + 3.0f, SkillTextures, SkillShapes);
+
+    ToolShapes[3].setOutlineColor(Color::Green);
+    KitShapes[0].setOutlineColor(Color::Green);
+    SkillShapes[5].setOutlineColor(Color::Green);
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //////////////////////// ОТОБРАЖЕНИЕ УКАЗАННОГО МОДА ////////////////////////
+        
     ///////////////////////////////////////////////////////////////////////////////////
 
     RectangleShape СharacteristicsModGun;
@@ -238,6 +410,27 @@ int main()
 
     ///////////////////////////////////////////////////////////////////////////////////
 
+
+
+
+
+
+
+
+
+
+
+ 
+    //////////////////////// ОТОБРАЖЕНИЕ НАЧАЛЬНОГО МОДА И КНОПКИ ПЕРЕКЛЮЧЕНИЯ ////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+    shared_ptr<Texture> RedMark = make_shared<Texture>(L"Assets/Standart/MarkX.png");
+    shared_ptr<Texture> GreenMark = make_shared<Texture>(L"Assets/Standart/MarkV.png");
+
+
+
     RectangleShape СharacteristicsModGunInitial;
     СharacteristicsModGunInitial.setSize(Vector2f(SizeCell * 8, SizeCell / 2));
     СharacteristicsModGunInitial.setOutlineThickness(-3);
@@ -248,22 +441,44 @@ int main()
     ButtonСharacteristicsModGunInitial.setSize(Vector2f(SizeCell / 2, SizeCell / 2));
     ButtonСharacteristicsModGunInitial.setOutlineThickness(-3);
     ButtonСharacteristicsModGunInitial.setOutlineColor(Color::Black);
-    ButtonСharacteristicsModGunInitial.setFillColor(Color::Red);
+    ButtonСharacteristicsModGunInitial.setTexture(RedMark.get(), true);
     ButtonСharacteristicsModGunInitial.setPosition(Vector2f(SizeCell * 12 + SizeCell / 2, SizeCell* (CountCellOnHeightWindow + 2)));
 
-    Text TextСharacteristicsModGunOriginal(CurrentFont);
-    TextСharacteristicsModGunOriginal.setString(L"начальный мод, от корого начнем  |  переключение ->");
-    TextСharacteristicsModGunOriginal.setCharacterSize(SizeFont + 3); 
-    TextСharacteristicsModGunOriginal.setFillColor(Color::Black);
+    Text TextСharacteristicsModGunInitial(CurrentFont);
+    TextСharacteristicsModGunInitial.setString(L"начальный мод, от корого начнем  |  переключение ->");
+    TextСharacteristicsModGunInitial.setCharacterSize(SizeFont + 3); 
+    TextСharacteristicsModGunInitial.setFillColor(Color::Black);
 
-    textBounds = TextСharacteristicsModGunOriginal.getLocalBounds();
+    textBounds = TextСharacteristicsModGunInitial.getLocalBounds();
     rectPos = СharacteristicsModGunInitial.getPosition();
     rectSize = СharacteristicsModGunInitial.getSize();
 
-    TextСharacteristicsModGunOriginal.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextСharacteristicsModGunOriginal.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+    TextСharacteristicsModGunInitial.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+    TextСharacteristicsModGunInitial.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
 
     OutputLog("загружен СharacteristicsModGunInitial");
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     //////////////////////// ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -271,7 +486,7 @@ int main()
     ShapeInfoDebug.setSize(Vector2f(SizeCell * 7, SizeCell / 2));
     ShapeInfoDebug.setOutlineThickness(-3);
     ShapeInfoDebug.setOutlineColor(Color::Black);
-    ShapeInfoDebug.setPosition(Vector2f(SizeCell * 12.5, SizeCell* (CountCellOnHeightWindow + 1)));
+    ShapeInfoDebug.setPosition(Vector2f(static_cast<float>(SizeCell * 12.5), static_cast<float>(SizeCell* (CountCellOnHeightWindow + 1))));
 
     Text TextInfoDebug(CurrentFont);
     TextInfoDebug.setCharacterSize(SizeFont + 3);
@@ -288,43 +503,111 @@ int main()
 
     ///////////////////////////////////////////////////////////////////////////////////
 
-    // задний фон
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////// ОТОБРАЖЕНИЕ ПОВТОРНЫХ СБОРОК ////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    RectangleShape ShapeTargetIter;
+    ShapeTargetIter.setSize(Vector2f(SizeCell * 4, SizeCell / 2));
+    ShapeTargetIter.setOutlineThickness(-3);
+    ShapeTargetIter.setOutlineColor(Color::Green);
+    ShapeTargetIter.setPosition(Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 2) ));
+
+    Text TextTargetIter(CurrentFont);
+    TextTargetIter.setString(L"колличество сборок: " + to_string(totalIterations));
+    TextTargetIter.setCharacterSize(SizeFont + 3);
+    TextTargetIter.setFillColor(Color::Black);
+
+    textBounds = TextTargetIter.getLocalBounds();
+    rectPos = ShapeTargetIter.getPosition();
+    rectSize = ShapeTargetIter.getSize();
+
+    TextTargetIter.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+    TextTargetIter.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.f));
+    
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////// ЗАДНИЙ ФОН ////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 
     Texture backgroundTexture;
-
     if (!backgroundTexture.loadFromFile("Assets/Standart/background.png"))
     {
         // Обработка ошибки — например, лог или аварийный выход
         OutputLog("Не удалось загрузить background.png");
     }
-
     RectangleShape background;
-
     background.setSize(Vector2f(SizeWindowLength, SizeWindowHeight));
     background.setPosition(Vector2f(0, 0));
     background.setTexture(&backgroundTexture);
-
-
     OutputLog("загружен background");
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // для диалогового окна
-
-
-    // создаем диалоговое окно
-    unsigned int HeightCharacteristicsInputWindow = 100;
-    unsigned int LengthCharacteristicsInputWindow = HeightCharacteristicsInputWindow * 5;
+////////////////////////////////////////////////////////////////////////////////////
+    
+    
+    
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////// ДИАЛОГОВОЕ ОКНО ВВОДА ////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
+    
     vector<pair<RectangleShape, Text>> InputCharacteristicsShapeText;
-
-
     for (int i = 0, j = 0; i < 7 && j < 3;)
     {
         RectangleShape TempInputCharacteristicsShape;
-        TempInputCharacteristicsShape.setSize(Vector2f(LengthCharacteristicsInputWindow / 7, HeightCharacteristicsInputWindow / 3));
-        TempInputCharacteristicsShape.setPosition(Vector2f((LengthCharacteristicsInputWindow / 7)* i, (HeightCharacteristicsInputWindow / 3)* j));
+        TempInputCharacteristicsShape.setSize(Vector2f(static_cast<float>(LengthCharacteristicsInputWindow / 7), static_cast<float>(HeightCharacteristicsInputWindow / 3)));
+        TempInputCharacteristicsShape.setPosition(Vector2f(static_cast<float>((LengthCharacteristicsInputWindow / 7) * i), static_cast<float>((HeightCharacteristicsInputWindow / 3) * j)));
         TempInputCharacteristicsShape.setOutlineColor(Color::Red);
 
         Text TempInputCharacteristicsText(CurrentFont);
@@ -356,781 +639,992 @@ int main()
         i++;
         if (i >= 7) {  i = 0;  j++;  }
     }
-
-    OutputLog("загружено диалоговое окно");
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // переменные положения мышки
-    Vector2i PositionMouse;
-    Vector2f MouseWorldPos;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // создаем окно
-    RenderWindow window(VideoMode({ SizeWindowLength, SizeWindowHeight }), "ModdingGun");
-    window.setFramerateLimit(150);
-
+    RenderWindow window(VideoMode({ static_cast<unsigned int>(SizeWindowLength), static_cast<unsigned int>(SizeWindowHeight) }), "ModdingGun");
     RenderWindow Diagram;
+    RenderWindow InputWindow;
+    window.setFramerateLimit(150);
+    InputWindow.setFramerateLimit(150);
 
-    // создаем д окно
-    RenderWindow CharacteristicsInputWindow;
+////////////////////////////////////////////////////////////////////////////////
 
 
-    //для расчета диаграммы
-    bool ScheduleCalculation = false;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////// ОТОБРАЖЕНИЕ МЕТОДА ////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    Text TextCurrentMethod(CurrentFont);
+    RectangleShape CurrentMethod;
+
+
+    CurrentMethod.setSize(Vector2f(SizeCell * 13, SizeCell / 2));
+    CurrentMethod.setOutlineThickness(-3);
+    CurrentMethod.setOutlineColor(Color::Green);
+    CurrentMethod.setPosition(Vector2f(0, SizeCell * (CountCellOnHeightWindow + 4)));
+
+
+    wstring StandartMethod = L"Метод Standart: кучность -> темп -> пробитие -> отдача -> качание -> отказ -> отказ ";
+    wstring MaxModMethod   = L"Метод Max Mod: отказ -> отказ -> отдача  -> кучность -> темп -> пробитие -> качание";
+
+    vector<int> StandartMethodV = {
+        GunStats::ACCURACY,
+        GunStats::RATE_OF_FIRE,
+        GunStats::PENETRATION,
+        GunStats::KICKBACK,
+        GunStats::SWAY,
+        GunStats::MALFUNCTION_CONDITION,
+        GunStats::MALFUNCTION_DIRT
+    };
+    vector<int> MaxModMethodV = {
+        GunStats::MALFUNCTION_CONDITION,
+        GunStats::MALFUNCTION_DIRT,
+        GunStats::KICKBACK,
+        GunStats::ACCURACY,
+        GunStats::RATE_OF_FIRE,
+        GunStats::PENETRATION,
+        GunStats::SWAY,
+    };
+
+    TextCurrentMethod.setString(StandartMethod);
+    TextCurrentMethod.setCharacterSize(SizeFont + 3);
+    TextCurrentMethod.setFillColor(Color::Black);
+
+    textBounds = TextCurrentMethod.getLocalBounds();
+    rectPos = CurrentMethod.getPosition();
+    rectSize = CurrentMethod.getSize();
+
+    TextCurrentMethod.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+    TextCurrentMethod.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////// ПРОЧИЕ ПЕРЕМЕННЫЕ ////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
+    // используем отрисовку графика только один раз чтобы не настал пиздец
+    // с помощью DiagramGrafBool указывает какие окна отрисовали
+    // false = отрисованно -> больше не будет повторяться
+    vector<bool>         DiagramBool;
+
+    // вектор окон диаграм с отрисованными графикам
+    // графики отрисовываются один раз -> DiagramBool
+    vector<RenderWindow> VectorDiagram;
+
+
+
+
+    // выгрузка данных из файла оружия
+    CharacteristicGun CurrentCharacteristicGun;
+
+
+
+
+
+    // для окна ввода (указывает куда будут записанны данные)
+    // false = в указанный мод
+    // true = в начальный мод
     bool Initial_Input_Window = false;
 
-    vector<int> AccuracyTemp
+
+
+    // true  = начинаем с указанного начаольного мода
+    // false = начинаем с нуля
+    // изменяется кнопкой начального мода
+    bool InitialMod_ON_or_OFF = false;
+
+
+
+    
+
+
+
+
+
+
+    // общие дефолт статы для 
+    // CharacteristicsModded 
+    // CharacteristicsInitial
+    // inputVector    
+    const vector<int>    Characteristics_DEFAULT{ 60, 48, 40, 40, 40, 40, 40 };
+
+    // характеристики мода
+    // оращаемся только через ----- GunStats::      например       GunStats::ACCURACY
+    vector<int> CharacteristicsModded = Characteristics_DEFAULT;
+
+    // начальный мод
+    // оращаемся только через ----- GunStats::      например      GunStats::KICKBACK
+    vector<int> CharacteristicsInitial = Characteristics_DEFAULT;
+
+    // временное хранение характеристик из окна ввода
+    // обращаемся по индексам
+    // 0 куч
+    // 1 темп
+    // 2 пробитие
+    // 3 отдача
+    // 4 качание
+    // 6 сост
+    // 5 грязь
+    vector<int> inputVector = Characteristics_DEFAULT;
+
+
+
+
+
+
+
+
+
+
+    // дефолт статы для 
+    // RESULT_CHARACTERISTIC 
+    // START_CHARACTERISTIC
+    // INITIAL_CHARACTERISTIC
+    const vector<double> DEFAULT_RESULT_CHARACTERISTIC = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+
+
+    // получившийся мод
+    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
+    vector<double> RESULT_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
+
+    // указанный мод
+    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
+    vector<double> START_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
+
+    // начальный мод 
+    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
+    vector<double> INITIAL_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
+
+
+
+    // имя передаваемое в drawNormalGraph (?)
+    wstring NameGun = L"Empty";
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+    for (int WI = 0; window.isOpen() ; WI++)
     {
-        -6000, -5830, -5670, -5500, -5330, -5170,
-        -5000, -4830, -4670, -4500, -4330, -4170,
-        -4000, -3830, -3670, -3500, -3330, -3170,
-        -3000, -2830, -2670, -2500, -2330, -2170,
-        -2000, -1830, -1670, -1500, -1330, -1170,
-        -1000,  -830,  -670,  -500,  -330,  -170,
-            0,   170,   330,   500,   670,   830,
-         1000,  1170,  1330,  1500,  1670,  1830,
-         2000,  2170,  2330,  2500,  2670,  2830,
-         3000,  3170,  3330,  3500,  3670,  3830,
-         4000,  4170,  4330,  4500,  4670,  4830,
-         5000,  5170,  5330,  5500,  5670,  5830,
-         6000
-    };
+        if (WI > 100) { WI = 0; }
 
-
-    vector<int> PaceFireTemp
-    {
-        -6250, -6040, -5830, -5630, -5420, -5250, -5000,
-        -4790, -4580, -4380, -4170, -3960, -3750, -3540, -3330, -3130, -2920, -2710, -2500,
-        -2290, -2080, -1880, -1670, -1460, -1250, -1040,  -830,  -630,  -420,  -210,
-            0,   210,   420,   630,   830,  1040,  1250,  1460,  1670,  1880,  2080,  2290,
-         2500,  2710
-    };
-
-    vector<int> Average10000;
-    vector<int> Average10000_RANDOM_GEN;
-
-    bool DiagramGraf = false;
-
-    while (window.isOpen())
-    {
         PositionMouse = Mouse::getPosition(window);
         MouseWorldPos = window.mapPixelToCoords(PositionMouse);
+
+
 
         while (const optional event = window.pollEvent())
         {
             if (event->is<Event::Closed>())
             {
                 window.close();
-                CharacteristicsInputWindow.close();
-                Diagram.close();
+                InputWindow.close();
+
+                for (int i = 0; i < VectorDiagram.size(); i++)
+                {
+                    VectorDiagram[i].close();
+                }
 
             }
+
+
+
+
+
+
 
             // выбор
             else if (const auto& mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
             {
                 if (mouseButtonPressed->button == Mouse::Button::Left)
                 {
-                    /// икнонки оружия
+
+
+
+
+
+
+
+
+
+
+                    /// нажали икнонки оружия
                     for (size_t it = 0; it < VectorTextureGun.size(); it++)
                     {
                         if (get<0>(VectorTextureGun[it]).getGlobalBounds().contains(MouseWorldPos))
                         {
                             SelectedGunShape.setTexture(get<1>(VectorTextureGun[it]).get(), true);
 
-                            wstring NameGun = get<2>(VectorTextureGun[it]);
+                            // получаем имя пушки
+                            NameGun = get<2>(VectorTextureGun[it]);
+
+                            // получаем расположение пушки
                             wstring FileStat = L"Attribute/Tier_" + to_wstring(get<3>(VectorTextureGun[it])) + "/" + NameGun + L".txt";
 
-                            string s(NameGun.begin(), NameGun.end());
 
-                            //считываем статы пушки
-                            ifstream file(FileStat);
-                            if (file.is_open()) 
+                            // получаем статы пушки
+                            if (!CurrentCharacteristicGun.Load(FileStat))
                             {
-                                string line;
-                                vector<string> lines;
-
-                                while (getline(file, line)) 
-                                {
-                                    lines.push_back(line);
-                                }
-                                if (lines.size() < 7) 
-                                {
-                                    OutputLog("Ожидалось 7 строк, найдено: " + to_string(lines.size())  );
-                                    TextInfoDebug.setString(L"Ожидалось 7 строк, в файле -> ошибка");
-                                    AllStatMod.clear();
-                                }
-                                else
-                                {
-                                    for (int i = 0; i < 7; i++)
-                                    {
-                                        vector<tuple<int, int, tuple<int, int, int, int, int, int, int>>> temp;
-                                        ParseLine3(lines[i], temp);
-                                        AllStatMod.push_back(temp);
-                                    }
-                                    OutputLog("Файл успешно обработан: " + s);
-                                    TextInfoDebug.setString(L"Файл успешно обработан");
-                                }
+                                NameGun = L"Empty";
+                                TextInfoDebug.setString(L"ошибка файла");
+                                break;
                             }
-                            else
-                            {
-                                OutputLog("Не удалось открыть файл: " + s);
-                                TextInfoDebug.setString(L"Не удалось открыть файл");
-                                AllStatMod.clear();
-                            }
+                            TextInfoDebug.setString(L"файл загружен");
                             break;
                         }
                     }
 
-                    /// поле ввода мода к которому замодаемся
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    /// нажали поле ввода мода к которому замодаемся
                     if (СharacteristicsModGun.getGlobalBounds().contains(MouseWorldPos))
                     {
                         СharacteristicsModGun.setOutlineColor(Color::Red);
                         window.draw(СharacteristicsModGun);
                         window.display();
 
-                        CharacteristicsModded = { 0,0,0,0,0,0,0 }; 
+
+
+                        inputVector[0] = CharacteristicsModded[GunStats::ACCURACY];             // 0 куч
+                        inputVector[1] = CharacteristicsModded[GunStats::RATE_OF_FIRE];         // 1 темп
+                        inputVector[2] = CharacteristicsModded[GunStats::PENETRATION];          // 2 пробитие
+                        inputVector[3] = CharacteristicsModded[GunStats::KICKBACK];             // 3 отдача
+                        inputVector[4] = CharacteristicsModded[GunStats::SWAY];                 // 4 качание
+                        inputVector[5] = CharacteristicsModded[GunStats::MALFUNCTION_CONDITION];// 6 сост
+                        inputVector[6] = CharacteristicsModded[GunStats::MALFUNCTION_DIRT];     // 5 грязь
+
+                        for (int SelectOption = 0; SelectOption < inputVector.size(); SelectOption++)
+                        {
+                            if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
+                            else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
+                            else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat[inputVector[SelectOption]])); }
+                        }
+
+
+
+                        InputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
+                        InputWindow.setFramerateLimit(150);
 
                         Initial_Input_Window = false;
-
-                        CharacteristicsInputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
-                        CharacteristicsInputWindow.setFramerateLimit(150);
                     }
 
-                    // поле вводе начального мода
+
+
+
+
+                    // нажали поле вводе начального мода
                     else if (СharacteristicsModGunInitial.getGlobalBounds().contains(MouseWorldPos))
                     {
                         СharacteristicsModGunInitial.setOutlineColor(Color::Red);
                         window.draw(СharacteristicsModGunInitial);
                         window.display();
 
-                        CharacteristicsInitial = { 0,0,0,0,0,0,0 };
 
                         Initial_Input_Window = true;
                         
-                        CharacteristicsInputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
-                        CharacteristicsInputWindow.setFramerateLimit(150);
+                        inputVector[0] = CharacteristicsInitial[GunStats::ACCURACY]              ;     // 0 куч
+                        inputVector[1] = CharacteristicsInitial[GunStats::RATE_OF_FIRE]          ;     // 1 темп
+                        inputVector[2] = CharacteristicsInitial[GunStats::PENETRATION]           ;     // 2 пробитие
+                        inputVector[3] = CharacteristicsInitial[GunStats::KICKBACK]              ;     // 3 отдача
+                        inputVector[4] = CharacteristicsInitial[GunStats::SWAY]                  ;     // 4 качание
+                        inputVector[5] = CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION] ;     // 6 сост
+                        inputVector[6] = CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]      ;     // 5 грязь
+
+                        for (int SelectOption = 0; SelectOption < inputVector.size(); SelectOption++)
+                        {
+                            if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
+                            else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
+                            else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat[inputVector[SelectOption]])); }
+                        }
+
+                        InputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
+                        InputWindow.setFramerateLimit(150);
                     }
 
-                    // рассчет мода
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // нажали рассчет мода
                     else if (Calculation.getGlobalBounds().contains(MouseWorldPos))
                     {
+
+
+
                         Average10000.clear();
                         Average10000_RANDOM_GEN.clear();
-
                         Calculation.setOutlineColor(Color::Red);
                         window.draw(Calculation);
 
-                        if (AllStatMod.size())
+
+
+                        
+
+
+                        // загружен ли файл?
+                        if (!CurrentCharacteristicGun.is_Empty())
                         {
-                            if (CharacteristicsModded != CharacteristicsInitial)
+                            TextInfoDebug.setString(L"Расчет");                            
+                            
+                            CurrentCharacteristicGun.ReturnDefaultstat();
+                        
+
+
+                            // пытаемся занизить мод?
+                            bool understatement = false;
+
+                            // работает при выключенном начальном моде InitialMod_ON_or_OFF
+                            if (   GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::ACCURACY)
+                                || GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::RATE_OF_FIRE)
+                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::PENETRATION)
+                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::KICKBACK)
+                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::SWAY)
+                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_DIRT)
+                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_CONDITION)
+                                && !InitialMod_ON_or_OFF
+                                )
                             {
-                                // колличество найденых параметров
-                                int ModStatBool7 = 0;
-                                int ErrorOption = 0;
+                                understatement = true;
+                            }
+
+                            // если мод не пытаемся занизить 
+                            if (!understatement)
+                            {
 
 
+                                // МОД СОВПАДАЕТ?
+                                bool ModMatches = false;
 
-                                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                
-                                
-                                // проверяем реален ли такой мод                          
-                                // проходима по параметрам х7
-                                for (int optionExist = 0; optionExist < AllStatMod.size(); optionExist++)
+                                if (   GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]]           == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::ACCURACY)
+                                    && GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]]       == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::RATE_OF_FIRE)
+                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]]           == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::PENETRATION)
+                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]]              == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::KICKBACK)
+                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]]                  == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::SWAY)
+                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]]      == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_DIRT)
+                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_CONDITION)
+                                    && !InitialMod_ON_or_OFF
+                                    )
                                 {
-                                    // если характеристика мода 0, она автоматом существует
-                                    if (CharacteristicsModded[optionExist] == 0)
-                                    {
-                                        // добавляем единичку в сумме должно быть 7 \ выходим
-                                        ModStatBool7++;
-                                    }
-                                    else
-                                    {
-                                        // проходимся по колву вариантам параметра из файла
-                                        bool nextCheck = true;
-                                        for (int countOptionExist = 0; countOptionExist < AllStatMod[optionExist].size() && nextCheck; countOptionExist++)
-                                        {
-                                            // если находим такой вариант
-                                            if (CharacteristicsModded[optionExist] == get<0>(AllStatMod[optionExist][countOptionExist]))
-                                            {
-                                                // добавляем единичку в сумме должно быть 7 \ выходим
-                                                ModStatBool7++;
-                                                nextCheck = false;                                                
-                                            }
-                                        }
-                                        // если не нашли еще один цикл проверки статов в корректировках
-                                        if (nextCheck)
-                                        {
-
-                                            
-                                            
-                                            for (int CheckOptionCorrect = 0; CheckOptionCorrect < AllStatMod.size(); CheckOptionCorrect++)
-                                            {
-                                                for (int variation = 0; variation < AllStatMod[CheckOptionCorrect].size() ; variation++)
-                                                {
-                                                    vector<int> correctStat = { get<0>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<1>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<2>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<3>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<4>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<5>(get<2>(AllStatMod[CheckOptionCorrect][variation])),
-                                                                                get<6>(get<2>(AllStatMod[CheckOptionCorrect][variation]))
-                                                    };
-
-                                                    if (CharacteristicsModded[optionExist] == correctStat[optionExist])
-                                                    {
-                                                        // добавляем единичку в сумме должно быть 7 \ выходим
-                                                        ModStatBool7++;
-                                                        nextCheck = false;
-                                                        CheckOptionCorrect = AllStatMod.size();
-                                                        break;
-                                                    }
-                                                }
-                                            }
-        
-                                        }
-
-                                    }
+                                    ModMatches = true;
                                 }
-                                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                                // если мод совпадает с начальными характеристиками ===>>>>> с включеным начальным модом
+                                if (CharacteristicsModded == CharacteristicsInitial && InitialMod_ON_or_OFF)
+                                {
+                                    ModMatches = true;
+                                }
 
 
-                                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                // если все параметры найдены
-                                if (ModStatBool7 == AllStatMod.size())
-                                {                                  
-
-                                    bool Error = false;
-
-                                    // колво повторений мода
-                                    unsigned int Target = 10000;
 
 
-                                    for (int Average10000iter = 0; Average10000iter < Target; Average10000iter++)
+                                // если не совпадает
+                                if (!ModMatches)
+                                {
+
+
+                                    // реален ли мод?
+                                    bool exists_mod = true;
+
+                                    if (GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::ACCURACY)) { TextInfoDebug.setString(L"кучность выше максимума"); exists_mod = false; }
+                                    else if (GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::RATE_OF_FIRE)) { TextInfoDebug.setString(L"темп стрельбы выше максимума"); exists_mod = false; }
+                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::PENETRATION)) { TextInfoDebug.setString(L"пробитие выше максимума"); exists_mod = false; }
+                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::KICKBACK)) { TextInfoDebug.setString(L"отдача выше максимума"); exists_mod = false; }
+                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::SWAY)) { TextInfoDebug.setString(L"качание выше максимума"); exists_mod = false; }
+                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_DIRT)) { TextInfoDebug.setString(L"отказ от грязи выше максимума"); exists_mod = false; }
+                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_CONDITION)) { TextInfoDebug.setString(L"отказ от состояния выше максимума"); exists_mod = false; }
+
+
+
+
+
+
+
+                                    /// проверка у нас мод с нуля?
+
+                                    //получилось ли домодать?
+                                    bool ReUpgrade = false;
+
+                                    // если включена кнопка начального мода, то есть начинаем с указанного начального мода
+                                    if (InitialMod_ON_or_OFF)
                                     {
-                                        //////////////////////////////////////////////////////////////////////////////////////////////
-                                        // к этому надо прийти// 
-                                        // CharacteristicsModded;
-
-                                        // это у нас сейчас// 
-                                        // CharacteristicsCurrentOriginal
-                                        vector<int> CharacteristicsCurrentOp;
-
-                                                  // указанны статы и стоит метка ? - начинаем с них        // иначе мод с нуля                              
-                                        Initial_OFF ? CharacteristicsCurrentOp = CharacteristicsInitial : CharacteristicsCurrentOp = { 0, 0, 0, 0, 0, 0, 0, } ;
-
-                                        //////////////////////////////////////////////////////////////////////////////////////////////
-
-
-                                        /// колво коробок
-                                        int RESULT = 0;
-
-
-                                        //////////////////////////////////////////////////////////////////////////////////////////////
-                                        
-                                        // цикл перепроверки
-                                        for (int ReIT = 0; ReIT < 1; ReIT++)
+                                        //значит не с нуля, значит до_модифицируем до нужных статов
+                                        for (size_t itm = 0; itm < method.size(); itm++)
                                         {
-                                            //проходимся по всем характеристикам x7
-                                            for (int Options = 0; Options < CharacteristicsModded.size(); Options++)
+                                            int option = method[itm];
+
+                                            for (int i = 0; i <= 200; i++)
                                             {
 
-                                                // если текущая характеристика x1 мода к которой стремимся больше или равна не заходим || если больше --- ошибка
-                                                if (CharacteristicsCurrentOp[Options] < CharacteristicsModded[Options])
+
+                                                // получаем визуальный процент прибавки указанного мода указанным методом
+                                                double ModdedVisualProcent;
+
+                                                if (option == GunStats::ACCURACY) { ModdedVisualProcent = GunStats::Accuracy_VStat[CharacteristicsInitial[GunStats::ACCURACY]]; }
+                                                else if (option == GunStats::RATE_OF_FIRE) { ModdedVisualProcent = GunStats::RateFire_VStat[CharacteristicsInitial[GunStats::RATE_OF_FIRE]]; }
+                                                else { ModdedVisualProcent = GunStats::Other_VStat[CharacteristicsInitial[option]]; }
+
+                                                if (CurrentCharacteristicGun.GetVisualProcentStat(option) == ModdedVisualProcent)
                                                 {
-                                                    ////---////---///---////---////---////---/////----////---////---///---////---////---////---/////
-                                                    // 
-                                                    //     vector<int> AccuracyTemp
-                                                    //     vector<int> PaceFireTemp
-                                                    // 
-                                                    // 
-                                                    // начальный этап
-                                                    int it_Initial;
-
-                                                    // находим этот начальный этап
-                                                    bool Exist = false;
-
-                                                    if (Options == 0)
-                                                    {
-                                                        // найдем характеристику на +1 стат больше
-                                                        for (int i = 0; i < AccuracyTemp.size(); i++)
-                                                        {
-                                                            if (CharacteristicsCurrentOp[Options] == AccuracyTemp[i])
-                                                            {
-                                                                CharacteristicsCurrentOp[Options] = AccuracyTemp[i + 1];
-
-                                                                // найдем текущий этап, который +1 больше
-                                                                for (it_Initial = 0; it_Initial < AllStatMod[Options].size(); it_Initial++)
-                                                                {
-                                                                    if (CharacteristicsCurrentOp[Options] == get<0>(AllStatMod[Options][it_Initial]))
-                                                                    {
-                                                                        i = AccuracyTemp.size();
-                                                                        Exist = true;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                                
-                                                            }
-                                                        }
-                                                    }
-                                                    else if (Options == 1)
-                                                    {
-                                                        for (int i = 0; i < PaceFireTemp.size(); i++)
-                                                        {
-                                                            if (CharacteristicsCurrentOp[Options] == PaceFireTemp[i])
-                                                            {
-                                                                CharacteristicsCurrentOp[Options] = PaceFireTemp[i + 1];
-
-                                                                for (it_Initial = 0; it_Initial < AllStatMod[Options].size(); it_Initial++)
-                                                                {
-                                                                    if (CharacteristicsCurrentOp[Options] == get<0>(AllStatMod[Options][it_Initial]))
-                                                                    {
-                                                                        i = PaceFireTemp.size();
-                                                                        Exist = true;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        CharacteristicsCurrentOp[Options] += 250;
-
-                                                        for (it_Initial = 0; it_Initial < AllStatMod[Options].size(); it_Initial++)
-                                                        {
-
-                                                            int Stat = get<0>(AllStatMod[Options][it_Initial]);
-
-                                                            if (CharacteristicsCurrentOp[Options] == Stat)
-                                                            {
-                                                                Exist = true;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-
-
-                                                    ////---////---///---////---////---////---/////----////---////---///---////---////---////---/////
-
-
-                                                    // если нашли этот вариант проходимся по шансам
-                                                    if (Exist)
-                                                    {
-                                                        // текущий вариант характеристики 
-                                                        int iter = it_Initial;
-
-                                                        // цил до тех пор пока не от текущей статы дойдем до целевого
-
-                                                        for (; get<0>(AllStatMod[Options][iter]) < CharacteristicsModded[Options]; iter++ )
-                                                        {
-
-                                                            // подлучаем шанс
-                                                            int chance = get<1>(AllStatMod[Options][iter]);
-
-                                                            // цикл пока не прокнет шанс
-                                                            for (;;)
-                                                            {
-                                                                // симуляция шанса
-                                                                // засчитываем попытку
-
-                                                                RESULT++;
-
-                                                                // рандомное число
-                                                                int random_chance = getRandomInt(10000);
-
-                                                                Average10000_RANDOM_GEN.push_back(random_chance);
-
-                                                                // если прокнуло
-                                                                if (random_chance <= chance)
-                                                                {
-                                                                    // выходим 
-                                                                    break;
-                                                                }
-
-                                                            }
-                                                         
-                                                        }
-                                                        if (get<0>(AllStatMod[Options][iter]) == CharacteristicsModded[Options])
-                                                        {
-                                                            // подлучаем шанс
-                                                            int chance = get<1>(AllStatMod[Options][iter]);
-
-                                                            // цикл пока не прокнет шанс
-                                                            for (;;)
-                                                            {
-                                                                // симуляция шанса
-                                                                // засчитываем попытку
-
-                                                                RESULT++;
-
-                                                                // рандомное число
-                                                                int random_chance = getRandomInt(10000);
-
-                                                                Average10000_RANDOM_GEN.push_back(random_chance);
-
-                                                                // если прокнуло
-                                                                if (random_chance <= chance)
-                                                                {
-                                                                    // выходим 
-                                                                    break;
-                                                                }
-
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            RESULT = -9999;
-                                                            OutputLog("ошибка последнего цикла мода");
-                                                        }
-                                                        // последний замод
-                                                        // 
-                                                        // корректировка текущей характеристики
-                                                        CharacteristicsCurrentOp[Options] = CharacteristicsModded[Options];
-
-                                                        auto correct = get<2>(AllStatMod[Options][iter]);
-
-                                                        // корректировка характеристик
-                                                        ///////////////// полу костыль ////////////////////////
-                                                        CharacteristicsCurrentOp[0] += get<0>(correct);
-                                                        CharacteristicsCurrentOp[1] += get<1>(correct);
-                                                        CharacteristicsCurrentOp[2] += get<2>(correct);
-                                                        CharacteristicsCurrentOp[3] += get<3>(correct);
-                                                        CharacteristicsCurrentOp[4] += get<4>(correct);
-                                                        CharacteristicsCurrentOp[5] += get<5>(correct);
-                                                        CharacteristicsCurrentOp[6] += get<6>(correct);
-                                                        ///////////////////////////////////////////////////////
-
-                                                    }
-                                                    // если нет варианта выходим
-                                                    else
-                                                    {
-                                                        OutputLog("нет варианта");
-
-                                                        Options = CharacteristicsModded.size();
-                                                        Average10000iter = Target;
-                                                        RESULT = -1111;
-                                                        break;
-                                                    }
+                                                    ReUpgrade = true;
+                                                    break;
                                                 }
-                                                // если характеристика текущего мода выше чем та которую мы хотим, -> ошибка
-                                                // текущий мод больше чем нужен
-                                                else if (CharacteristicsCurrentOp[Options] > CharacteristicsModded[Options])
+                                                if (i == 200)
                                                 {
-                                                    OutputLog("CharacteristicsCurrentOp[Options] > CharacteristicsModded[Options]");
-                                                    OutputLog("нельзя уменьшить мод // текущий мод больше чем нужен");
-
-                                                    Options = CharacteristicsModded.size();
-                                                    Average10000iter = Target;
-                                                    RESULT = -2222;
+                                                    TextInfoDebug.setString(L"не получилось домодать до начальнных статов");
+                                                    OutputLog(" НЕ ПОЛУЧИЛОСЬ ДОМОДАТЬ ????");
+                                                    itm = method.size();
                                                     break;
                                                 }
 
-                                            }
+                                                if (GunStats::Accuracy_VStat[CharacteristicsInitial[GunStats::ACCURACY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::ACCURACY)) { TextInfoDebug.setString(L"начальная кучность выше максимума");           ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::RateFire_VStat[CharacteristicsInitial[GunStats::RATE_OF_FIRE]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::RATE_OF_FIRE)) { TextInfoDebug.setString(L"начальная темп стрельбы выше максимума");      ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::PENETRATION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::PENETRATION)) { TextInfoDebug.setString(L"начальная пробитие выше максимума");           ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::KICKBACK]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::KICKBACK)) { TextInfoDebug.setString(L"начальная отдача выше максимума");             ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::SWAY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::SWAY)) { TextInfoDebug.setString(L"начальная качание выше максимума");            ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_DIRT)) { TextInfoDebug.setString(L"начальная отказ от грязи выше максимума");     ReUpgrade = false; itm = method.size(); break; }
+                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_CONDITION)) { TextInfoDebug.setString(L"начальная отказ от состояния выше максимума"); ReUpgrade = false; itm = method.size(); break; }
 
-                                            if (CharacteristicsCurrentOp != CharacteristicsModded)
-                                            {         
-                                                OutputLog("CharacteristicsCurrentOp != CharacteristicsModded");
 
-
-                                                Average10000iter = Target;
-                                                RESULT = -3333;
-                                                
-                                                break;
-                                                //ReIT--;
+                                                CurrentCharacteristicGun.UpgradeStat(option);
                                             }
                                         }
-                                        //////////////////////////////////////////////////////////////////////////////////////////////
-
-
-                                        Average10000.push_back(RESULT);
-
-                                        TextInfoDebug.setString(L"Колличество собранного мод-оружия: " + to_string(Average10000iter) + L"/" + to_string(Target));
-
-                                        while (const optional event = window.pollEvent())
-                                        {
-                                            if (event->is<Event::Closed>())
-                                            {
-                                                window.close();
-                                                CharacteristicsInputWindow.close();
-                                                Diagram.close();                                                
-                                            }
-                                        }
-
-                                        window.clear(Color::White);
-                                        window.draw(background);
-
-                                        window.draw(ShapeInfoDebug);
-                                        window.draw(TextInfoDebug);
-                                        window.draw(Calculation);
-                                        window.draw(TextCalculation);
-
-                                        window.display();
-
-                                    }
-                                    // если у нас нет ошибок
-                                    if (!Error)
-                                    {
-                                        unsigned int sizeX = 1500;
-                                        unsigned int sizeY = 500;
-
-                                        Diagram.create(VideoMode({ sizeX, sizeY }), "Diagram");
-                                        Diagram.setFramerateLimit(150);
                                     }
                                     else
                                     {
-                                        TextInfoDebug.setString(L"не найден вариант процента в : / Options / " + to_wstring(ErrorOption));
+                                        ReUpgrade = true;
+                                    }
+
+                                    window.draw(background);
+                                    Calculation.setOutlineColor(Color::Red);
+                                    window.draw(Calculation);
+                                    window.display();
+
+
+                                    if (ReUpgrade)
+                                    {
+                                        if (exists_mod)
+                                        {
+
+
+
+
+
+
+
+
+
+                                            vector<thread> threads_v;
+
+                                            atomic<int> currentIndex = 0;
+
+
+                                            // защита от деления на 0
+                                            if (threadCount == 0) threadCount = 1;
+
+                                            int chunkSize = totalIterations / threadCount;
+                                            int remainder = totalIterations % threadCount;
+
+                                            int start = 0;
+
+                                            for (int i = 0; i < threadCount; ++i)
+                                            {
+                                                int end = start + chunkSize + (i < remainder ? 1 : 0);  // равномерно распределяем остаток
+
+                                                threads_v.emplace_back([=]()
+                                                    {
+
+                                                        for (int j = start; j < end; ++j)
+                                                        {
+
+                                                            CharacteristicGun gunCopy = CurrentCharacteristicGun;
+
+
+                                                            RunSingleAssembly(
+                                                                j,
+                                                                gunCopy,
+                                                                method,
+                                                                CharacteristicsInitial,
+                                                                CharacteristicsModded,
+                                                                InitialMod_ON_or_OFF,
+                                                                get<0>(Tool_Kit_Skil),
+                                                                get<1>(Tool_Kit_Skil),
+                                                                get<2>(Tool_Kit_Skil)
+                                                            );
+
+                                                        }
+
+
+                                                    });
+
+                                                start = end;
+                                            }
+
+                                            // Ждём завершения всех потоков
+                                            for (auto& t : threads_v) t.join();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                            CurrentCharacteristicGun = RunSingleAssembly(
+                                                -1,
+                                                CurrentCharacteristicGun,
+                                                method,
+                                                CharacteristicsInitial,
+                                                CharacteristicsModded,
+                                                InitialMod_ON_or_OFF,
+                                                get<0>(Tool_Kit_Skil),
+                                                get<1>(Tool_Kit_Skil),
+                                                get<2>(Tool_Kit_Skil)
+                                            );
+
+
+
+                                            // чистим переменные чтобы записать в них отображаемые данны для графика
+                                            RESULT_CHARACTERISTIC = CurrentCharacteristicGun.GetFullCurrentVisualStat();
+                                            START_CHARACTERISTIC.clear();
+                                            INITIAL_CHARACTERISTIC.clear();
+
+
+
+
+
+
+
+
+
+                                            for (int i = 0; i < CharacteristicsModded.size(); i++)
+                                            {
+                                                if (i == 0) { START_CHARACTERISTIC.push_back(GunStats::Accuracy_VStat[CharacteristicsModded[i]]); }
+                                                else if (i == 1) { START_CHARACTERISTIC.push_back(GunStats::RateFire_VStat[CharacteristicsModded[i]]); }
+                                                else { START_CHARACTERISTIC.push_back(GunStats::Other_VStat[CharacteristicsModded[i]]); }
+                                            }
+
+                                            if (InitialMod_ON_or_OFF)
+                                            {
+                                                for (int i = 0; i < CharacteristicsInitial.size(); i++)
+                                                {
+                                                    if (i == 0) { INITIAL_CHARACTERISTIC.push_back(GunStats::Accuracy_VStat[CharacteristicsInitial[i]]); }
+                                                    else if (i == 1) { INITIAL_CHARACTERISTIC.push_back(GunStats::RateFire_VStat[CharacteristicsInitial[i]]); }
+                                                    else { INITIAL_CHARACTERISTIC.push_back(GunStats::Other_VStat[CharacteristicsInitial[i]]); }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                INITIAL_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
+                                            }
+
+
+
+                                            Diagram.create(VideoMode({ sizeXGrafWindow, sizeYGrafWindow }), "Diagram");
+                                            Diagram.setFramerateLimit(150);
+
+                                            VectorDiagram.push_back(move(Diagram));
+                                            DiagramBool.push_back(false);
+
+                                            Diagram.close();
+
+                                            if (!CurrentCharacteristicGun.ReturnDefaultstat())
+                                            {
+                                                // выход
+                                                OutputLog("не удалось вернуть начальные статы, почему?");
+                                                TextInfoDebug.setString(L"не удалось вернуть начальные статы, почему?");
+
+                                            }
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    TextInfoDebug.setString(L"мод неправильный,или не найден параметр в файле");
+                                    TextInfoDebug.setString(L"мод совпадает");
+
                                 }
                             }
                             else
                             {
-                                TextInfoDebug.setString(L"мод совпадает");
+                                TextInfoDebug.setString(L"попытка уменьшить мод");
                             }
+
                         }
                         else
                         {
                             TextInfoDebug.setString(L"файл не загружен");
                         }
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     // кнопка начального мода
                     else if (ButtonСharacteristicsModGunInitial.getGlobalBounds().contains(MouseWorldPos))
                     {
-                        if (Initial_OFF)
+                        if (InitialMod_ON_or_OFF)
                         {
-                            Initial_OFF = false;
-                            ButtonСharacteristicsModGunInitial.setFillColor(Color::Red);
+                            InitialMod_ON_or_OFF = false;
+                            ButtonСharacteristicsModGunInitial.setTexture(RedMark.get(), true);
+
                         }
                         else
                         {
-                            Initial_OFF = true;
-                            ButtonСharacteristicsModGunInitial.setFillColor(Color::Green);
+                            InitialMod_ON_or_OFF = true;
+                            ButtonСharacteristicsModGunInitial.setTexture(GreenMark.get(), true);
+
                         }
                     }
-                }
-            }
-        }
-        
 
-        ////////////////////////////////////////////////////////////////////////////////
-        // окно ввода мода 
-        if (CharacteristicsInputWindow.isOpen())
-        {
 
-            PositionMouse = Mouse::getPosition(CharacteristicsInputWindow);
-            MouseWorldPos = CharacteristicsInputWindow.mapPixelToCoords(PositionMouse);
 
-            if (const optional eventD = CharacteristicsInputWindow.pollEvent())
-            {
-                if (eventD->is<Event::Closed>())
-                {
 
-                    string СharacteristicsModGunInput = " | ";
 
-                    for (int i = 7; i < 14; i++)
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // окно смены колличества повторений
+                    else if (ShapeTargetIter.getGlobalBounds().contains(MouseWorldPos))
                     {
-                        СharacteristicsModGunInput += InputCharacteristicsShapeText[i].second.getString();
-                        InputCharacteristicsShapeText[i].second.setString("0.00");
-                        СharacteristicsModGunInput += " | ";
+                        ShapeTargetIter.setOutlineColor(Color::Red);
+                        totalIterations < 5000 ? totalIterations += 1000 : totalIterations = 500;
+                        TextTargetIter.setString(L"колличество сборок: " + to_string(totalIterations));
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // окно метода
+                    else if (CurrentMethod.getGlobalBounds().contains(MouseWorldPos))
+                    {
+                        if (method == StandartMethodV)
+                        {
+                            method = MaxModMethodV;
+                            TextCurrentMethod.setString(MaxModMethod);
+                            CurrentMethod.setOutlineColor(Color::Red);
+                        }
+                        else
+                        {
+                            method = StandartMethodV;
+                            TextCurrentMethod.setString(StandartMethod);
+                            CurrentMethod.setOutlineColor(Color::Red);
+                        }
 
                     }
-                    Initial_Input_Window ? TextСharacteristicsModGunOriginal.setString(СharacteristicsModGunInput) : TextСharacteristicsModGun.setString(СharacteristicsModGunInput);
 
-                    CharacteristicsInputWindow.close();
-                }
-                else if (const auto& mouseButtonPressed = eventD->getIf<Event::MouseButtonPressed>())
-                {
-                    if (mouseButtonPressed->button == Mouse::Button::Left)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // инструменты
+                    for (int i = 0; i < ToolShapes.size(); i++)
                     {
-                        for (size_t SelectOption = 0; SelectOption < InputCharacteristicsShapeText.size(); SelectOption++)
+                        if (ToolShapes[i].getGlobalBounds().contains(MouseWorldPos))
                         {
-                            if (InputCharacteristicsShapeText[SelectOption].first.getGlobalBounds().contains(MouseWorldPos) && (SelectOption < 7 || SelectOption >= 14))
+                            for (auto& sh : ToolShapes)
                             {
-                                InputCharacteristicsShapeText[SelectOption].first.setOutlineThickness(-3);
-                                int Characteriscit = 0;                                                                    
+                                sh.setOutlineColor(Color::Black);
+                            }
 
-                                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-                                if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↑")
-                                {
-                                    Initial_Input_Window ? Characteriscit = CharacteristicsInitial[SelectOption] : Characteriscit = CharacteristicsModded[SelectOption];                                    
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    if (SelectOption == 0)
-                                    {
-                                        for (int i = 0; i < AccuracyTemp.size(); i++)
-                                        {
-                                            if (Characteriscit == AccuracyTemp[i])
-                                            {
-                                                if (Characteriscit != AccuracyTemp[AccuracyTemp.size() - 1])
-                                                {
-                                                    Characteriscit = AccuracyTemp[i+1];
+                            switch (i)
+                            {
 
-                                                    ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded,  InputCharacteristicsShapeText[SelectOption + 7].second);
-                                                }
-                                                SelectOption = InputCharacteristicsShapeText.size();
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else if (SelectOption == 1)
-                                    {
-                                        for (int i = 0; i < PaceFireTemp.size(); i++)
-                                        {
-                                            if (Characteriscit == PaceFireTemp[i])
-                                            {
-                                                if (Characteriscit != PaceFireTemp[PaceFireTemp.size() - 1])
-                                                {
-                                                    if (Characteriscit != PaceFireTemp[PaceFireTemp.size() - 1])
-                                                    {
-                                                        Characteriscit = PaceFireTemp[i + 1];
-                                                        ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded, InputCharacteristicsShapeText[SelectOption + 7].second);
-                                                    }
-                                                }
-                                                SelectOption = InputCharacteristicsShapeText.size();
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else if (Characteriscit < 10000)
-                                    {
-                                        Characteriscit += 250;
-                                        ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded, InputCharacteristicsShapeText[SelectOption + 7].second);
-                                        SelectOption = InputCharacteristicsShapeText.size();
-                                        break;
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else
-                                    {
-                                        SelectOption = InputCharacteristicsShapeText.size();
-                                        break;
-                                    }
-                                }
-                                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                else if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↓")
-                                {
-                                    if (SelectOption >= 14) { SelectOption -= 14; }
-                                    Initial_Input_Window ? Characteriscit = CharacteristicsInitial[SelectOption] : Characteriscit = CharacteristicsModded[SelectOption];
+                            case 0:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::NO_TOOL);          break;
+                            case 1:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::IMPROVED_TOOL);    break;
+                            case 2:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::NORMAL_TOOL);      break;
+                            case 3:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::OLD_TOOL);         break;
 
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    if (SelectOption == 0)
-                                    {
-                                        for (int i = 0; i < AccuracyTemp.size(); i++)
-                                        {
-                                            if (Characteriscit == AccuracyTemp[i])
-                                            {
-                                                if (Characteriscit != AccuracyTemp[0])
-                                                {
-                                                    if (Characteriscit != AccuracyTemp[AccuracyTemp.size() - 1])
-                                                    {
-                                                        Characteriscit = AccuracyTemp[i - 1];
-                                                        ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded, InputCharacteristicsShapeText[SelectOption + 7].second);
-                                                    }
-                                                }
-                                                SelectOption = InputCharacteristicsShapeText.size();
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else if (SelectOption == 1)
-                                    {
-                                        for (int i = 0; i < PaceFireTemp.size(); i++)
-                                        {
-                                            if (Characteriscit == PaceFireTemp[i])
-                                            {
-                                                if (Characteriscit != PaceFireTemp[0])
-                                                {
-                                                    if (Characteriscit != PaceFireTemp[PaceFireTemp.size() - 1])
-                                                    {
-                                                        Characteriscit = PaceFireTemp[i - 1];
-                                                        ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded, InputCharacteristicsShapeText[SelectOption + 7].second);
-                                                    }
-                                                }
-                                                SelectOption = InputCharacteristicsShapeText.size();
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else if (Characteriscit > -10000)
-                                    {
-                                        Characteriscit -= 250;
-                                        ChangeCharacteristic(Initial_Input_Window, SelectOption, Characteriscit, CharacteristicsInitial, CharacteristicsModded, InputCharacteristicsShapeText[SelectOption + 7].second);
-                                        SelectOption = InputCharacteristicsShapeText.size();
-                                        break;                                        
-                                    }
-                                    ///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---///---
-                                    else
-                                    {
-                                        SelectOption = InputCharacteristicsShapeText.size();
-                                        break;
-                                    }
-                                }
-                                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-
+                            default:
+                                break;
                             }
                         }
                     }
+
+
+
+
+
+
+
+
+
+                    // наборы
+                    for (int i = 0; i < KitShapes.size(); i++)
+                    {
+                        if (KitShapes[i].getGlobalBounds().contains(MouseWorldPos))
+                        {
+                            for (auto& sh : KitShapes)
+                            {
+                                sh.setOutlineColor(Color::Black);
+                            }
+
+                            switch (i)
+                            {
+
+                            case 0:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::NO_KIT);        break;
+                            case 1:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::DETAIL_KIT);    break;
+                            case 2:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::REPAIR_KIT);    break;
+                                 
+                            default:
+                                break;
+                            }
+                        }
+
+                    }
+
+
+
+
+
+
+
+
+
+
+                    // скилы
+                    for (int i = 0; i < SkillShapes.size(); i++)
+                    {
+                        if (SkillShapes[i].getGlobalBounds().contains(MouseWorldPos))
+                        {
+                            for (auto& sh : SkillShapes)
+                            {
+                                sh.setOutlineColor(Color::Black);
+                            }
+
+                            switch (i)
+                            {
+
+                            case 0:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_NO_SKILL);          break;
+                            case 1:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_1);          break;
+                            case 2:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_2);          break;
+                            case 3:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_3);          break;
+                            case 4:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_4);          break;
+                            case 5:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_5);          break;
+                            case 6:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_2);          break;
+                            case 7:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_3);          break;
+                            case 8:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_4);          break;
+                            case 9:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_5);          break;
+
+
+                            default:
+                                break;
+                            }
+                        }
+                    }
+
+
+
                 }
+
             }
-            CharacteristicsInputWindow.clear(Color::White);
+        }        
 
-            for (int i = 0; i < InputCharacteristicsShapeText.size(); i++)
-            {
-                CharacteristicsInputWindow.draw(InputCharacteristicsShapeText[i].first);
-                CharacteristicsInputWindow.draw(InputCharacteristicsShapeText[i].second);
 
-                InputCharacteristicsShapeText[i].first.setOutlineThickness(0);          
-            }
-            CharacteristicsInputWindow.display();
 
-        }
 
-        // отрисовка диаграммы
-        if (Diagram.isOpen())
-        {
-            while (const optional event = Diagram.pollEvent())
-            {
-                if (event->is<Event::Closed>())
-                {
 
-                    Diagram.close();
-                }                
-            } 
-            if (!DiagramGraf)
-            {
-                Diagram.clear(Color::White);
 
-                drawNormalGraph(Diagram, Average10000, 200.f, 50.f, Average10000_RANDOM_GEN);
 
-                ScheduleCalculation = true;
 
-                Diagram.display();
 
-                DiagramGraf = true;
-            }
-        }
-        else
-        {
-            DiagramGraf = false;
-        }
+
+
+
 
 
         window.clear(Color::White);
-
-        window.draw(background);       
+        window.draw(background);
 
 
         for (int i = 0; i < VectorTextureGun.size(); i++)
         {
             window.draw(get<0>(VectorTextureGun[i]));
             window.draw(VectorNameGun[i]);
+        }
+
+
+        for (int i = 0; i < ToolShapes.size(); i++)
+        {
+            window.draw(ToolShapes[i]);
+        }
+        for (int i = 0; i < KitShapes.size(); i++)
+        {
+            window.draw(KitShapes[i]);
+        }
+        for (int i = 0; i < SkillShapes.size(); i++)
+        {
+            window.draw(SkillShapes[i]);
         }
 
         window.draw(SelectedGunShape);
@@ -1140,250 +1634,243 @@ int main()
         window.draw(ShapeInfoDebug);
         window.draw(TextInfoDebug);
 
-        window.draw(Box);
-        window.draw(TextBox);
-
         window.draw(СharacteristicsModGun);
-        window.draw(TextСharacteristicsModGun);    
+        window.draw(TextСharacteristicsModGun);
 
         window.draw(СharacteristicsModGunInitial);
-        window.draw(TextСharacteristicsModGunOriginal);
-        
-        window.draw(ButtonСharacteristicsModGunInitial);
-        
+        window.draw(TextСharacteristicsModGunInitial);
 
-        СharacteristicsModGun.setOutlineColor(Color::Green);
-        СharacteristicsModGunInitial.setOutlineColor(Color::Green);
-        Calculation.setOutlineColor(Color::Green);
-        
+        window.draw(ButtonСharacteristicsModGunInitial);
+
+        window.draw(ShapeTargetIter);
+        window.draw(TextTargetIter);
+
+
+        window.draw(CurrentMethod);
+        window.draw(TextCurrentMethod);
+
+
         window.display();
+
+
+
+
+        if (WI % 50 == 10)
+        {
+            СharacteristicsModGun.setOutlineColor(Color::Green);
+            СharacteristicsModGunInitial.setOutlineColor(Color::Green);
+            Calculation.setOutlineColor(Color::Green);
+            ShapeTargetIter.setOutlineColor(Color::Green);
+            CurrentMethod.setOutlineColor(Color::Green);
+        }
+
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // окно ввода мода
+        if (InputWindow.isOpen())
+        {
+            PositionMouse = Mouse::getPosition(InputWindow);
+            MouseWorldPos = InputWindow.mapPixelToCoords(PositionMouse);
+
+
+            if (const optional eventD = InputWindow.pollEvent())
+            {
+                if (eventD->is<Event::Closed>())
+                {
+
+                    //ставим строку в главное окно
+                    string Сharacteristics_Input = " | ";
+
+                    for (int i = 7; i < 14; i++)
+                    {
+                        Сharacteristics_Input += InputCharacteristicsShapeText[i].second.getString();
+                        Сharacteristics_Input += " | ";
+                    }
+                    
+
+                    //// характеристики мода
+                    //vector<int> CharacteristicsModded;
+                    //// начальный мод
+                    //vector<int> CharacteristicsInitial;
+
+                    if (Initial_Input_Window)
+                    {
+                        TextСharacteristicsModGunInitial.setString(Сharacteristics_Input);                    
+
+
+                        CharacteristicsInitial[GunStats::ACCURACY]              = inputVector[0];     // 0 куч
+                        CharacteristicsInitial[GunStats::RATE_OF_FIRE]          = inputVector[1];     // 1 темп
+                        CharacteristicsInitial[GunStats::PENETRATION]           = inputVector[2];     // 2 пробитие
+                        CharacteristicsInitial[GunStats::KICKBACK]              = inputVector[3];     // 3 отдача
+                        CharacteristicsInitial[GunStats::SWAY]                  = inputVector[4];     // 4 качание
+                        CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION] = inputVector[5];     // 6 сост
+                        CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]      = inputVector[6];     // 5 грязь
+                        // |^||^||^||^||^||^|
+                        // 0 куч 
+                        // 1 темп
+                        // 2 отдача
+                        // 3 качание
+                        // 4 пробитие
+                        // 5 сост
+                        // 6 грязь
+                        /////////////////////
+
+                    }
+                    else
+                    {
+                        TextСharacteristicsModGun.setString(Сharacteristics_Input);
+
+                        CharacteristicsModded[GunStats::ACCURACY]              = inputVector[0];     // 0 куч
+                        CharacteristicsModded[GunStats::RATE_OF_FIRE]          = inputVector[1];     // 1 темп
+                        CharacteristicsModded[GunStats::PENETRATION]           = inputVector[2];     // 2 пробитие
+                        CharacteristicsModded[GunStats::KICKBACK]              = inputVector[3];     // 3 отдача
+                        CharacteristicsModded[GunStats::SWAY]                  = inputVector[4];     // 4 качание
+                        CharacteristicsModded[GunStats::MALFUNCTION_CONDITION] = inputVector[5];     // 6 сост
+                        CharacteristicsModded[GunStats::MALFUNCTION_DIRT]      = inputVector[6];     // 5 грязь
+                        // |^||^||^||^||^||^|
+                        // 0 куч 
+                        // 1 темп
+                        // 2 отдача
+                        // 3 качание
+                        // 4 пробитие
+                        // 5 сост
+                        // 6 грязь
+                        /////////////////////
+
+                    }
+
+
+
+
+                    InputWindow.close();
+                }
+
+                // нажали лкм
+                else if (const auto& mouseButtonPressed = eventD->getIf<Event::MouseButtonPressed>())
+                {
+                    if (mouseButtonPressed->button == Mouse::Button::Left)
+                    {
+
+                        for (size_t SelectOption = 0; SelectOption < InputCharacteristicsShapeText.size(); SelectOption++)
+                        {
+                            // если попали по стрелочкам
+                            if (InputCharacteristicsShapeText[SelectOption].first.getGlobalBounds().contains(MouseWorldPos) && (SelectOption < 7 || SelectOption >= 14))
+                            {
+                                InputCharacteristicsShapeText[SelectOption].first.setOutlineThickness(-3);
+
+                                // нажали повысить
+                                if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↑"){ inputVector[SelectOption]++;}
+                                // нажали понизить
+                                else if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↓"){ inputVector[SelectOption - 14]--;}
+                               
+                                auto clamp = [](int& val, size_t max) {
+                                    if (val >= static_cast<int>(max)) val--;
+                                    if (val < 0) val++;
+                                    };
+
+                                // Для 0 — AccuracyStat
+                                clamp(inputVector[0], GunStats::Accuracy_VStat.size());
+                                // Для 1 — RateFireStat
+                                clamp(inputVector[1], GunStats::RateFire_VStat.size());
+                                // Для остальных — тоже OtherStat
+                                for (size_t i = 2; i < Characteristics_DEFAULT.size(); ++i) {
+                                    clamp(inputVector[i], GunStats::Other_VStat.size());
+                                }
+
+
+                                if (SelectOption >= 14) { SelectOption -= 14; }
+                                //вывод процентов в инпут 
+                                if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
+                                else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
+                                else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat   [inputVector[SelectOption]])); }
+                                // выход
+                                SelectOption = InputCharacteristicsShapeText.size();
+                            }
+                        }
+                    }
+                }
+            }
+            InputWindow.clear(Color::White);
+
+            for (int i = 0; i < InputCharacteristicsShapeText.size(); i++)
+            {
+                InputWindow.draw(InputCharacteristicsShapeText[i].first);
+                InputWindow.draw(InputCharacteristicsShapeText[i].second);
+
+                InputCharacteristicsShapeText[i].first.setOutlineThickness(0);    
+
+            }
+            InputWindow.display();
+
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // отрисовка диаграмм
+        for (int i = VectorDiagram.size() - 1; i >= 0; --i)
+        {
+            if (VectorDiagram[i].isOpen())
+            {
+                while (const optional event = VectorDiagram[i].pollEvent())
+                {
+                    if (event->is<Event::Closed>())
+                    {
+                        VectorDiagram[i].close();
+                        DiagramBool.erase(DiagramBool.begin() + i);
+                        VectorDiagram.erase(VectorDiagram.begin() + i);
+                        break; // чтобы не обращаться к уже удалённому i
+                    }
+                }
+
+                if (i < VectorDiagram.size() && !DiagramBool[i])
+                {
+                    VectorDiagram[i].clear(Color::White);
+                    drawNormalGraph(VectorDiagram[i], Average10000, 200.f, 50.f, Average10000_RANDOM_GEN, totalIterations, RESULT_CHARACTERISTIC, START_CHARACTERISTIC, INITIAL_CHARACTERISTIC, NameGun, method, Tool_Kit_Skil);
+                    
+                    DiagramBool[i] = true;
+
+                    OutputLog("отрисовка диаграммы закончена: " + to_string(i));
+                    VectorDiagram[i].display();
+                }                
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
     }
     
     return 0;
 }
-
-int getRandomInt(int range) 
-{
-    random_device rd;                          
-    mt19937 gen(rd());                         
-    uniform_int_distribution<> distrib(0, range);
-    return distrib(gen);
-}
-
-void ChangeCharacteristic(bool Initial_Input_Window, int SelectOption, int Characteriscit, vector<int>& CharacteristicsInitial, vector<int>& CharacteristicsModded,  Text& InputCharacteristicsShapeText)
-{
-
-    if (Initial_Input_Window)
-    {
-        CharacteristicsInitial[SelectOption] = Characteriscit;
-        string result = to_string(CharacteristicsInitial[SelectOption] / 100) + "." + to_string(abs(CharacteristicsInitial[SelectOption] % 100));
-
-        InputCharacteristicsShapeText.setString(result);
-    }
-    else
-    {
-        CharacteristicsModded[SelectOption] = Characteriscit;
-        string result = to_string(CharacteristicsModded[SelectOption] / 100) + "." + to_string(abs(CharacteristicsModded[SelectOption] % 100));
-
-        InputCharacteristicsShapeText.setString(result);
-    }
-}
-
-vector<int> drawNormalGraph(RenderWindow& window, const vector<int>& Average10000, float graphHeight, float marginBottom, const vector<int>& Average10000_RANDOM_GEN)
-{
-    if (Average10000.empty() || Average10000_RANDOM_GEN.empty())
-    {
-        OutputLog("Average10000.empty() || Average10000_RANDOM_GEN.empty()");
-        return {};
-    }
-
-    map<int, int> freq1, freq2;
-    for (int val : Average10000) freq1[val]++;
-    for (int val : Average10000_RANDOM_GEN) freq2[val]++;
-
-    auto mode1 = max_element(freq1.begin(), freq1.end(), [](const auto& a, const auto& b) { return a.second < b.second; });
-    auto mode2 = max_element(freq2.begin(), freq2.end(), [](const auto& a, const auto& b) { return a.second < b.second; });
-
-    int modeValue1 = mode1->first;
-    int maxFreq1 = mode1->second;
-    int maxFreq2 = mode2->second;
-
-    float yScale1 = graphHeight / log2(1.f + maxFreq1);
-    float yScale2 = 300.f / static_cast<float>(maxFreq2);
-
-    const float smoothWindow = 0.01;
-    const float smoothWindow2 = 5;
-
-    vector<pair<int, int>> smoothedFreq1, smoothedFreq2;
-
-    for (auto it = freq1.begin(); it != freq1.end(); ++it)
-    {
-        int sum = 0, count = 0;
-        for (int offset = -smoothWindow; offset <= smoothWindow; ++offset)
-        {
-            auto neighbor = freq1.find(it->first + offset);
-            if (neighbor != freq1.end())
-            {
-                sum += neighbor->second;
-                count++;
-            }
-        }
-        smoothedFreq1.emplace_back(it->first, sum / max(1, count));
-    }
-
-    for (auto it = freq2.begin(); it != freq2.end(); ++it)
-    {
-        int sum = 0, count = 0;
-        for (int offset = -smoothWindow2; offset <= smoothWindow2; ++offset)
-        {
-            auto neighbor = freq2.find(it->first + offset);
-            if (neighbor != freq2.end())
-            {
-                sum += neighbor->second;
-                count++;
-            }
-        }
-        smoothedFreq2.emplace_back(it->first, sum / max(1, count));
-    }
-
-    float plotWidth = window.getSize().x - 100.f;
-    float xStep1 = plotWidth / max(1.f, (float)smoothedFreq1.size());
-    float xStep2 = plotWidth / max(1.f, (float)smoothedFreq2.size());
-
-    VertexArray curve2(PrimitiveType::LineStrip);
-    float x2 = 70.f;
-    for (const auto& [val, count] : smoothedFreq2)
-    {
-        float y = window.getSize().y - marginBottom - count * yScale2;
-        curve2.append(Vertex(Vector2f(x2, y), Color::Blue));
-        x2 += xStep2;
-    }
-    window.draw(curve2);
-
-    VertexArray curve1(PrimitiveType::LineStrip);
-    float x1 = 70.f;
-    for (const auto& [val, count] : smoothedFreq1)
-    {
-        float y = window.getSize().y - marginBottom - std::log2(1 + count) * yScale1;
-        curve1.append(Vertex(Vector2f(x1, y), Color::Red));
-        x1 += xStep1;
-    }
-    window.draw(curve1);
-
-    vector<path> SearchFont = SearchFile("Font/", ".ttf");
-    if (SearchFont.empty())
-    {
-        OutputLog("Шрифт не найден 2, завершение");
-        return {};
-    }
-    OutputLog("попытка");
-
-    Font font = LoadFont(SearchFont[0]);
-
-    OutputLog("загружен");
-
-    vector<int> keys;
-    for (const auto& [k, _] : freq1) keys.push_back(k);
-    sort(keys.begin(), keys.end());
-
-    const size_t numLabels = 15;
-    if (keys.size() >= 5)
-    {
-        float labelStep = plotWidth / (numLabels - 1);
-        float labelX = 70.f;
-
-        for (size_t i = 0; i < numLabels; ++i)
-        {
-            size_t idx = static_cast<size_t>((i * (keys.size() - 1)) / (numLabels - 1));
-            int value = keys[idx];
-
-            Text label(font);
-            label.setCharacterSize(14);
-            label.setFillColor(Color::Black);
-            label.setString(to_string(value));
-            label.setPosition(Vector2f(labelX - 10.f, window.getSize().y - marginBottom + 5.f));
-
-            window.draw(label);
-            labelX += labelStep;
-        }
-    }
-
-    Text label(font);
-    label.setCharacterSize(14);
-    label.setFillColor(Color::Black);
-
-    int RESULTCOUNTBOX = accumulate(Average10000.begin(), Average10000.end(), 0);
-
-    label.setString(L"Среднее кол-во по всему диапазону: " + to_string(RESULTCOUNTBOX / static_cast<int>(Average10000.size())));
-    label.setPosition(Vector2f(10, 1));
-    window.draw(label);
-
-    label.setString(L"частое колличество инструментов, необходимое для создания такого мода: " + to_string(modeValue1));
-    label.setPosition(Vector2f(10, 15));
-    window.draw(label);
-
-    // ----------- Новый блок: диапазон часто встречающихся значений -----------
-    float rangeThreshold = 0.6f; // Изменяемый параметр — насколько близко к максимуму
-
-    vector<int> frequentValues;
-    for (const auto& [val, count] : freq1)
-    {
-        if ((float)count >= (float)maxFreq1 * rangeThreshold)
-        {
-            frequentValues.push_back(val);
-        }
-    }
-
-    if (!frequentValues.empty())
-    {
-        int minFreqVal = *min_element(frequentValues.begin(), frequentValues.end());
-        int maxFreqVal = *max_element(frequentValues.begin(), frequentValues.end());
-
-        label.setFillColor(Color::Black);
-        label.setString(L"underprice меньше: " + to_wstring(minFreqVal));
-        label.setPosition(Vector2f(10, 30));
-        window.draw(label);
-        label.setString(L"overprice больше: " + to_wstring(maxFreqVal));
-        label.setPosition(Vector2f(10, 45));
-        window.draw(label);
-    }
-
-    // ----------- Ошибки -----------
-    wstring error;
-    switch (Average10000[Average10000.size() - 1])
-    {
-    case -3333: error = L"нельзя прийти к такому моду"; break;
-    case -2222: error = L"попытка уменьшить мод"; break;
-    case -1111: error = L"нет варианта"; break;
-    default: error = L""; break;
-    }
-    label.setString(error);
-    label.setPosition(Vector2f(10, 60));
-    window.draw(label);
-
-    label.setFillColor(Color::Red);
-    label.setString(L"Чаще");
-    label.setPosition(Vector2f(10, 125));
-    window.draw(label);
-
-    label.setString(L"реже");
-    label.setPosition(Vector2f(10, window.getSize().y - 70));
-    window.draw(label);
-
-    label.setString(L"кол-во");
-    label.setPosition(Vector2f(10, window.getSize().y - marginBottom + 5.f));
-    window.draw(label);
-  
-    label.setString(L"инструменты");
-    label.setPosition(Vector2f(10, 75));
-    window.draw(label);
-
-    label.setFillColor(Color::Blue);
-    label.setString(L"Сгенерированный шанс -> диапазон 00.00 - 100.00 | общее колличество: " + to_string(Average10000_RANDOM_GEN.size() ) );
-    label.setPosition(Vector2f(10, 95));
-    window.draw(label);
-
-    return { modeValue1 };
-}
-
-

@@ -2,29 +2,37 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <vector>
 #include "iostream"
 #include "string"
-#include "vector"
 #include "ctime"
 #include "fstream"
 #include "filesystem"
 #include <sstream>
 #include <windows.h>
-
-
 #include <tuple>
-#include <regex>
-
-#include <SFML\Graphics.hpp>
 
 #include "Define.h"
-
 #include <numeric>
 #include <cmath>
 #include <map>
 
-using namespace std;
+#include <random>
+#include <thread>
+#include <mutex>
+
+#include <future>
+#include <atomic>
+
+#include <regex>
+#include <utility>
+
+#include <SFML\Graphics.hpp>
+
+#pragma comment(lib, "User32.lib")
+
 using namespace sf;
+using namespace std;
 using namespace filesystem;
 
 /// <summary>
@@ -33,7 +41,6 @@ using namespace filesystem;
 /// <param name="PathToFont">путь до шрифта</param>
 /// <returns></returns>
 Font LoadFont(path PathToFont);
-
 
 /// <summary>
 /// поиск файлов в директории
@@ -55,3 +62,39 @@ bool OutputMessage(string message);
 /// </summary>
 /// <returns>дата и время</returns>
 string GetCurrentTimeMG();
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="range"></param>
+/// <returns></returns>
+double getRandomDouble(double range);
+
+
+int SimulateOneAttempt(
+    const  vector<vector<tuple<int, int, tuple<int, int, int, int, int, int, int>>>>& AllStatMod,
+    const  vector<int>& CharacteristicsInitial, const  vector<int>& CharacteristicsModded,
+    bool   Initial_OFF,
+    const  vector<int>& AccuracyTemp,
+    const  vector<int>& PaceFireTemp,
+    vector<int>& randomLog
+);
+
+
+double getChance(int position, const vector<pair<int, double>>& chancePoints);
+
+vector<int> drawNormalGraph(
+    RenderWindow& window,
+    const vector<float>& Average10000,
+    float graphHeight,
+    float marginBottom,
+    const vector<float>&
+    Average10000_RANDOM_GEN,
+    int totalIterations,
+    const vector<double>& RESULT_CHARACTERISTIC,
+    const vector<double>& START_CHARACTERISTIC,
+    const vector<double>& INITIAL_CHARACTERISTIC,
+    wstring NameGun,
+    vector<int> method,
+    const tuple<double, double, double>& Tool_Kit_Skil
+);

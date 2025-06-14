@@ -2,8 +2,33 @@
 
 #include "Core.h"
 
-/// CLASS 
+#include "CharacteristicGun.h"
 
-tuple<int, int, int, int, int, int, int> ParseInt7Block(const string& block);
+#include "GunStats.h"
 
-void ParseLine3(const string& line, vector<tuple<int, int, tuple<int, int, int, int, int, int, int>>>& vec);
+#include "Thread.h"
+
+bool RunSingleAssembly(
+    size_t it_index,
+    CharacteristicGun CurrentCharacteristicGun,
+    vector<int> method,
+    vector<int> CharacteristicsInitial,
+    vector<int> CharacteristicsModded,
+    bool Initial_OFF,
+    double TOOL,
+    double KIT,
+    double SKILL
+
+);
+
+CharacteristicGun RunSingleAssembly(
+    int it_index,
+    CharacteristicGun CurrentCharacteristicGun,
+    vector<int> method,
+    vector<int> CharacteristicsInitial,
+    vector<int> CharacteristicsModded,
+    bool Initial_OFF,
+    double TOOL,
+    double KIT,
+    double SKILL
+);
