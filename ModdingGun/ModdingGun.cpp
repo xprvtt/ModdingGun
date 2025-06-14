@@ -268,26 +268,6 @@ int main()
 
     ////////////////////////////////////////////////////////////////////////////////////
 
-    //RectangleShape Calculation;
-    //Calculation.setSize(Vector2f(SizeCell * 2, SizeCell / 2));
-    //Calculation.setOutlineThickness(-3);
-    //Calculation.setOutlineColor(Color::Green);
-    //Calculation.setPosition(Vector2f(SizeCell + SizeCell / 2, SizeCell * (CountCellOnHeightWindow + 2)));
-
-    ////Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 2)));
-
-    //Text TextCalculation(CurrentFont);
-    //TextCalculation.setString(L"Calculation->");
-    //TextCalculation.setCharacterSize(SizeFont + 3);
-    //TextCalculation.setFillColor(Color::Black);
-
-
-    //FloatRect textBounds = TextCalculation.getLocalBounds();
-    //Vector2f rectPos = Calculation.getPosition();
-    //Vector2f rectSize = Calculation.getSize();
-
-    //TextCalculation.setOrigin(Vector2f(textBounds.position.x + textBounds.size.x / 2.0f, textBounds.position.y + textBounds.size.y / 2.0f));
-    //TextCalculation.setPosition(Vector2f(rectPos.x + rectSize.x / 2.0f, rectPos.y + rectSize.y / 2.0f));
 
 
 
