@@ -1,6 +1,5 @@
 ﻿#include "ModdingGun.h"
 
-
 // колво повторений мода
 unsigned int totalIterations = 500;
 
@@ -78,7 +77,7 @@ int main()
     unsigned int LengthCharacteristicsInputWindow = HeightCharacteristicsInputWindow * 5;
    
     // создаем диалоговое окно графика
-    unsigned int sizeXGrafWindow = 1300;
+    unsigned int sizeXGrafWindow = 1240;
     unsigned int sizeYGrafWindow = 500;
 
     unsigned int SizeFont = 17;
@@ -155,12 +154,6 @@ int main()
             OutputLog("текстуры оружия не найдены");
             return -1;
         }
-        vector<path> SearchAttributeGun = SearchFile("Attribute/Tier_" + to_string(Tier), ".txt");
-        if (SearchFont.empty())
-        {
-            OutputLog("текстуры оружия не найдены");
-            return -1;
-        }
 
         for (unsigned int it = 0; it < CountCellOnLengthWindow; it++)
         {
@@ -187,23 +180,22 @@ int main()
             TempShape.setPosition(Vector2f(SizeCell * it, SizeCell * (Tier - 1) ));
 
             Text TempNameGun(CurrentFont, TempName, SizeFont);
-            TempNameGun.setFillColor(Color::Red);
-
-            for (const auto& AT : SearchAttributeGun)
-            {
-                if (AT.stem() == TempName)
-                {
-                    TempNameGun.setFillColor(Color::White);
-                }
-            }
-
+            TempNameGun.setFillColor(Color::White);
             TempNameGun.setPosition(Vector2f(SizeCell * static_cast<float>(it), static_cast<float>(SizeCell * (Tier - 1))));
             TempNameGun.setOutlineColor(Color::Black);
             TempNameGun.setOutlineThickness(1);
             TempNameGun.setCharacterSize(14);
 
+
             VectorTextureGun.push_back(make_tuple(TempShape, TempPoint, TempName, Tier));
+            
+
+            if (TempName == L"РПГ")
+            {
+                TempNameGun.setFillColor(Color::Red);
+            }
             VectorNameGun.push_back(TempNameGun);
+
         }
     }
 
@@ -454,6 +446,58 @@ int main()
 
 
 
+    //////////////////////// ОТОБРАЖЕНИЕ МАКС МАКС СТАТОВ МОДА ////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    RectangleShape СharacteristicsModGunMAX;
+    СharacteristicsModGunMAX.setSize(Vector2f(SizeCell * 8, SizeCell / 2));
+    СharacteristicsModGunMAX.setOutlineThickness(-3);
+    СharacteristicsModGunMAX.setOutlineColor(Color::Black);
+    СharacteristicsModGunMAX.setPosition(Vector2f(SizeCell * 4, SizeCell* (CountCellOnHeightWindow + 5)));
+
+    Text TextСharacteristicsModGunMAX(CurrentFont);
+    TextСharacteristicsModGunMAX.setString(L"Здесь будут указаны max прибавка для каждой статы");
+    TextСharacteristicsModGunMAX.setCharacterSize(SizeFont + 3);
+    TextСharacteristicsModGunMAX.setFillColor(Color::Black);
+
+    textBounds = TextСharacteristicsModGunMAX.getLocalBounds();
+    rectPos = СharacteristicsModGunMAX.getPosition();
+    rectSize = СharacteristicsModGunMAX.getSize();
+
+    TextСharacteristicsModGunMAX.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+    TextСharacteristicsModGunMAX.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -624,10 +668,11 @@ int main()
     // создаем окно
     RenderWindow window(VideoMode({ static_cast<unsigned int>(SizeWindowLength), static_cast<unsigned int>(SizeWindowHeight) }), "ModdingGun");
     RenderWindow Diagram;
+
     RenderWindow InputWindow;
     window.setFramerateLimit(150);
     InputWindow.setFramerateLimit(150);
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -655,7 +700,7 @@ int main()
     RectangleShape CurrentMethod;
 
 
-    CurrentMethod.setSize(Vector2f(SizeCell * 13, SizeCell / 2));
+    CurrentMethod.setSize(Vector2f(SizeCell * 12, SizeCell / 2));
     CurrentMethod.setOutlineThickness(-3);
     CurrentMethod.setOutlineColor(Color::Green);
     CurrentMethod.setPosition(Vector2f(0, SizeCell * (CountCellOnHeightWindow + 4)));
@@ -913,19 +958,31 @@ int main()
 
                             // получаем имя пушки
                             NameGun = get<2>(VectorTextureGun[it]);
-
+                            
                             // получаем расположение пушки
-                            wstring FileStat = L"Attribute/Tier_" + to_wstring(get<3>(VectorTextureGun[it])) + "/" + NameGun + L".txt";
+                            wstring  FileStat = L"Attribute/AllGunStat/GUNARRAY.json";
 
 
-                            // получаем статы пушки
-                            if (!CurrentCharacteristicGun.Load(FileStat))
+                            if (!CurrentCharacteristicGun.Load(FileStat, NameGun))
                             {
                                 NameGun = L"Empty";
                                 TextInfoDebug.setString(L"ошибка файла");
+                                TextСharacteristicsModGunMAX.setString(L"");
                                 break;
                             }
-                            TextInfoDebug.setString(L"файл загружен");
+                            TextInfoDebug.setString(L"данные загружены");
+
+                            string maxstatforgun = " | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(0)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(1)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(4)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(2)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(3)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(5)) + "% | "
+                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(6)) + "% | ";
+
+
+                            TextСharacteristicsModGunMAX.setString(maxstatforgun);
                             break;
                         }
                     }
@@ -980,6 +1037,14 @@ int main()
 
                         Initial_Input_Window = false;
                     }
+
+
+
+
+
+
+
+
 
 
 
@@ -1318,8 +1383,6 @@ int main()
                                                 INITIAL_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
                                             }
 
-
-
                                             Diagram.create(VideoMode({ sizeXGrafWindow, sizeYGrafWindow }), "Diagram");
                                             Diagram.setFramerateLimit(150);
 
@@ -1630,6 +1693,11 @@ int main()
         window.draw(TextCurrentMethod);
 
 
+
+        window.draw(СharacteristicsModGunMAX);
+        window.draw(TextСharacteristicsModGunMAX);
+
+
         window.display();
 
 
@@ -1657,6 +1725,17 @@ int main()
         // окно ввода мода
         if (InputWindow.isOpen())
         {
+            // Получаем позицию главного окна
+            Vector2i mainPos = window.getPosition();
+            Vector2u mainSize = window.getSize();
+
+            // Центрируем Diagram поверх главного окна
+            int xPosDiagram = (mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(LengthCharacteristicsInputWindow)) / 2);
+            int yPosDiagram = (mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(HeightCharacteristicsInputWindow)) / 2);
+
+            InputWindow.setPosition(Vector2i(xPosDiagram, yPosDiagram));
+
+
             PositionMouse = Mouse::getPosition(InputWindow);
             MouseWorldPos = InputWindow.mapPixelToCoords(PositionMouse);
 
@@ -1835,6 +1914,17 @@ int main()
 
                 if (i < VectorDiagram.size() && !DiagramBool[i])
                 {
+                    // Получаем позицию главного окна
+                    Vector2i mainPos = window.getPosition();
+                    Vector2u mainSize = window.getSize();
+
+                    // Центрируем Diagram поверх главного окна
+                    int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(sizeXGrafWindow)) / 2;
+                    int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(sizeYGrafWindow)) / 2;
+
+                    VectorDiagram[i].setPosition(Vector2i(xPosDiagram, yPosDiagram));
+
+
                     VectorDiagram[i].clear(Color::White);
                     drawNormalGraph(VectorDiagram[i], Average10000, 200.f, 50.f, Average10000_RANDOM_GEN, totalIterations, RESULT_CHARACTERISTIC, START_CHARACTERISTIC, INITIAL_CHARACTERISTIC, NameGun, method, Tool_Kit_Skil);
                     

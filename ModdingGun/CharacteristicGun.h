@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Core.h"
-
+#include "C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\json.hpp"
 
 class CharacteristicGun
 {
@@ -9,27 +9,27 @@ class CharacteristicGun
 	struct AllStat
 	{
 		/// <summary>
-		///  текущий индекс
+		///  текущий индекс ОТНОСИТЕЛЬНО МАКСИМАЛЬНОГО РАЗМЕРА
 		/// </summary>
 		int    RealPosition;
 
 		/// <summary>
-		/// параметр в колличестве
+		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
 		/// </summary>
 		float parametr;
 
 		/// <summary>
-		/// текуший шанс
+		/// текуший РЕАЛЬНЫЙ шанс НА УЛУЧШЕНИЕ
 		/// </summary>
 		double CurrentChance;
 
 		/// <summary>
-		/// текущий процент
+		/// текущий ВИЗУАЛЬНЫЙ процент
 		/// </summary>
 		double VisualProcentStat;
 	};
 
-	struct Grade
+	struct DecreaseStatST
 	{
 		/// <summary>
 		///  что уменьшать?
@@ -58,7 +58,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<vector<AllStat>> Ful_Stat;
+	std::vector<vector<AllStat>> FulAllStat;
 
 
 	/// <summary>
@@ -70,7 +70,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<vector<Grade>> GradeStat;
+	std::vector<vector<DecreaseStatST>> FullDecreaseStat;
 
 	/// <summary>
 	/// текущая позиция статов</para>
@@ -113,8 +113,6 @@ class CharacteristicGun
 	bool UpStat(int stat_No);
 
 
-
-
 public:
 
 	CharacteristicGun(const CharacteristicGun& other);
@@ -124,6 +122,8 @@ public:
 	bool is_Empty();
 
 	bool Load(path PathToInfo);
+
+	bool Load(path PathToInfo, wstring namegun);
 
 	void clear();
 

@@ -622,9 +622,14 @@ vector<int> drawNormalGraph(
     label.setPosition(Vector2f(10, stepLabel * 4));
     window.draw(label);
 
-    label.setString(L"колличество оружия, модифицированного до указанной модификации: " + to_string(totalIterations));
     label.setFillColor(COLOR_INFO);
+    label.setString(L"количество оружия, модифицированного до указанной модификации: " + to_string(totalIterations));
     label.setPosition(Vector2f(10, stepLabel * 5));
+    window.draw(label);
+
+    label.setFillColor(COLOR_CHANCE);
+    label.setString(L"Сгенерированная попытка 0-100.00% |mt19937+random_device| кол-во:" + to_string(Average10000_RANDOM_GEN.size()));
+    label.setPosition(Vector2f(10, stepLabel * 7));
     window.draw(label);
 
     label.setString(L"инструменты");
@@ -632,19 +637,11 @@ vector<int> drawNormalGraph(
     label.setPosition(Vector2f(10, stepLabel * 6));
     window.draw(label);
 
-    label.setFillColor(COLOR_CHANCE);
-    label.setString(L"Сгенерированная попытка 0-100% |mt19937+random_device| колличество:" + to_string(Average10000_RANDOM_GEN.size()));
-    label.setPosition(Vector2f(10, stepLabel * 7));
-    window.draw(label);
-
-
-    label.setFillColor(COLOR_TOOL);
-    label.setString(L"90й перцентиль (идем по серии неудач, но не превысим) : " + to_string(percentile(Average10000, 0.90)));
+    label.setString(L"50й перцентиль (с шансом 50% не превысим это количество): " + to_string(percentile(Average10000, 0.50)));
     label.setPosition(Vector2f(10, stepLabel * 8));
     window.draw(label);
 
-    label.setFillColor(COLOR_TOOL);
-    label.setString(L"50й перцентиль (с шансом 50% понадобится столько): " + to_string(percentile(Average10000, 0.50)));
+    label.setString(L"90й перцентиль (с шансом 90% не превысим это количество) : " + to_string(percentile(Average10000, 0.90)));
     label.setPosition(Vector2f(10, stepLabel * 9));
     window.draw(label);
 
