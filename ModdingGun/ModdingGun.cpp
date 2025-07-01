@@ -48,7 +48,7 @@ int main()
     path Skill_Folder = L"Assets/Skill";
 
     // получаем расположение пушки
-    wstring  FileStat              = L"Attribute/AllGunStat/GUNARRAY.json";
+    wstring  FileStat              = L"Attribute/AllGunStat/weaponstat.json";
     path     backgroundPathDiagram = "Assets/Standart/background_graf.png";
     path     backgroundPatchMain   = "Assets/Standart/background.png";
     
