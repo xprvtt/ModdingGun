@@ -1,4 +1,4 @@
-# modding gun
+# "MODDING GUN"
 
 Небольшое приложение для расчёта количества ресурсов, вероятно необходимых для модификации оружия в игре **STAY OUT (aka Stalker Online)** — [https://stalker.so](https://stalker.so)
 
