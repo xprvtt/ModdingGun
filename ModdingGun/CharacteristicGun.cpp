@@ -1,237 +1,11 @@
 ﻿#include "CharacteristicGun.h"
 
 
-/*
-struct ParsedData7
-{
-    vector<pair<int, double>> pairs;
-    int CurrentPositionInt = 0;
-};
-ParsedData7 parseChanceLine7(const string& input)
-{
-    ParsedData7 result;
-
-    // Исправленный шаблон: ищем [int, double]
-    regex pairPattern(R"(\[\s*(\d+)\s*,\s*([\d\.]+)\s*\])");
-    smatch match;
-
-    auto begin = input.cbegin();
-    auto end = input.cend();
-
-    while (regex_search(begin, end, match, pairPattern))
-    {
-        int first = stoi(match[1]);
-        double second = stod(match[2]);
-        result.pairs.emplace_back(first, second);
-        begin = match.suffix().first;
-    }
-
-    // Парсим последнее число после внешнего массива
-    size_t lastBracket = input.find_last_of(']');
-    size_t trailingStart = input.find_first_of("0123456789", lastBracket);
-    if (trailingStart != string::npos)
-    {
-        result.CurrentPositionInt = stoi(input.substr(trailingStart));
-    }
-
-    return result;
-}
-
-struct ParsedData14
-{
-    vector<tuple<int, int, int>> triples;
-    int MaxPositionInt = 0;
-};
-ParsedData14 parseChanceLine14(const string& input)
-{
-    ParsedData14 result;
-
-    // Регулярка для тройки чисел: [int, int, int]
-    regex triplePattern(R"(\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\])");
-    smatch match;
-
-    auto begin = input.cbegin();
-    auto end = input.cend();
-
-    while (regex_search(begin, end, match, triplePattern)) 
-    {
-        int a = stoi(match[1]);
-        int b = stoi(match[2]);
-        int c = stoi(match[3]);
-        result.triples.emplace_back(a, b, c);
-        begin = match.suffix().first;
-    }
-
-    // Ищем последнее число (после последней закрывающей скобки)
-    size_t lastBracket = input.find_last_of(']');
-    size_t trailingStart = input.find_first_of("0123456789", lastBracket);
-    if (trailingStart != string::npos) 
-    {
-        result.MaxPositionInt = stoi(input.substr(trailingStart));
-    }
-
-    return result;
-}
-
-///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----
-
-bool CharacteristicGun::Load(path PathToInfo)
-{
-    CharacteristicGun::clear();
-    // открываем файл оружия
-    ifstream file(PathToInfo);
-    if (!file)
-    {
-        OutputLog("Файл не найден");
-        return false;
-    }
-
-    string line;
-    int lineCount = 0;
-
-    // считываем 
-    while (getline(file, line) && lineCount < 14)
-    {
-        // первые 7 строк \\ статы
-        if      (lineCount < 7)
-        {
-            // получаем вектор разметки и нулевой стат
-            ParsedData7 data = parseChanceLine7(line);
-
-            const size_t SIZE = [lineCount] {
-
-                if (lineCount == 0) { return  60; }
-                else if (lineCount == 1) { return 48; }
-                else { return 40; }
-
-                }();
-
-            ///////
-            vector<AllStat> result;
-
-            // разметка
-            for (int position = 0; position <= SIZE; position++)
-            {
-                // позиция известна
-                // получаем шанс по позиции
-                // относительную стату находим позже
-                float parametr;
-                if      (lineCount == 0) { parametr = 36 - (0.6 * position); }
-                else if (lineCount == 1) { parametr = 50 + (25 * position); }
-                else if (lineCount == 2) { parametr = -100 + (5 * position); }
-                else                     { parametr = position; }
-
-                result.push_back(AllStat(position, parametr, (getChance(position - 1, data.pairs)), 0.0));
-
-            }
-
-            // находим проценты
-            vector<double> Procent;
-            for (int position = 0; position < SIZE * 2; position++)
-            {
-                Procent.push_back(getChance(position, { {0, -100}, {SIZE, 0}, {SIZE * 2, 100} }));
-            }
-
-            // размечаем отображаемые проценты
-            for (int ps = data.CurrentPositionInt, it = 0; ps < result.size(); ps++, it++)
-            {
-                result[ps].VisualProcentStat = Procent[SIZE + it];
-            }
-
-            for (int ps = data.CurrentPositionInt - 1, it = 0; ps >= 0; ps--, it++)
-            {
-                if (ps < 0) { break; }
-
-                auto stat = Procent[SIZE - it - 1];
-                result[ps].VisualProcentStat = stat;
-            }
-            ///////
-            // 0 куч
-            // 1 темп            // 
-            // 
-            // 2 отдача
-            // 3 качание            // 
-            // 
-            // 4 пробитие            // 
-            // 
-            // 5 сост
-            // 6 грязь
-            //
-            CurrentStatPosition.push_back(data.CurrentPositionInt);
-
-            CharacteristicGun::FulAllStat.push_back(result);
-        }
-
-        else if (lineCount < 14)
-        {
-            ParsedData14 Line14 = parseChanceLine14(line);
-
-            vector<DecreaseStatST> result;
-
-            for (int it = 0; it < Line14.triples.size(); it++)
-            {
-                DecreaseStatST GradeTemp = { get<0>(Line14.triples[it]), get<1>(Line14.triples[it]), get<2>(Line14.triples[it]) };
-                result.push_back(GradeTemp);
-            }
-            FullDecreaseStat.push_back(result);
-            MaxStatPosition.push_back(Line14.MaxPositionInt);
-        }
-
-
-        ++lineCount;
-    }
-    
-    if (lineCount != 14)
-    {
-        OutputLog("class CharacteristicGun -> line != 14");
-        CharacteristicGun::clear();
-        return false;
-    }
-
-    // разместили
-    Empty = false;
-
-    InitialStatPosition = CurrentStatPosition;
-
-    return true;
-}
-
-*/
-
-
-
-
-wstring StringToWString(const string& str)
-{
-    if (str.empty()) return L"";
-
-    int size_needed = MultiByteToWideChar(
-        CP_UTF8,            // Кодировка исходной строки (UTF-8)
-        0,
-        str.c_str(),
-        (int)str.size(),
-        NULL,
-        0
-    );
-
-    wstring wstrTo(size_needed, 0);
-
-    MultiByteToWideChar(
-        CP_UTF8,
-        0,
-        str.c_str(),
-        (int)str.size(),
-        &wstrTo[0],
-        size_needed
-    );
-
-    return wstrTo;
-}
-
 bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 {
 
-
+    // чистим перед новой загрузкой
+    CharacteristicGun::clear();
 
 
     ifstream JSON_File_IFS(PathToInfo_JS);
@@ -239,7 +13,7 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
     if (!JSON_File_IFS)
     {
-        OutputLog("Не удалось открыть файл");
+        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToInfo_JS));
         return false;
     }
     
@@ -248,15 +22,6 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
     nlohmann::json JSON_STAT;
 
     JSON_File_IFS >> JSON_STAT;
-
-
-
-    // чистим перед новой загрузкой
-    CharacteristicGun::clear();
-
-
-
-
 
 
 
@@ -269,16 +34,9 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
         wstring JSON_NameGun = StringToWString(CurrentSelectGun["NameGun"]);
 
-        bool HUISOS = JSON_NameGun == namegun;
 
-        if (JSON_NameGunB && HUISOS)
+        if (JSON_NameGunB && JSON_NameGun == namegun)
         {
-
-            OutputLog("Нашел оружие");
-
-
-
-
             /////////////////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////
 
@@ -325,12 +83,9 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
 
                 /////////////////////////////////////////////////////////////////////////
+               
                 // максимальное коллличество единиц характеристики для текущей статы
-                
-                auto& MaxSize = ALLSTATGUN[to_string(lineCount)]["MaxSize"];
-
-                // максимальное коллличество единиц характеристики для текущей статы
-                const int MAX_COUNT_UNITS_STAT = MaxSize.get<int>();
+                const int MAX_COUNT_UNITS = GunStats::GET_COUNT_UNITS_FOR_CHARACTERISTIC[lineCount];
 
                 /////////////////////////////////////////////////////////////////////////
 
@@ -347,7 +102,7 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
 
                 /////////////////////////////////////////////////////////////////////////
-                for (int Real_Position = 0; Real_Position <= MAX_COUNT_UNITS_STAT; Real_Position++)
+                for (int Real_Position = 0; Real_Position <= MAX_COUNT_UNITS; Real_Position++)
                 {
                     // позиция известна Real_Position
 
@@ -358,12 +113,12 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
                     //реальный параметр = parametr например темп огня parametr = 650
                     float parametr;
 
-                    if      (lineCount == 0) { parametr = 36 - (0.6 * Real_Position); }
-                    else if (lineCount == 1) { parametr = 50 + (25 * Real_Position); }
-                    else if (lineCount == 2) { parametr = -100 + (5 * Real_Position); }
-                    else                     { parametr = Real_Position; }
+                    if      (lineCount == 0) { parametr = static_cast<float>(36 - (0.6 * Real_Position)); }
+                    else if (lineCount == 1) { parametr = static_cast < float>(50 + (25 * Real_Position)); }
+                    else if (lineCount == 2) { parametr = static_cast<float>(-100 + (5 * Real_Position)); }
+                    else { parametr = static_cast<float>(Real_Position); }
 
-                    auto ALLSTAT = AllStat(Real_Position, parametr, (getChance(Real_Position - 1, pairs)), 0.0);
+                    auto ALLSTAT = AllStat(Real_Position, parametr, (GetChance(Real_Position - 1, pairs)), 0.0);
 
                     result.push_back(ALLSTAT);
                 }
@@ -389,9 +144,9 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
                 // размечаем проценты по позициям
                 vector<double> Procent;
-                for (int position = 0; position < MAX_COUNT_UNITS_STAT * 2; position++)
+                for (int position = 0; position < MAX_COUNT_UNITS * 2; position++)
                 {
-                    Procent.push_back(getChance(position, { {0, -100}, {MAX_COUNT_UNITS_STAT, 0}, {MAX_COUNT_UNITS_STAT * 2, 100} }));
+                    Procent.push_back(GetChance(position, { {0, -100}, {MAX_COUNT_UNITS, 0}, {MAX_COUNT_UNITS * 2, 100} }));
                 }
 
 
@@ -436,11 +191,11 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
                 // в других случаях есть CurrentPosition             
                 // 2 отдача
                 case 2:
-                // 3 отдача
+                // 3 кач
                 case 3:
-                // 5 отдача
+                // 5 сост
                 case 5:
-                // 6 отдача
+                // 6 грязь
                 case 6:
                     СurrentPositionRelative_MAX_COUNT_UNITS_STAT = ALLSTATGUN[to_string(lineCount)]["CurrentPosition"].get<int>();
                     break;
@@ -451,17 +206,17 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
                 }
 
                 // размечаем ВИЗУАЛЬНЫЕ проценты апгрейда
-                for (int PositionPlus = СurrentPositionRelative_MAX_COUNT_UNITS_STAT, it = 0; PositionPlus < result.size(); PositionPlus++, it++)
+                // выше нуля
+                for (int PositionPlus = СurrentPositionRelative_MAX_COUNT_UNITS_STAT, it = 0; PositionPlus < result.size() && MAX_COUNT_UNITS + it < Procent.size(); PositionPlus++, it++)
                 {
-                    result[PositionPlus].VisualProcentStat = Procent[MAX_COUNT_UNITS_STAT + it];
+
+                    result[PositionPlus].VisualProcentStat = Procent[MAX_COUNT_UNITS + it];
                 }
 
-
+                // ниже нуля
                 for (int PositionMinus = СurrentPositionRelative_MAX_COUNT_UNITS_STAT - 1, it = 0; PositionMinus >= 0; PositionMinus--, it++)
                 {
-                    if (PositionMinus < 0) { break; }
-
-                    auto stat = Procent[MAX_COUNT_UNITS_STAT - it - 1];
+                    auto stat = Procent[MAX_COUNT_UNITS - it - 1];
                     result[PositionMinus].VisualProcentStat = stat;
                 }
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,9 +260,9 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
                 for (auto& triple : chance_points)
                 {
                     //  что уменьшать?
-                    int  PositionLower     = triple[0].get<int>();
+                    int PositionLower      = triple[0].get<int>();
                     //  насколько уменьшать?
-                    int  HowMany           = triple[1].get<int>();
+                    int HowMany            = triple[1].get<int>();
                     /// после какой позиции начать уменьшать
                     int PositionStartLower = triple[2].get<int>();
                     
@@ -551,7 +306,7 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
             MaxStatPosition;
 
 
-            InitialStatPosition = CurrentStatPosition;
+            DefaultStatPosition = CurrentStatPosition;
 
             Empty = false;
             return true;
@@ -563,7 +318,7 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
 
 
-    OutputLog("Не удалось найти оружие");
+    OutputLog("Gun not found: " + string(namegun.begin(), namegun.end()));
     return false;    
 }
 
@@ -573,78 +328,17 @@ bool CharacteristicGun::Load(path PathToInfo_JS, wstring namegun)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void CharacteristicGun::clear()
+CharacteristicGun::CharacteristicGun(vector<int> MaxStatPosition)
 {
-    FulAllStat.clear();
+    CountOption = static_cast<unsigned int>(MaxStatPosition.size());
 
-    FullDecreaseStat.clear();
+    CurrentStatPosition.resize(CountOption, 0);
+    DefaultStatPosition.resize(CountOption, 0);
 
-    CurrentStatPosition.clear();
+    this->MaxStatPosition = MaxStatPosition;
 
-    MaxStatPosition.clear();
-
-    InitialStatPosition.clear();
-
-    Empty = true;
-}
-
-bool CharacteristicGun::is_Empty()
-{
-    return Empty;
-}
-
-CharacteristicGun::CharacteristicGun()
-{
     // пуст
     Empty = true;
-}
-
-bool CharacteristicGun::ReturnDefaultstat() 
-{
-    CurrentStatPosition = InitialStatPosition;
-
-    return CurrentStatPosition == InitialStatPosition ? true : false;    
-}
-
-vector<int> CharacteristicGun::GetMaxStatPosition()
-{
-    return MaxStatPosition;
-}
-
-vector<double> CharacteristicGun::GetFullCurrentVisualStat()
-{
-    vector<double> result;
-
-
-    for (int i = 0; i < CurrentStatPosition.size(); i++)
-    {
-        result.push_back(CharacteristicGun::GetVisualProcentStat(i));
-    }
-    return result;
-}
-
-vector<int> CharacteristicGun::GetCurrentPosition()
-{
-    return CharacteristicGun::CurrentStatPosition;
 }
 
 CharacteristicGun::CharacteristicGun(const CharacteristicGun& other)
@@ -658,45 +352,18 @@ CharacteristicGun::CharacteristicGun(const CharacteristicGun& other)
 
     this->MaxStatPosition = other.MaxStatPosition;
 
-    this->InitialStatPosition = other.InitialStatPosition;
+    this->DefaultStatPosition = other.DefaultStatPosition;
 
     this->Empty = other.Empty;
 
+    this->CountOption = other.CountOption;
+
+    this->UpgradeHistory = other.UpgradeHistory;
 }
 
 
-double CharacteristicGun::GetMaxStatVisualProcent(unsigned int stat)
-{
-    return FulAllStat[stat][MaxStatPosition[stat]].VisualProcentStat;
-}
-
-double CharacteristicGun::GetVisualProcentStat(int stat)
-{
-    return FulAllStat[stat][CurrentStatPosition[stat]].VisualProcentStat;
-}
 
 
-double CharacteristicGun::GetChanceFor_NEXT_Stat(unsigned int stat)
-{
-    if (CurrentStatPosition[stat] + 1 > MaxStatPosition[stat])
-    {
-        OutputLog("class CharacteristicGun нельзая получить шанс, больше максимального");
-        return 0.0;
-    }
-    if (CurrentStatPosition[stat] + 1 > FulAllStat[stat].size())
-    {
-        OutputLog("class CharacteristicGun нельзая получить шанс, выход за пределы");
-        return -1.0;
-    }
-
-    double result;
-
-    unsigned int v2 = CurrentStatPosition[stat] + 1;
-
-
-    result = FulAllStat[stat][v2].CurrentChance;
-    return result;
-}
 
 bool CharacteristicGun::UpStat(int stat_No)
 {
@@ -716,7 +383,7 @@ bool CharacteristicGun::UpStat(int stat_No)
     for (int i = 0; i < FullDecreaseStat[stat_No].size(); i++)
     {
         // если текущая стата больше началу уменьшения одного из GradeStat
-        if (CurrentStatPosition[stat_No] > InitialStatPosition[stat_No] + FullDecreaseStat[stat_No][i].PositionStartLower)
+        if (CurrentStatPosition[stat_No] > DefaultStatPosition[stat_No] + FullDecreaseStat[stat_No][i].PositionStartLower)
         {
             // нельзя уменьшить позицию ниже нуля
             if (CurrentStatPosition[FullDecreaseStat[stat_No][i].PositionLower] > 0)
@@ -727,6 +394,7 @@ bool CharacteristicGun::UpStat(int stat_No)
         }
     }
 
+    UpgradeHistory.push_back(CurrentStatPosition);
     return true;
 }
 
@@ -734,10 +402,141 @@ bool CharacteristicGun::UpgradeStat(int stat_no)
 {
     if (stat_no < 0 || stat_no > CurrentStatPosition.size())
     {
-        OutputLog("class CharacteristicGun UpgradeStat -> выход за пределы");
+        OutputLog("CharacteristicGun UpgradeStat -> going beyond");
         return false;
     }
     return UpStat(stat_no);
 }
 
+
+
+
+
+
+
+void CharacteristicGun::clear()
+{
+    FulAllStat.clear();
+    FullDecreaseStat.clear();
+    CurrentStatPosition.clear();
+    MaxStatPosition.clear();
+    DefaultStatPosition.clear();
+    UpgradeHistory.clear();
+    Empty = true;
+}
+
+bool CharacteristicGun::is_Empty()
+{
+    return Empty;
+}
+
+bool CharacteristicGun::ReturnDefaultstat() 
+{
+    CurrentStatPosition = DefaultStatPosition;
+
+    return CurrentStatPosition == DefaultStatPosition ? true : false;    
+}
+
+vector<int>    CharacteristicGun::GetDefaultStat()
+{
+    return CharacteristicGun::DefaultStatPosition;
+}
+
+vector<int>    CharacteristicGun::GetMaxStatPosition()
+{
+    return MaxStatPosition;
+}
+
+vector<double> CharacteristicGun::GetFullCurrentVisualStat()
+{
+    vector<double> result;
+
+
+    for (int i = 0; i < CurrentStatPosition.size(); i++)
+    {
+        result.push_back(CharacteristicGun::GetVisualProcentStat(i));
+    }
+    return result;
+}
+
+vector<int>    CharacteristicGun::GetCurrentPosition()
+{
+    return CharacteristicGun::CurrentStatPosition;
+}
+               
+double         CharacteristicGun::GetMaxStatVisualProcent(unsigned int stat)
+{
+    return FulAllStat[stat][MaxStatPosition[stat]].VisualProcentStat;
+}
+               
+double         CharacteristicGun::GetVisualProcentStat(int stat)
+{
+    auto result = FulAllStat[stat][CurrentStatPosition[stat]].VisualProcentStat;
+    return result;
+}
+               
+double         CharacteristicGun::GetChanceFor_NEXT_Stat(unsigned int stat)
+{
+    if (CurrentStatPosition[stat] + 1 > MaxStatPosition[stat])
+    {
+        OutputLog("CharacteristicGun -> can't get a chance greater than the maximum");
+        return 0.0;
+    }
+    if (CurrentStatPosition[stat] + 1 > FulAllStat[stat].size())
+    {
+        OutputLog("CharacteristicGun -> can't get a chance, go beyond");
+        return -1.0;
+    }
+
+    double result;
+
+    unsigned int v2 = CurrentStatPosition[stat] + 1;
+
+
+    result = FulAllStat[stat][v2].CurrentChance;
+    return result;
+}
+
+bool           CharacteristicGun::StepBack()
+{
+    // если вектор пуст выходим
+    if (UpgradeHistory.empty()) { return false; }
+
+    // иначе удаляем из истории текущий
+    UpgradeHistory.pop_back();
+
+    // устанавливаем предыдущий если не пустой
+    if (!UpgradeHistory.empty())
+    {
+        CurrentStatPosition = UpgradeHistory[UpgradeHistory.size() - 1];
+    }
+    // иначе дефолтные характеристики
+    else
+    {
+        CharacteristicGun::ReturnDefaultstat();
+    }
+    
+    return true;
+}
+
 ///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----
+
+
+vector<int>    CharacteristicGun::GetDecreaseForCurrentStat(unsigned int stat)
+{
+    vector<int> result(CountOption, 0);
+
+    // проходимся по вектору указанных статов
+    for (int i = 0; i < FullDecreaseStat[stat].size(); i++)
+    {
+        // если текущая стата больше началу уменьшения одного из GradeStat
+        if (CurrentStatPosition[stat] > DefaultStatPosition[stat] + FullDecreaseStat[stat][i].PositionStartLower)
+        {
+            // уменьшаем позицию, на которую GradeStat указывает на единицы которые прописаны
+            result[FullDecreaseStat[stat][i].PositionLower] += FullDecreaseStat[stat][i].HowMany;
+        }
+    }
+
+
+    return result;
+}

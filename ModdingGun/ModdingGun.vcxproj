@@ -138,24 +138,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CharacteristicGun.cpp" />
+    <ClCompile Include="GetChance.cpp" />
+    <ClCompile Include="GUlText.cpp" />
+    <ClCompile Include="LangManager.cpp" />
     <ClCompile Include="LoadFont.cpp" />
     <ClCompile Include="ModdingGun.cpp" />
     <ClCompile Include="SearchFile.cpp" />
     <ClCompile Include="GetCurrentTimeMG.cpp" />
     <ClCompile Include="OutputMessage.cpp" />
-    <ClCompile Include="drawNormalGraph.cpp" />
-    <ClCompile Include="getRandomDouble.cpp" />
-    <ClCompile Include="getChance.cpp" />
-    <ClCompile Include="RunSingleAssembly.cpp" />
-    <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="DrawGraph.cpp" />
+    <ClCompile Include="GetRandomDouble.cpp" />
+    <ClCompile Include="CalculateSuccessChance.cpp" />
+    <ClCompile Include="ThemeGui.cpp" />
+    <ClCompile Include="WstringToString.cpp" />
+    <ClCompile Include="StringToWString.cpp" />
+    <ClCompile Include="ThreadAssemble.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharacteristicGun.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Define.h" />
+    <ClInclude Include="DrawGraph.h" />
+    <ClInclude Include="GUlText.h" />
     <ClInclude Include="GunStats.h" />
+    <ClInclude Include="ThemeGui.h" />
+    <ClInclude Include="LangManager.h" />
     <ClInclude Include="ModdingGun.h" />
-    <ClInclude Include="Thread.h" />
+    <ClInclude Include="ThreadAssemble.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

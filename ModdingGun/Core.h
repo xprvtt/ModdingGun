@@ -2,34 +2,40 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <vector>
 #include "iostream"
-#include "string"
-#include "ctime"
-#include "fstream"
-#include "filesystem"
-#include <sstream>
-#include <windows.h>
-#include <tuple>
 
-#include "Define.h"
+#include <windows.h>
 #include <numeric>
 #include <cmath>
+
 #include <map>
+#include <vector>
+#include "string"
+#include <tuple>
+#include <sstream>
+#include "filesystem"
+#include "fstream"
+
 
 #include <random>
-#include <thread>
-#include <mutex>
+#include "ctime"
 
-#include <future>
+
+#include <mutex>
+#include <thread>
 #include <atomic>
 
 #include <regex>
 #include <utility>
 
 #include <SFML\Graphics.hpp>
+#include "json.hpp"
+
+#include "Define.h"
+
 
 #pragma comment(lib, "User32.lib")
+
 
 using namespace sf;
 using namespace std;
@@ -63,38 +69,14 @@ bool OutputMessage(string message);
 /// <returns>дата и время</returns>
 string GetCurrentTimeMG();
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="range"></param>
-/// <returns></returns>
-double getRandomDouble(double range);
 
 
-int SimulateOneAttempt(
-    const  vector<vector<tuple<int, int, tuple<int, int, int, int, int, int, int>>>>& AllStatMod,
-    const  vector<int>& CharacteristicsInitial, const  vector<int>& CharacteristicsModded,
-    bool   Initial_OFF,
-    const  vector<int>& AccuracyTemp,
-    const  vector<int>& PaceFireTemp,
-    vector<int>& randomLog
-);
 
+double GetRandomDouble(double range);
 
-double getChance(int position, const vector<pair<int, double>>& chancePoints);
+double GetChance(int position, const vector<pair<int, double>>& chancePoints);
 
-vector<int> drawNormalGraph(
-    RenderWindow& window,
-    const vector<float>& Average10000,
-    float graphHeight,
-    float marginBottom,
-    const vector<float>&
-    Average10000_RANDOM_GEN,
-    int totalIterations,
-    const vector<double>& RESULT_CHARACTERISTIC,
-    const vector<double>& START_CHARACTERISTIC,
-    const vector<double>& INITIAL_CHARACTERISTIC,
-    wstring NameGun,
-    vector<int> method,
-    const tuple<double, double, double>& Tool_Kit_Skil
-);
+double CalculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
+
+wstring StringToWString(const string& str);
+string  WstringToString(const wstring& wstr);

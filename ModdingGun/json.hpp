@@ -1,4 +1,4 @@
-//     __ _____ _____ _____
+﻿//     __ _____ _____ _____
 //  __|  |   __|     |   | |  JSON for Modern C++
 // |  |  |__   |  |  | | | |  version 3.12.0
 // |_____|_____|_____|_|___|  https://github.com/nlohmann/json
@@ -18094,11 +18094,11 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
     const int f = kAlpha - e - 1;
     const int k = ((f * 78913) / (1 << 18)) + static_cast<int>(f > 0);
 
-    const int index = (-kCachedPowersMinDecExp + k + (kCachedPowersDecStep - 1)) / kCachedPowersDecStep;
-    JSON_ASSERT(index >= 0);
-    JSON_ASSERT(static_cast<std::size_t>(index) < kCachedPowers.size());
+    const int iterator = (-kCachedPowersMinDecExp + k + (kCachedPowersDecStep - 1)) / kCachedPowersDecStep;
+    JSON_ASSERT(iterator >= 0);
+    JSON_ASSERT(static_cast<std::size_t>(iterator) < kCachedPowers.size());
 
-    const cached_power cached = kCachedPowers[static_cast<std::size_t>(index)];
+    const cached_power cached = kCachedPowers[static_cast<std::size_t>(iterator)];
     JSON_ASSERT(kAlpha <= cached.e + e + 64);
     JSON_ASSERT(kGamma >= cached.e + e + 64);
 
@@ -19647,9 +19647,9 @@ class serializer
                 ? (byte & 0x3fu) | (codep << 6u)
                 : (0xFFu >> type) & (byte);
 
-        const std::size_t index = 256u + (static_cast<size_t>(state) * 16u) + static_cast<size_t>(type);
-        JSON_ASSERT(index < utf8d.size());
-        state = utf8d[index];
+        const std::size_t iterator = 256u + (static_cast<size_t>(state) * 16u) + static_cast<size_t>(type);
+        JSON_ASSERT(iterator < utf8d.size());
+        state = utf8d[iterator];
         return state;
     }
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Core.h"
-#include "C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\json.hpp"
+#include "GunStats.h"
 
 class CharacteristicGun
 {
@@ -106,7 +106,14 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<int> InitialStatPosition;
+	vector<int> DefaultStatPosition;
+
+	/// <summary>
+	/// запись всех апгрейдов
+	/// </summary>
+	vector<vector<int>> UpgradeHistory;
+
+	unsigned int CountOption;
 
 	bool Empty;
 
@@ -117,11 +124,9 @@ public:
 
 	CharacteristicGun(const CharacteristicGun& other);
 
-	CharacteristicGun();
+	CharacteristicGun(vector<int> MaxStatPosition);
 
 	bool is_Empty();
-
-	bool Load(path PathToInfo);
 
 	bool Load(path PathToInfo, wstring namegun);
 
@@ -132,15 +137,30 @@ public:
 	/// <summary>
 	/// получить шанс услучшения ДЛЯ УЛУЧШЕНИЯ НА СЛЕД ПОЗИЦИЮ характеристики
 	/// </summary>
-	/// <param name="stat"></param>
+	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
 	double GetChanceFor_NEXT_Stat(unsigned int stat);
+
+	/// <summary>
+	/// получить вектор уменьшения характеристик, для текущей статы
+	/// </summary>
+	/// <param name="stat">GunStats::</param>
+	/// <returns></returns>
+	vector<int> GetDecreaseForCurrentStat(unsigned int stat);
+
+
+	/// <summary>
+	/// Сделать шаг назад для статы, с учетом уменьшеных значений
+	/// </summary>
+	/// <param name="stat">GunStats::</param>
+	/// <returns></returns>
+	bool StepBack();
 
 
 	/// <summary>
 	/// получить визуальное отображение процента прибавки
 	/// </summary>
-	/// <param name="stat"></param>
+	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
 	double GetVisualProcentStat(int stat);
 
@@ -152,6 +172,13 @@ public:
 	bool ReturnDefaultstat();
 
 	/// <summary>
+	/// получить стандартные позиции
+	/// </summary>
+	/// <returns></returns>
+	vector<int> GetDefaultStat();
+
+
+	/// <summary>
 	/// получить максимально возможные статы
 	/// </summary>
 	/// <returns></returns>
@@ -161,6 +188,7 @@ public:
 	/// <summary>
 	/// получить максимальный визуальный процент для статы
 	/// </summary>
+	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
 	double GetMaxStatVisualProcent(unsigned int stat);
 

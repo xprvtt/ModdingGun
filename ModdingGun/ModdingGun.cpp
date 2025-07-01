@@ -1,90 +1,95 @@
 ﻿#include "ModdingGun.h"
 
-// колво повторений мода
-unsigned int totalIterations = 500;
-
-vector<int> method = {
-
-    GunStats::ACCURACY,
-    GunStats::RATE_OF_FIRE,
-    GunStats::PENETRATION,
-    GunStats::KICKBACK,
-    GunStats::SWAY,
-    GunStats::MALFUNCTION_CONDITION,
-    GunStats::MALFUNCTION_DIRT
-
-};
-
-tuple Tool_Kit_Skil = 
-{
-    GunStats::GetToolModifier(GunStats::ToolType::OLD_TOOL),
-    GunStats::GetKitModifier(GunStats::KitType::NO_KIT),
-    GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_5)
-};
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main()
 {
-
-    Average10000_RANDOM_GEN.resize(200'000'000);
-    Average10000.resize(200'000'000);
     // создаем вывод в логи
-    permissions("Log/log.txt", perms::all);
-    remove("Log/log.txt");
-    OutputLog("Запуск!");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    permissions("Log/log.txt", perms::all); remove("Log/log.txt"); OutputLog("Start!");
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /// высота окна, от нее зависит длина окна
-    float  SizeWindowHeight = 700;
-    float  SizeWindowLength = SizeWindowHeight * 1.8f;
-
-    /// количество клеток на одной стороне
-    unsigned int CountCellOnLengthWindow = 20;
-    unsigned int CountCellOnHeightWindow = 5;
-
-    float SizeCell = static_cast<float>(SizeWindowLength / CountCellOnLengthWindow);
-
-    // создаем диалоговое окно
-    unsigned int HeightCharacteristicsInputWindow = 100;
-    unsigned int LengthCharacteristicsInputWindow = HeightCharacteristicsInputWindow * 5;
+    float  HeightWindowMain = 700.f;
+    float  LengthWindowMain = HeightWindowMain * (16.0f / 9.0f);
    
     // создаем диалоговое окно графика
-    unsigned int sizeXGrafWindow = 1240;
-    unsigned int sizeYGrafWindow = 500;
+    unsigned int HeightWindowDiagram = static_cast<unsigned>(HeightWindowMain    * 0.8);
+    unsigned int LengthWindowDiagram = static_cast<unsigned>(HeightWindowDiagram * (20.0f / 9.0f));
 
-    unsigned int SizeFont = 17;
 
-    // переменные положения мышки
-    Vector2i PositionMouse;
-    Vector2f MouseWorldPos;
+
+    // количество клеток по сторонам
+    // устарело
+    unsigned int CountCellOnLength = 20;
+    // устарело
+    unsigned int CountCellOnHeight = 5;
+
+
+    float SizeCell_default = static_cast<float>(LengthWindowMain / CountCellOnLength);
+
+
+    // переменные  мышки
+    Vector2i PositionMouseForMain;
+    Vector2f MouseWorldPosForMain;
+
+
+    shared_ptr<Texture> TexturePoint_Empty     = make_shared<Texture>(L"Assets/Standart/Empty.png");
+    shared_ptr<Texture> TexturePoint_RedMark   = make_shared<Texture>(L"Assets/Standart/MarkX.png");
+    shared_ptr<Texture> TexturePoint_GreenMark = make_shared<Texture>(L"Assets/Standart/MarkV.png");
+
+
+    path Lang_Folder  = L"Lang/";
+
+    path Gun_Folder   = L"Assets/Gun";
+
+    path Tool_Folder  = L"Assets/Tool";
+    path Kit_Folder   = L"Assets/Kit";
+    path Skill_Folder = L"Assets/Skill";
+
+    // получаем расположение пушки
+    wstring  FileStat              = L"Attribute/AllGunStat/GUNARRAY.json";
+    path     backgroundPathDiagram = "Assets/Standart/background_graf.png";
+    path     backgroundPatchMain   = "Assets/Standart/background.png";
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // колличество повторений сборок мода
+    unsigned int totalIterations = 1000;
+
+    // записанные шаги модификаций 
+    vector<Method> method_MOD;
+
+
+
+
+    // текущие модификаторы улучающие шанс прока
+    Select_Modifiers CurrentModifiers = 
+    {
+        GunStats::Modifiers::ToolType::OLD_TOOL,
+        GunStats::Modifiers::KitType::NO_KIT,
+        GunStats::Modifiers::SkillType::PLAYER_MASTER_5
+    };
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -103,19 +108,34 @@ int main()
 
 
 
-    ///////////////////////////////////  FONT   /////////////////////////////////////// 
-    /// обнаруживаем все шрифты в папке 
-    vector<path> SearchFont = SearchFile("Font/", ".ttf");
-    /// если шрифтов не найдено вых
-    if (SearchFont.empty())
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    
+    LANG_SETTING.loadLangInFolder(Lang_Folder);
+
+    vector<GUI_TextAndRectangle> VectorLangGUI;
     {
-        OutputLog("Шрифт не найден, завершение");
-        return -1;
+
+        auto lang = LANG_SETTING.getLoadedLanguages();
+        float SizeLangCell = SizeCell_default * 0.5f;
+
+        for (size_t i = 0; i < LANG_SETTING.getCountlang(); i++)
+        {
+            RectangleShape ShapeLang;
+            ShapeLang.setSize({ SizeLangCell, SizeLangCell });
+            ShapeLang.setPosition(Vector2f(LengthWindowMain - SizeLangCell * i - SizeCell_default, HeightWindowMain - SizeLangCell * 2.7f));
+
+            bool setAsPressedButton;
+            i == 1 ? setAsPressedButton = false : setAsPressedButton = true;
+
+            VectorLangGUI.emplace_back(GUI_TextAndRectangle({ lang[i] }, ShapeLang, true, setAsPressedButton));
+        }
+        LANG_SETTING.setLanguage(1);
     }
-    // используем первый в списке шрифт
-    OutputLog("Шрифт: " + SearchFont[0].string());
-    Font CurrentFont = LoadFont(SearchFont[0]);
-    OutputLog("Шрифт загружен - 60" );
     ///////////////////////////////////////////////////////////////////////////////////
 
 
@@ -131,141 +151,36 @@ int main()
 
 
 
-
-
-
-
-
-
-
-        //////////////////////// ИКОНКИ ОРУЖИЯ  И ВЫБРАННОГО ОРУЖИЯ ////////////////////////
-
-    vector<tuple<RectangleShape, shared_ptr<Texture>, wstring, int>> VectorTextureGun;
-    vector<Text> VectorNameGun;
-
-
-    shared_ptr<Texture> PointTextureEmpty = make_shared<Texture>(L"Assets/Standart/Empty.png");
-
-    for (size_t Tier = 1, MaxTier = CountCellOnHeightWindow; Tier <= MaxTier; Tier++)
-    {
-        vector<path> SearchTextureGun = SearchFile("Assets/Tier_" + to_string(Tier), ".png");
-        if (SearchFont.empty())
-        {
-            OutputLog("текстуры оружия не найдены");
-            return -1;
-        }
-
-        for (unsigned int it = 0; it < CountCellOnLengthWindow; it++)
-        {
-            shared_ptr<Texture> TempPoint;
-
-            wstring TempName;
-            if (it < SearchTextureGun.size())
-            {
-                TempPoint = make_shared<Texture>(SearchTextureGun[it]);
-                TempName = SearchTextureGun[it].stem();
-            }
-            else
-            {
-                TempPoint = PointTextureEmpty;
-                TempName  = L" ";
-            }
-
-
-            RectangleShape TempShape;
-            TempShape.setSize(Vector2f(SizeCell, SizeCell));
-            TempShape.setOutlineThickness(-1);
-            TempShape.setOutlineColor(Color::Black);
-            TempShape.setTexture(TempPoint.get());
-            TempShape.setPosition(Vector2f(SizeCell * it, SizeCell * (Tier - 1) ));
-
-            Text TempNameGun(CurrentFont, TempName, SizeFont);
-            TempNameGun.setFillColor(Color::White);
-            TempNameGun.setPosition(Vector2f(SizeCell * static_cast<float>(it), static_cast<float>(SizeCell * (Tier - 1))));
-            TempNameGun.setOutlineColor(Color::Black);
-            TempNameGun.setOutlineThickness(1);
-            TempNameGun.setCharacterSize(14);
-
-
-            VectorTextureGun.push_back(make_tuple(TempShape, TempPoint, TempName, Tier));
-            
-
-            if (TempName == L"РПГ")
-            {
-                TempNameGun.setFillColor(Color::Red);
-            }
-            VectorNameGun.push_back(TempNameGun);
-
-        }
-    }
-
-
-
-    RectangleShape SelectedGunShape;
-    SelectedGunShape.setSize(Vector2f(SizeCell, SizeCell));
-    SelectedGunShape.setTexture(PointTextureEmpty.get(), true);
-    SelectedGunShape.setOutlineThickness(-2);
-    SelectedGunShape.setOutlineColor(Color::Black);
-    SelectedGunShape.setPosition(Vector2f(0, SizeCell * (CountCellOnHeightWindow + 1) ));
-
-    OutputLog("загружен vector textrue");
     ///////////////////////////////////////////////////////////////////////////////////
 
+    vector<GUI_TextAndRectangle> VectorThemeGUI;    
+
+
+    {
+        float YSizeLangCell = SizeCell_default * 0.5f;
+        float XSizeLangCell = SizeCell_default * 1.5f;
 
 
 
+        int itTheme = 0;
+
+        for (const auto& Theme : ThemeGui::AllTheme)
+        {
+            auto itbeginTheme = ThemeGui::AllTheme.begin();
+
+            RectangleShape ShapeLang;
+            ShapeLang.setSize({ XSizeLangCell ,  YSizeLangCell });
+            ShapeLang.setPosition(Vector2f(LengthWindowMain - XSizeLangCell * itTheme - SizeCell_default * 1.7f, HeightWindowMain - YSizeLangCell * 1.5f));
 
 
+            bool setAsPressedButton;
+            itTheme == 0 ? setAsPressedButton = false : setAsPressedButton = true;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //////////////////////// КНОПКА СБОРКИ ////////////////////////
-    
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    RectangleShape Calculation;
-    Calculation.setSize(Vector2f(SizeCell * 2, SizeCell / 2));
-    Calculation.setOutlineThickness(-3);
-    Calculation.setOutlineColor(Color::Green);
-    Calculation.setPosition(Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 3)));
-
-    
-
-    Text TextCalculation(CurrentFont);
-    TextCalculation.setString(L"Собрать");
-    TextCalculation.setCharacterSize(SizeFont+3);
-    TextCalculation.setFillColor(Color::Black);
-
-
-    FloatRect textBounds = TextCalculation.getLocalBounds();
-    Vector2f rectPos = Calculation.getPosition();
-    Vector2f rectSize = Calculation.getSize();
-
-    TextCalculation.setOrigin(Vector2f(textBounds.position.x + textBounds.size.x / 2.0f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextCalculation.setPosition(Vector2f(rectPos.x + rectSize.x / 2.0f,rectPos.y + rectSize.y / 2.0f)  );
-
-
-    ////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
+            VectorThemeGUI.emplace_back(GUI_TextAndRectangle({ string(Theme.first) }, ShapeLang, true, setAsPressedButton));
+            itTheme++;
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -292,46 +207,635 @@ int main()
     vector<shared_ptr<Texture>> ToolTextures;
     vector<shared_ptr<Texture>> SkillTextures;
 
-    vector<RectangleShape> ToolShapes;
-    vector<RectangleShape> SkillShapes;
-    vector<RectangleShape> KitShapes;
+    vector<path> toolpath  = SearchFile(Tool_Folder, ".png");
+    vector<path> kitpath   = SearchFile(Kit_Folder, ".png");
+    vector<path> skillpath = SearchFile(Skill_Folder, ".png");
 
-    vector<path> toolpath = SearchFile("Assets/Tool/", ".png");
-    vector<path> kitpath = SearchFile("Assets/Kit/", ".png");
-    vector<path> skillpath = SearchFile("Assets/Skill/", ".png");
+    struct RectangleModifiers
+    {        
+        vector<GUI_TextAndRectangle> ToolRectangleGUI;
+        vector<GUI_TextAndRectangle> KitRectangleGUI;
+        vector<GUI_TextAndRectangle> SkillRectangleGUI;
 
-    auto LoadTexturesAndShapes = [&](const vector<path>& paths, float yOffset,
-        vector<shared_ptr<Texture>>& textures,
-        vector<RectangleShape>& shapes)
-        {
-            int i = 1;
+    };
+    RectangleModifiers ModifiersIcon;
+
+
+    auto LoadTexturesAndShapes = [&](const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUI_TextAndRectangle>& shapes)
+        {            
+            float i = 0;
+            float j = 0;
             for (const auto& patht : paths)
             {
                 auto tex = make_shared<Texture>();
-                if (!tex->loadFromFile(patht)) continue;
+
+                if (!tex->loadFromFile(patht))
+                {
+                    continue;
+                }
 
                 textures.push_back(tex);
 
-                RectangleShape box;
-                box.setOutlineThickness(-1);
-                box.setOutlineColor(Color::Black);
-                box.setSize(Vector2f(SizeCell / 2 + 10, SizeCell / 2 + 10));
-                box.setTexture(tex.get());
-                box.setPosition(Vector2f(SizeCell / 2 + (SizeCell / 2  + 10) * i , SizeCell * yOffset));
+                RectangleShape RectangleCurrentType;
+                RectangleCurrentType.setSize(Vector2f(SizeCell_default * 0.6f, SizeCell_default * 0.6f));
+                RectangleCurrentType.setPosition(Vector2f(SizeCell_default * 2.5f + SizeCell_default * 0.6f * i, Ypos + j * SizeCell_default * 0.6f));
+                RectangleCurrentType.setTexture(tex.get());
 
-                shapes.push_back(box);
-                ++i;
+                string NameModifiers = patht.stem().string();
+                NameModifiers.erase(0, 3);
+
+                shapes.push_back(GUI_TextAndRectangle( { NameModifiers }, RectangleCurrentType, true, true)  );
+
+                i++;
+                if (i > 4)
+                { 
+                    j = 1.f; i = 0.f;
+                }
             }
         };
 
     // Загружаем всё:
-    LoadTexturesAndShapes(toolpath, CountCellOnHeightWindow + 1.0f, ToolTextures, ToolShapes);
-    LoadTexturesAndShapes(kitpath, CountCellOnHeightWindow + 2.f, KitTextures, KitShapes);
-    LoadTexturesAndShapes(skillpath, CountCellOnHeightWindow + 3.0f, SkillTextures, SkillShapes);
+    LoadTexturesAndShapes(toolpath,  SizeCell_default * 2, ToolTextures,  ModifiersIcon.ToolRectangleGUI);
+    LoadTexturesAndShapes(kitpath,   SizeCell_default * 3, KitTextures,   ModifiersIcon.KitRectangleGUI);
+    LoadTexturesAndShapes(skillpath, SizeCell_default * 4, SkillTextures, ModifiersIcon.SkillRectangleGUI);
 
-    ToolShapes[3].setOutlineColor(Color::Green);
-    KitShapes[0].setOutlineColor(Color::Green);
-    SkillShapes[5].setOutlineColor(Color::Green);
+
+
+    /// устанавливаем настройки по умолчанию
+
+    // по умолчанию старый инструмент
+    for (size_t it = 0; it < ModifiersIcon.ToolRectangleGUI.size(); it++)
+    {
+        auto name = *ModifiersIcon.ToolRectangleGUI[it].getKeyString_and_TextWstring().begin();
+
+
+        if (holds_alternative<string>(name))
+        {
+            string SName = get<string>(name);
+
+            if (SName == GunStats::Modifiers::GetToolName(CurrentModifiers.Tool))
+            {
+                ModifiersIcon.ToolRectangleGUI[it].setAsPressedButton();
+
+                break;
+            }
+        }
+    }
+
+    // по умолчанию без набора
+    for (size_t it = 0; it < ModifiersIcon.KitRectangleGUI.size(); it++)
+    {
+        auto name = *ModifiersIcon.KitRectangleGUI[it].getKeyString_and_TextWstring().begin();
+
+        if (holds_alternative<string>(name))
+        {
+            string SName = get<string>(name);           
+
+            if (SName == GunStats::Modifiers::GetKitName(CurrentModifiers.Kit))
+            {
+                ModifiersIcon.KitRectangleGUI[it].setAsPressedButton();
+                break;
+            }
+        }
+    }
+
+    // игрок мастер 5
+    for (size_t it = 0; it < ModifiersIcon.SkillRectangleGUI.size(); it++)
+    {
+        auto name = *ModifiersIcon.SkillRectangleGUI[it].getKeyString_and_TextWstring().begin();
+
+        if (holds_alternative<string>(name))
+        {
+            string SName = get<string>(name);
+
+
+            if (SName == GunStats::Modifiers::GetSkillName(CurrentModifiers.Skill))
+            {
+                ModifiersIcon.SkillRectangleGUI[it].setAsPressedButton();
+                break;
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////// ИКОНКИ ОРУЖИЯ  И ВЫБРАННОГО ОРУЖИЯ ////////////////////////
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    struct VectorWeapon
+    {
+        shared_ptr<Texture> WTexture;
+
+        wstring WName;
+
+        GUI_TextAndRectangle WeapoGUI;
+    };
+
+    vector<VectorWeapon> VectorGun;
+    /////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    vector<path> SearchTextureGun = SearchFile(Gun_Folder, ".png");
+    if (SearchTextureGun.empty())
+    {
+        OutputLog("main -> Texture Gun not found");
+        return -1;
+    }
+    /////////////////////////////////////////////////////////////////////////////
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    unsigned int it_VectorGun = 0;
+    int CountGunList = 22;
+
+    
+    for (const auto Gun : SearchTextureGun)
+    {
+        shared_ptr<Texture> PtrTextureWeapon;
+
+        string NameWeapon = WstringToString(Gun.stem());
+
+
+        RectangleShape RectangleWeaponCurrent;
+        RectangleWeaponCurrent.setSize(Vector2f(SizeCell_default * 2, SizeCell_default / 2));
+
+
+        VectorGun.push_back({ PtrTextureWeapon, Gun.stem().wstring(), GUI_TextAndRectangle({NameWeapon}, RectangleWeaponCurrent, false, false)});
+    }
+    
+
+    // для списка
+    GUI_TextAndRectangle ALLGunShapeScrollGUI = [SizeCell_default, CountGunList]()
+        {
+        RectangleShape ALLGunShapeScroll;
+        ALLGunShapeScroll.setSize(Vector2f(SizeCell_default * 2, SizeCell_default / 2 * CountGunList));
+        ALLGunShapeScroll.setPosition(Vector2f(0, 0));
+
+        return GUI_TextAndRectangle({}, ALLGunShapeScroll, false, false);
+        }();
+
+    
+
+    
+    // - выбранное оружие
+    GUI_TextAndRectangle SelectWeaponGUI = [SizeCell_default]()
+        {
+            RectangleShape ShapeSelectedGun;
+            ShapeSelectedGun.setSize(Vector2f(SizeCell_default * 2.5f, SizeCell_default * 0.5f));
+            ShapeSelectedGun.setPosition(Vector2f(SizeCell_default * 2.5f, SizeCell_default * 0.5f));
+            //ShapeSelectedGun.setTexture(TexturePoint_Empty.get(), true);
+
+            return GUI_TextAndRectangle({"Gun"}, ShapeSelectedGun, false, false);
+        }();
+
+
+
+    GUI_TextAndRectangle TopScrollToolTip = [SizeCell_default, &VectorGun]()
+        {
+            auto position = VectorGun[0].WeapoGUI.getRectangle().getPosition() + Vector2f(VectorGun[0].WeapoGUI.getRectangle().getSize().x , 0) ;
+            auto Size = VectorGun[0].WeapoGUI.getRectangle().getSize().y;
+
+            RectangleShape ToolTip;
+            ToolTip.setSize(Vector2f(Size, Size));
+            ToolTip.setPosition(position);
+
+            return GUI_TextAndRectangle({}, ToolTip, false, false);
+
+        }();
+
+
+    GUI_TextAndRectangle DownScrollToolTip = [SizeCell_default, &VectorGun, CountGunList]()
+        {
+            auto position = Vector2f(VectorGun[0].WeapoGUI.getRectangle().getPosition().x + VectorGun[0].WeapoGUI.getRectangle().getSize().x, VectorGun[0].WeapoGUI.getRectangle().getSize().y * (CountGunList- 1));
+
+            auto Size = VectorGun[0].WeapoGUI.getRectangle().getSize().y;
+
+            RectangleShape ToolTip;
+            ToolTip.setSize(Vector2f(Size, Size));
+            ToolTip.setPosition(position);
+
+            return GUI_TextAndRectangle({ to_wstring(VectorGun.size() - CountGunList) + L"+" }, ToolTip, false, false);
+
+        }();
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     //////////////////////// КНОПКА СБОРКИ ////////////////////////
+    
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    GUI_TextAndRectangle Calculation = [SizeCell_default, CountCellOnHeight]()
+        {
+            RectangleShape RectangleCalculate;
+            RectangleCalculate.setSize(Vector2f(SizeCell_default * 2.f, SizeCell_default / 2.f));
+            RectangleCalculate.setPosition(Vector2f(SizeCell_default * 13.5f, SizeCell_default * static_cast<float>(CountCellOnHeight + 3)));
+
+
+            return GUI_TextAndRectangle({ "Build" }, RectangleCalculate, true, false);
+
+        }();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////// ОКНО ПАРАМЕТРОВ МОДА ////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    GUI_TextAndRectangle ShaheGeneralMod = [SizeCell_default]()
+        {
+            RectangleShape GeneralMod;
+            GeneralMod.setPosition(Vector2f(SizeCell_default * 6.f, SizeCell_default * 0.5f));
+            GeneralMod.setSize(Vector2f(SizeCell_default * 13.8f, SizeCell_default * 5.f));
+            
+            return GUI_TextAndRectangle({}, GeneralMod, false, false);
+
+        }();
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    float YsizeAll = SizeCell_default * 0.39f;
+
+
+    vector<GeneralStat> GeneralModOption = [SizeCell_default, TexturePoint_GreenMark, TexturePoint_RedMark, &ShaheGeneralMod, YsizeAll]()
+        {
+            vector<GeneralStat> result;
+
+            float YsizeGeneral = ShaheGeneralMod.getRectangle().getSize().y;
+            float XsizeGeneral = ShaheGeneralMod.getRectangle().getSize().x;
+            float XposGeneral = ShaheGeneralMod.getRectangle().getPosition().x;
+
+
+
+            // отступ сверху || снизу
+            float YOffsetOne = YsizeGeneral * 0.15f;
+
+            // отступ между
+            float YOffsetRelated = YsizeGeneral * 0.03f;
+
+
+            // позиция начальной не считая YOffsetOne
+            float YposOneCharacteristic = (YsizeGeneral - YOffsetOne * 2.f) / ( GunStats::COUNT_CHARACTERISTIC + 2 );
+
+
+            // процентарное соотношение x размера (не учитывая кнопку)
+            
+            array<float, 4> ProcentSizeCell = { 0.12f, 0.06f, 0.78f, 0.04}; // sum = ~1  |||  => const 0.04
+
+
+            for (size_t it = 0; it < GunStats::COUNT_CHARACTERISTIC; it++)
+            {
+                RectangleShape RectangleTemp;
+
+
+
+
+
+                // имя характеристики 
+                /////////////////////////////////////////////////////////////////////////////////////
+                float XsizeName = XsizeGeneral * ProcentSizeCell[0];
+
+                RectangleTemp.setPosition({ XposGeneral , YOffsetOne + YposOneCharacteristic * it + YOffsetRelated * it });
+                RectangleTemp.setSize({ XsizeName, YsizeAll });
+
+                GUI_TextAndRectangle NameCharacteristic({ string(GunStats::MapCharacteristicName_Index[it]) }, RectangleTemp, false, false);
+                /////////////////////////////////////////////////////////////////////////////////////
+
+               
+
+
+
+
+
+
+
+                /// визуальное отображения процента апгрейда
+                /////////////////////////////////////////////////////////////////////////////////////
+                float XsizeVisualProcent = XsizeGeneral * ProcentSizeCell[1];
+
+                RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeName, 0 ));
+                RectangleTemp.setSize({ XsizeVisualProcent, YsizeAll });
+
+                GUI_TextAndRectangle VisualProcentUpgrade({ L"0.0%" }, RectangleTemp, false, false);
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+                // Общий "прямоугольник" в котором распалагаютися все юниты
+                /////////////////////////////////////////////////////////////////////////////////////
+                float XsizeRectangleALLUnits = XsizeGeneral * ProcentSizeCell[2];
+
+                RectangleShape RectanpleForUnits;
+                RectanpleForUnits.setPosition({ RectangleTemp.getPosition() + Vector2f(XsizeVisualProcent, 0) });
+                RectanpleForUnits.setSize(Vector2f(XsizeRectangleALLUnits, YsizeAll));
+                
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+                // размещаем едины в RectanpleForUnits
+                /////////////////////////////////////////////////////////////////////////////////////
+                vector<RectangleShape> resultShapeUnits;
+
+
+                // максимальное колво единиц для текущей характеристики
+                int   CountUnits = GunStats::GET_COUNT_UNITS_FOR_CHARACTERISTIC[it];
+
+                float XposUnits  = RectanpleForUnits.getPosition().x;
+                float YposUnits  = RectanpleForUnits.getPosition().y;
+                float XsizeUnits = RectanpleForUnits.getSize().x / CountUnits;
+                float YsizeUnits = RectanpleForUnits.getSize().y;
+
+
+                for (int Cur_Unit = 0; Cur_Unit < CountUnits; Cur_Unit++)
+                {
+                    RectangleShape UnitShahe;
+                    UnitShahe.setSize({ XsizeUnits, YsizeUnits });
+                    UnitShahe.setPosition({ XposUnits + XsizeUnits * Cur_Unit, YposUnits });
+                    UnitShahe.setFillColor(Color(66, 66, 66));
+                    UnitShahe.setOutlineColor(Color(10, 10, 10));
+                    UnitShahe.setOutlineThickness(-1);
+
+                    resultShapeUnits.push_back(UnitShahe);
+                }
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+                /// кнопка для выбора
+                /////////////////////////////////////////////////////////////////////////////////////
+
+                float ResizeMark = 0.7f; // размер кнопки от максимума %
+
+                // размер кнопки
+                float SizeCellButton = RectangleTemp.getSize().y * ResizeMark;
+
+                // смещение для центрирования
+                float OffsetSizeCellButton = RectangleTemp.getSize().y * (( 1.f - ResizeMark)  / 2.f );
+
+                RectangleTemp.setPosition(   Vector2f(RectanpleForUnits.getPosition().x + RectanpleForUnits.getSize().x, RectanpleForUnits.getPosition().y) + Vector2f(OffsetSizeCellButton * 2, OffsetSizeCellButton)   );
+
+                RectangleTemp.setSize(Vector2f(SizeCellButton, SizeCellButton));
+
+
+                GUI_TextAndRectangle ButtonCharacteristic({}, RectangleTemp, true, false);  
+                ButtonCharacteristic.setTextureButton(TexturePoint_GreenMark, TexturePoint_RedMark);
+
+
+                if (it == 0)
+                {
+                    ButtonCharacteristic.setAsPressedButton();
+                }
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+                result.emplace_back( NameCharacteristic, VisualProcentUpgrade, RectanpleForUnits,  resultShapeUnits, ButtonCharacteristic  );
+            }
+
+            return result;
+        }();
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    float YDownOffset = 0.7f;
+    // между
+    float XOffsetRelated = SizeCell_default * 0.25f;
+
+    /// отображение шанса на улучшение (внизу)
+    GUI_TextAndRectangle TextGeneralModChance = [SizeCell_default, &ShaheGeneralMod, YsizeAll, YDownOffset]()
+        {
+            float Xsize = SizeCell_default * 4.f;
+
+
+            RectangleShape RectangleGeneralModChance;
+            RectangleGeneralModChance.setSize({ Xsize , YsizeAll });
+
+            auto TempRectangle = ShaheGeneralMod.getRectangle();
+            RectangleGeneralModChance.setPosition(TempRectangle.getPosition() + Vector2f(0, TempRectangle.getSize().y - (SizeCell_default * YDownOffset)));
+
+            return GUI_TextAndRectangle({ "Chahce_upgrade" , string(GunStats::MapCharacteristicName_GunStat[0]) ,  L" 0.0%" }, RectangleGeneralModChance, false, false);
+        }();
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    // кнопка применить как начальный
+    GUI_TextAndRectangle ShapeGeneralModApplyStatInitial = [SizeCell_default, &TextGeneralModChance, YsizeAll, YDownOffset, XOffsetRelated]()
+        {         
+            float Xsize = SizeCell_default * 3;
+
+            auto Rec = TextGeneralModChance.getRectangle();
+
+            RectangleShape TempRec;
+            TempRec.setSize(Vector2f(Xsize, YsizeAll));
+            TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y) );
+
+            return GUI_TextAndRectangle({ "Apply_as_initial_mod" }, TempRec, true, false);
+        }();
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    // кнопка применить как мод
+    GUI_TextAndRectangle ButtonGeneralModApplyStat = [SizeCell_default, &ShapeGeneralModApplyStatInitial, YsizeAll, XOffsetRelated]()
+        {
+
+            float Xsize = SizeCell_default * 1.8;
+
+            auto Rec = ShapeGeneralModApplyStatInitial.getRectangle();
+
+            RectangleShape TempRec;
+            TempRec.setSize(Vector2f(Xsize, YsizeAll));
+            TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+
+
+            return GUI_TextAndRectangle({ "Apply" }, TempRec, true, false);
+        }();
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    // кнопка сбросить
+    GUI_TextAndRectangle ShapeGeneralModReset = [SizeCell_default, &ButtonGeneralModApplyStat, YsizeAll, XOffsetRelated]()
+        {
+
+            float Xsize = SizeCell_default * 1.8;
+
+            auto Rec = ButtonGeneralModApplyStat.getRectangle();
+
+            RectangleShape TempRec;
+            TempRec.setSize(Vector2f(Xsize, YsizeAll));
+            TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+
+
+            return GUI_TextAndRectangle({ "Reset" }, TempRec, true, false);
+        }();
+
+
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    // кнопка назад
+    GUI_TextAndRectangle ShapeGeneralModBack = [SizeCell_default, &ShapeGeneralModReset, YsizeAll, XOffsetRelated]()
+        {
+
+            float Xsize = SizeCell_default * 1.6;
+
+            auto Rec = ShapeGeneralModReset.getRectangle();
+
+            RectangleShape TempRec;
+            TempRec.setSize(Vector2f(Xsize, YsizeAll));
+            TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+
+
+            return GUI_TextAndRectangle({ "Step_back" }, TempRec, true, false);
+        }();
+
+
+
+
+
+
+
+
+
     ///////////////////////////////////////////////////////////////////////////////////
 
 
@@ -356,30 +860,19 @@ int main()
 
 
 
-        //////////////////////// ОТОБРАЖЕНИЕ УКАЗАННОГО МОДА ////////////////////////
-        
+    //////////////////////// ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ///////////////////////////////////
+
     ///////////////////////////////////////////////////////////////////////////////////
+    
+    GUI_TextAndRectangle TextInfoDebug = [SizeCell_default, CountCellOnHeight]()
+        {
 
-    RectangleShape СharacteristicsModGun;
-    СharacteristicsModGun.setSize(Vector2f(SizeCell * 8, SizeCell / 2));
-    СharacteristicsModGun.setOutlineThickness(-3);
-    СharacteristicsModGun.setOutlineColor(Color::Green);
-    СharacteristicsModGun.setPosition(Vector2f(SizeCell*4, SizeCell * (CountCellOnHeightWindow + 1)));
+            RectangleShape ShapeInfoDebug;
+            ShapeInfoDebug.setSize(Vector2f(SizeCell_default * 8, SizeCell_default / 2));
+            ShapeInfoDebug.setPosition(Vector2f(static_cast<float>(SizeCell_default * 11.5), static_cast<float>(SizeCell_default* (CountCellOnHeight + 1))));
 
-    Text TextСharacteristicsModGun(CurrentFont);
-    TextСharacteristicsModGun.setString(L"мод, который хотим получить");
-    TextСharacteristicsModGun.setCharacterSize(SizeFont + 3);
-    TextСharacteristicsModGun.setFillColor(Color::Black);
-
-    textBounds = TextСharacteristicsModGun.getLocalBounds();
-    rectPos = СharacteristicsModGun.getPosition();
-    rectSize = СharacteristicsModGun.getSize();
-
-    TextСharacteristicsModGun.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextСharacteristicsModGun.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-    OutputLog("загружен СharacteristicsModGun");
-
+            return GUI_TextAndRectangle({}, ShapeInfoDebug, false, false);
+        }();
     ///////////////////////////////////////////////////////////////////////////////////
 
 
@@ -388,144 +881,6 @@ int main()
 
 
 
-
-
-
-
- 
-    //////////////////////// ОТОБРАЖЕНИЕ НАЧАЛЬНОГО МОДА И КНОПКИ ПЕРЕКЛЮЧЕНИЯ ////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////////////
-
-
-    shared_ptr<Texture> RedMark = make_shared<Texture>(L"Assets/Standart/MarkX.png");
-    shared_ptr<Texture> GreenMark = make_shared<Texture>(L"Assets/Standart/MarkV.png");
-
-
-
-    RectangleShape СharacteristicsModGunInitial;
-    СharacteristicsModGunInitial.setSize(Vector2f(SizeCell * 8, SizeCell / 2));
-    СharacteristicsModGunInitial.setOutlineThickness(-3);
-    СharacteristicsModGunInitial.setOutlineColor(Color::Green);
-    СharacteristicsModGunInitial.setPosition(Vector2f(SizeCell * 4, SizeCell* (CountCellOnHeightWindow + 2)));
-
-    RectangleShape ButtonСharacteristicsModGunInitial;
-    ButtonСharacteristicsModGunInitial.setSize(Vector2f(SizeCell / 2, SizeCell / 2));
-    ButtonСharacteristicsModGunInitial.setOutlineThickness(-3);
-    ButtonСharacteristicsModGunInitial.setOutlineColor(Color::Black);
-    ButtonСharacteristicsModGunInitial.setTexture(RedMark.get(), true);
-    ButtonСharacteristicsModGunInitial.setPosition(Vector2f(SizeCell * 12 + SizeCell / 2, SizeCell* (CountCellOnHeightWindow + 2)));
-
-    Text TextСharacteristicsModGunInitial(CurrentFont);
-    TextСharacteristicsModGunInitial.setString(L"начальный мод, от корого начнем  |  переключение ->");
-    TextСharacteristicsModGunInitial.setCharacterSize(SizeFont + 3); 
-    TextСharacteristicsModGunInitial.setFillColor(Color::Black);
-
-    textBounds = TextСharacteristicsModGunInitial.getLocalBounds();
-    rectPos = СharacteristicsModGunInitial.getPosition();
-    rectSize = СharacteristicsModGunInitial.getSize();
-
-    TextСharacteristicsModGunInitial.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextСharacteristicsModGunInitial.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-    OutputLog("загружен СharacteristicsModGunInitial");
-
-    ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //////////////////////// ОТОБРАЖЕНИЕ МАКС МАКС СТАТОВ МОДА ////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////////////
-
-    RectangleShape СharacteristicsModGunMAX;
-    СharacteristicsModGunMAX.setSize(Vector2f(SizeCell * 8, SizeCell / 2));
-    СharacteristicsModGunMAX.setOutlineThickness(-3);
-    СharacteristicsModGunMAX.setOutlineColor(Color::Black);
-    СharacteristicsModGunMAX.setPosition(Vector2f(SizeCell * 4, SizeCell* (CountCellOnHeightWindow + 5)));
-
-    Text TextСharacteristicsModGunMAX(CurrentFont);
-    TextСharacteristicsModGunMAX.setString(L"Здесь будут указаны max прибавка для каждой статы");
-    TextСharacteristicsModGunMAX.setCharacterSize(SizeFont + 3);
-    TextСharacteristicsModGunMAX.setFillColor(Color::Black);
-
-    textBounds = TextСharacteristicsModGunMAX.getLocalBounds();
-    rectPos = СharacteristicsModGunMAX.getPosition();
-    rectSize = СharacteristicsModGunMAX.getSize();
-
-    TextСharacteristicsModGunMAX.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextСharacteristicsModGunMAX.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-
-    ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     //////////////////////// ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////////////
-
-    RectangleShape ShapeInfoDebug;
-    ShapeInfoDebug.setSize(Vector2f(SizeCell * 7, SizeCell / 2));
-    ShapeInfoDebug.setOutlineThickness(-3);
-    ShapeInfoDebug.setOutlineColor(Color::Black);
-    ShapeInfoDebug.setPosition(Vector2f(static_cast<float>(SizeCell * 12.5), static_cast<float>(SizeCell* (CountCellOnHeightWindow + 1))));
-
-    Text TextInfoDebug(CurrentFont);
-    TextInfoDebug.setCharacterSize(SizeFont + 3);
-    TextInfoDebug.setFillColor(Color::Black);
-
-    textBounds = TextInfoDebug.getLocalBounds();
-    rectPos = ShapeInfoDebug.getPosition();
-    rectSize = ShapeInfoDebug.getSize();
-
-    TextInfoDebug.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextInfoDebug.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 11.5f));
-
-    OutputLog("загружен ShapeInfoDebug");
-
-    ///////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -543,24 +898,16 @@ int main()
 
     ///////////////////////////////////////////////////////////////////////////////////
 
-    RectangleShape ShapeTargetIter;
-    ShapeTargetIter.setSize(Vector2f(SizeCell * 4, SizeCell / 2));
-    ShapeTargetIter.setOutlineThickness(-3);
-    ShapeTargetIter.setOutlineColor(Color::Green);
-    ShapeTargetIter.setPosition(Vector2f(SizeCell * 13.5f, SizeCell * static_cast<float>(CountCellOnHeightWindow + 2) ));
 
-    Text TextTargetIter(CurrentFont);
-    TextTargetIter.setString(L"колличество сборок: " + to_string(totalIterations));
-    TextTargetIter.setCharacterSize(SizeFont + 3);
-    TextTargetIter.setFillColor(Color::Black);
+    GUI_TextAndRectangle ShapeTargetIter = [SizeCell_default, CountCellOnHeight, totalIterations]()
+        {
 
-    textBounds = TextTargetIter.getLocalBounds();
-    rectPos = ShapeTargetIter.getPosition();
-    rectSize = ShapeTargetIter.getSize();
+            RectangleShape ShapeTargetIter;
+            ShapeTargetIter.setSize(Vector2f(SizeCell_default * 4, SizeCell_default / 2));
+            ShapeTargetIter.setPosition(Vector2f(SizeCell_default * 13.5f, SizeCell_default* static_cast<float>(CountCellOnHeight + 2)));
 
-    TextTargetIter.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextTargetIter.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.f));
-    
+            return GUI_TextAndRectangle({ "Number_weapon_assemblies" , to_wstring(totalIterations)}, ShapeTargetIter, true, false);
+        }();  
 
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -582,97 +929,61 @@ int main()
 
 
 
-//////////////////////// ЗАДНИЙ ФОН ////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-
-    Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("Assets/Standart/background.png"))
-    {
-        // Обработка ошибки — например, лог или аварийный выход
-        OutputLog("Не удалось загрузить background.png");
-    }
-    RectangleShape background;
-    background.setSize(Vector2f(SizeWindowLength, SizeWindowHeight));
-    background.setPosition(Vector2f(0, 0));
-    background.setTexture(&backgroundTexture);
-    OutputLog("загружен background");
-
+//////////////////////// ЗАДНИЙ ФОН ////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
 
+    RectangleShape background;
+    background.setSize(Vector2f(LengthWindowMain, HeightWindowMain));
+    background.setPosition(Vector2f(0, 0));
 
+    Texture backgroundTexture;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////// ДИАЛОГОВОЕ ОКНО ВВОДА ////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-
-    
-    vector<pair<RectangleShape, Text>> InputCharacteristicsShapeText;
-    for (int i = 0, j = 0; i < 7 && j < 3;)
+    if (!backgroundTexture.loadFromFile(backgroundPatchMain)) 
     {
-        RectangleShape TempInputCharacteristicsShape;
-        TempInputCharacteristicsShape.setSize(Vector2f(static_cast<float>(LengthCharacteristicsInputWindow / 7), static_cast<float>(HeightCharacteristicsInputWindow / 3)));
-        TempInputCharacteristicsShape.setPosition(Vector2f(static_cast<float>((LengthCharacteristicsInputWindow / 7) * i), static_cast<float>((HeightCharacteristicsInputWindow / 3) * j)));
-        TempInputCharacteristicsShape.setOutlineColor(Color::Red);
-
-        Text TempInputCharacteristicsText(CurrentFont);
-
-        if      (j == 0) { TempInputCharacteristicsText.setString(L"↑"); }
-        else if (j == 2) { TempInputCharacteristicsText.setString(L"↓"); }
-        else if (j == 1) 
-        { 
-            TempInputCharacteristicsText.setString("0.00");
-        }
-
-        TempInputCharacteristicsText.setCharacterSize(SizeFont + 3);
-        TempInputCharacteristicsText.setFillColor(Color::Black);
-        TempInputCharacteristicsText.setCharacterSize(HeightCharacteristicsInputWindow / 5);
-
-        FloatRect textBounds3 = TempInputCharacteristicsText.getLocalBounds();
-        TempInputCharacteristicsText.setOrigin(Vector2f(textBounds3.position.x + textBounds3.size.x / 2.0f, textBounds3.position.y + textBounds3.size.y / 2.0f));
-
-        Vector2f rectPos3 = TempInputCharacteristicsShape.getPosition();
-        Vector2f rectSize3 = TempInputCharacteristicsShape.getSize();
-        
-        //j == 1 ? TempInputCharacteristicsText.setPosition(Vector2f(rectPos3.x + rectSize3.x / 4.0f, rectPos3.y + rectSize3.y / 2.0f)) : 
-        TempInputCharacteristicsText.setPosition(Vector2f(rectPos3.x + rectSize3.x / 2.0f, rectPos3.y + rectSize3.y / 2.0f));
-
-
-        InputCharacteristicsShapeText.push_back(make_pair(TempInputCharacteristicsShape, TempInputCharacteristicsText));
-
-        ///// условие прохождения
-        i++;
-        if (i >= 7) {  i = 0;  j++;  }
+        OutputLog("main -> background.png not loaded");
     }
+    else 
+    {
+        background.setTexture(&backgroundTexture); 
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////////
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // создаем окно
-    RenderWindow window(VideoMode({ static_cast<unsigned int>(SizeWindowLength), static_cast<unsigned int>(SizeWindowHeight) }), "ModdingGun");
+    RenderWindow window(VideoMode({ static_cast<unsigned int>(LengthWindowMain), static_cast<unsigned int>(HeightWindowMain) }), "ModdingGun");
+
+
     RenderWindow Diagram;
 
-    RenderWindow InputWindow;
+
     window.setFramerateLimit(150);
-    InputWindow.setFramerateLimit(150);
-  
+    Diagram.setFramerateLimit(150);
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -687,60 +998,6 @@ int main()
 
 
 
-
-
-
-
-
-
-    //////////////////////// ОТОБРАЖЕНИЕ МЕТОДА ////////////////////////
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    Text TextCurrentMethod(CurrentFont);
-    RectangleShape CurrentMethod;
-
-
-    CurrentMethod.setSize(Vector2f(SizeCell * 12, SizeCell / 2));
-    CurrentMethod.setOutlineThickness(-3);
-    CurrentMethod.setOutlineColor(Color::Green);
-    CurrentMethod.setPosition(Vector2f(0, SizeCell * (CountCellOnHeightWindow + 4)));
-
-
-    wstring StandartMethod = L"Метод Standart: кучность -> темп -> пробитие -> отдача -> качание -> отказ -> отказ ";
-    wstring MaxModMethod   = L"Метод Max Mod: отказ -> отказ -> отдача  -> кучность -> темп -> пробитие -> качание";
-
-    vector<int> StandartMethodV = {
-        GunStats::ACCURACY,
-        GunStats::RATE_OF_FIRE,
-        GunStats::PENETRATION,
-        GunStats::KICKBACK,
-        GunStats::SWAY,
-        GunStats::MALFUNCTION_CONDITION,
-        GunStats::MALFUNCTION_DIRT
-    };
-    vector<int> MaxModMethodV = {
-        GunStats::MALFUNCTION_CONDITION,
-        GunStats::MALFUNCTION_DIRT,
-        GunStats::KICKBACK,
-        GunStats::ACCURACY,
-        GunStats::RATE_OF_FIRE,
-        GunStats::PENETRATION,
-        GunStats::SWAY,
-    };
-
-    TextCurrentMethod.setString(StandartMethod);
-    TextCurrentMethod.setCharacterSize(SizeFont + 3);
-    TextCurrentMethod.setFillColor(Color::Black);
-
-    textBounds = TextCurrentMethod.getLocalBounds();
-    rectPos = CurrentMethod.getPosition();
-    rectSize = CurrentMethod.getSize();
-
-    TextCurrentMethod.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-    TextCurrentMethod.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-
-    ///////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -781,64 +1038,118 @@ int main()
 
 /////////////////////// ПРОЧИЕ ПЕРЕМЕННЫЕ ////////////////////////
 
+
+
+
+//диаграмма
 ////////////////////////////////////////////////////////////////////////////////
 
-    // используем отрисовку графика только один раз чтобы не настал пиздец
-    // с помощью DiagramGrafBool указывает какие окна отрисовали
+    // используем отрисовку кривой только один раз
+    // с помощью DiagramBool указывает какие окна отрисовали
     // false = отрисованно -> больше не будет повторяться
     vector<bool>         DiagramBool;
 
     // вектор окон диаграм с отрисованными графикам
     // графики отрисовываются один раз -> DiagramBool
-    vector<RenderWindow> VectorDiagram;
+    vector<RenderWindow> VectorWindowsDiagram;
 
 
 
+    struct AllPackGraf
+    {
+        map<CountModifiers, float> CurrentFreqModifiers;
+        CurvePack                  CurrentCurvePack;
+
+        shared_ptr<GUI_TextAndRectangle>  GuiPercentile50;
+
+        shared_ptr<GUI_TextAndRectangle>   GUIMethod;
+        vector<GUI_TextAndRectangle>       GUIMethodModifiers;
+
+
+        shared_ptr<GUI_TextAndRectangle>   GUIButtonTop;
+        shared_ptr<GUI_TextAndRectangle>   GUIButtonDown;
+
+        size_t InitialIndexMethod;
+
+        shared_ptr<GUI_TextAndRectangle>   GUIInitialMod;
+        shared_ptr<GUI_TextAndRectangle>   GUIEndMod;        
+    };
+
+    //вектор для кривых 
+    vector<AllPackGraf> VectorDiagramPack;
+
+
+
+
+
+
+
+
+    RectangleShape backgroundDiagram;
+    backgroundDiagram.setSize(Vector2f(static_cast<float>(LengthWindowDiagram), static_cast<float>(HeightWindowDiagram)));
+    backgroundDiagram.setPosition(Vector2f(0.f, 0.f));
+
+    Texture backgroundTextureDiagram;
+
+    // задний фон
+    if (!backgroundTextureDiagram.loadFromFile(backgroundPathDiagram))
+    {
+        OutputLog("main -> background_graf.png not loaded");
+    }
+    else
+    {
+        backgroundDiagram.setTexture(&backgroundTextureDiagram);
+    }
+
+    int Error = 0;
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+    // дефолт статы для 
+    // START_CHARACTERISTIC
+    // INITIAL_CHARACTERISTIC
+    const array<double, GunStats::COUNT_CHARACTERISTIC> DEFAULT_CHARACTERISTIC = { GunStats::COUNT_CHARACTERISTIC , 0.0 };
+
+
+    // указанный мод
+    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
+    array<double, GunStats::COUNT_CHARACTERISTIC> MOD_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+
+    // начальный мод 
+    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
+    array<double, GunStats::COUNT_CHARACTERISTIC> INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+
+
+    vector<int> MaxStatPosition = { 60, 48, 40,    40,40,40,40, };
+
+    // имя передаваемое в drawNormalGraph (?)
+    wstring NameGun = L"Empty";
 
     // выгрузка данных из файла оружия
-    CharacteristicGun CurrentCharacteristicGun;
+    CharacteristicGun CurrentCharacteristicGun(MaxStatPosition);
 
 
 
 
+    const vector<int> NullPosition = { 0,0,0, 0,0,0,0 };   
 
-    // для окна ввода (указывает куда будут записанны данные)
-    // false = в указанный мод
-    // true = в начальный мод
-    bool Initial_Input_Window = false;
-
-
-
-    // true  = начинаем с указанного начаольного мода
-    // false = начинаем с нуля
-    // изменяется кнопкой начального мода
-    bool InitialMod_ON_or_OFF = false;
-
-
-
-    
-
-
-
-
-
-
-    // общие дефолт статы для 
-    // CharacteristicsModded 
-    // CharacteristicsInitial
-    // inputVector    
-    const vector<int>    Characteristics_DEFAULT{ 60, 48, 40, 40, 40, 40, 40 };
-
-    // характеристики мода
-    // оращаемся только через ----- GunStats::      например       GunStats::ACCURACY
-    vector<int> CharacteristicsModded = Characteristics_DEFAULT;
-
-    // начальный мод
-    // оращаемся только через ----- GunStats::      например      GunStats::KICKBACK
-    vector<int> CharacteristicsInitial = Characteristics_DEFAULT;
-
-    // временное хранение характеристик из окна ввода
-    // обращаемся по индексам
+    // текущая позиция мода
     // 0 куч
     // 1 темп
     // 2 пробитие
@@ -846,42 +1157,25 @@ int main()
     // 4 качание
     // 6 сост
     // 5 грязь
-    vector<int> inputVector = Characteristics_DEFAULT;
+    vector<int> PositionMod = NullPosition;
+
+
+    // начальная позиция мода
+    // 0 куч
+    // 1 темп
+    // 2 пробитие
+    // 3 отдача
+    // 4 качание
+    // 6 сост
+    // 5 грязь
+    vector<int> InitialPosition = NullPosition;
 
 
 
 
+    vector<pair <vector<int>, vector<int>>> HistoryPosition;
 
-
-
-
-
-
-    // дефолт статы для 
-    // RESULT_CHARACTERISTIC 
-    // START_CHARACTERISTIC
-    // INITIAL_CHARACTERISTIC
-    const vector<double> DEFAULT_RESULT_CHARACTERISTIC = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-
-
-    // получившийся мод
-    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
-    vector<double> RESULT_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
-
-    // указанный мод
-    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
-    vector<double> START_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
-
-    // начальный мод 
-    // использовать только в области сборки calculate / vector для передачи в drawNormalGraph
-    vector<double> INITIAL_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
-
-
-
-    // имя передаваемое в drawNormalGraph (?)
-    wstring NameGun = L"Empty";
-
-
+    bool PressedApplyAsMod = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -901,6 +1195,10 @@ int main()
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+ 
+    string  NameCharacteristic;
+    wstring Procent;
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -909,8 +1207,8 @@ int main()
     {
         if (WI > 100) { WI = 0; }
 
-        PositionMouse = Mouse::getPosition(window);
-        MouseWorldPos = window.mapPixelToCoords(PositionMouse);
+        PositionMouseForMain = Mouse::getPosition(window);
+        MouseWorldPosForMain = window.mapPixelToCoords(PositionMouseForMain);
 
 
 
@@ -919,17 +1217,11 @@ int main()
             if (event->is<Event::Closed>())
             {
                 window.close();
-                InputWindow.close();
-
-                for (int i = 0; i < VectorDiagram.size(); i++)
+                for (int i = 0; i < VectorWindowsDiagram.size(); i++)
                 {
-                    VectorDiagram[i].close();
+                    VectorWindowsDiagram[i].close();
                 }
-
             }
-
-
-
 
 
 
@@ -949,40 +1241,100 @@ int main()
 
 
 
-                    /// нажали икнонки оружия
-                    for (size_t it = 0; it < VectorTextureGun.size(); it++)
+
+
+
+
+                    /// нажали на оружие в списке)
+                    for (size_t it = 0; it < VectorGun.size(); it++)
                     {
-                        if (get<0>(VectorTextureGun[it]).getGlobalBounds().contains(MouseWorldPos))
+                        if (VectorGun[it].WeapoGUI.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                         {
-                            SelectedGunShape.setTexture(get<1>(VectorTextureGun[it]).get(), true);
+                            HistoryPosition.clear();
+                            method_MOD.clear();
 
-                            // получаем имя пушки
-                            NameGun = get<2>(VectorTextureGun[it]);
-                            
-                            // получаем расположение пушки
-                            wstring  FileStat = L"Attribute/AllGunStat/GUNARRAY.json";
+                            PressedApplyAsMod = false;
 
+                            INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+                            MOD_CHARACTERISTIC     = DEFAULT_CHARACTERISTIC;
+
+
+
+                            // ставим стандартный цвет на юнитах
+                            for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+                            {
+                                for (int it2 = 0; it2 < GeneralModOption[it1].ShaheUnitsInCharacteristic.size(); it2++)
+                                {
+                                    GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(66, 66, 66));
+                                }
+                            }
+
+
+                            ////////////////////////////////////////////////////////////////////////////////////
+                            // получаем имя оружия
+                            NameGun = VectorGun[it].WName;
 
                             if (!CurrentCharacteristicGun.Load(FileStat, NameGun))
                             {
                                 NameGun = L"Empty";
-                                TextInfoDebug.setString(L"ошибка файла");
-                                TextСharacteristicsModGunMAX.setString(L"");
+                                TextInfoDebug.setKeyString_and_TextWstring({ "Error_File" });
+                                PositionMod = NullPosition;
                                 break;
                             }
-                            TextInfoDebug.setString(L"данные загружены");
 
-                            string maxstatforgun = " | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(0)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(1)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(4)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(2)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(3)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(5)) + "% | "
-                                + format("{:.1f}", CurrentCharacteristicGun.GetMaxStatVisualProcent(6)) + "% | ";
+                            SelectWeaponGUI.setKeyString_and_TextWstring({ NameGun });
+
+                            TextInfoDebug.setKeyString_and_TextWstring({ "Loaded",  NameGun } );
+                            ////////////////////////////////////////////////////////////////////////////////////
 
 
-                            TextСharacteristicsModGunMAX.setString(maxstatforgun);
+
+                            InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+                            moveElement(InitialPosition, 4, 2);
+                            PositionMod = InitialPosition;
+
+                            
+                            EditShaheUnits(GeneralModOption, CurrentCharacteristicGun, InitialPosition, PositionMod);
+
+
+                            ////////////////////////////////////////////////////////////////////////////////////
+                            for (int it = 0; it < GeneralModOption.size(); it++)
+                            {
+                                if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                                {
+                                    Procent =  L" ";
+                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
+
+                                    if (!CurrentCharacteristicGun.is_Empty())
+                                    {
+                                        Procent += format(
+                                            L"{:.2f}",
+
+                                            CalculateSuccessChance(
+                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                                )
+                                        );
+                                    }
+                                    else
+                                    {
+                                        Procent += L"0.0";
+                                    }
+                                    Procent += L"%";
+
+                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic,  Procent});
+                                }
+                                //GeneralModOption[it].TextCharacteristicVisualProcent.setFillColor(ColorText);
+                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ L"0.0%" });
+
+                            }
+
+                            ////////////////////////////////////////////////////////////////////////////////////
+
+
+
                             break;
                         }
                     }
@@ -1004,38 +1356,26 @@ int main()
 
 
 
-
-
-                    /// нажали поле ввода мода к которому замодаемся
-                    if (СharacteristicsModGun.getGlobalBounds().contains(MouseWorldPos))
+                    // languages
+                    for (size_t it = 0; it < VectorLangGUI.size(); it++)
                     {
-                        СharacteristicsModGun.setOutlineColor(Color::Red);
-                        window.draw(СharacteristicsModGun);
-                        window.display();
-
-
-
-                        inputVector[0] = CharacteristicsModded[GunStats::ACCURACY];             // 0 куч
-                        inputVector[1] = CharacteristicsModded[GunStats::RATE_OF_FIRE];         // 1 темп
-                        inputVector[2] = CharacteristicsModded[GunStats::PENETRATION];          // 2 пробитие
-                        inputVector[3] = CharacteristicsModded[GunStats::KICKBACK];             // 3 отдача
-                        inputVector[4] = CharacteristicsModded[GunStats::SWAY];                 // 4 качание
-                        inputVector[5] = CharacteristicsModded[GunStats::MALFUNCTION_CONDITION];// 6 сост
-                        inputVector[6] = CharacteristicsModded[GunStats::MALFUNCTION_DIRT];     // 5 грязь
-
-                        for (int SelectOption = 0; SelectOption < inputVector.size(); SelectOption++)
+                        if (VectorLangGUI[it].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                         {
-                            if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
-                            else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
-                            else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat[inputVector[SelectOption]])); }
+                            // снимаем выделение всех
+                            for (size_t it1 = 0; it1 < VectorLangGUI.size(); it1++) 
+                            { 
+                                VectorLangGUI[it1].setAsReleasedButton();
+                            }
+
+                            VectorLangGUI[it].setAsPressedButton();
+
+                            LANG_SETTING.setLanguage(it);
+
+                            /// Refresh всех GUI;
+                            
+                            GUI_TextAndRectangle::FREFRESH_TR_GUI();                         
+
                         }
-
-
-
-                        InputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
-                        InputWindow.setFramerateLimit(150);
-
-                        Initial_Input_Window = false;
                     }
 
 
@@ -1044,48 +1384,37 @@ int main()
 
 
 
-
-
-
-
-
-
-                    // нажали поле вводе начального мода
-                    else if (СharacteristicsModGunInitial.getGlobalBounds().contains(MouseWorldPos))
+                    for (size_t it = 0; it < VectorThemeGUI.size(); it++)
                     {
-                        СharacteristicsModGunInitial.setOutlineColor(Color::Red);
-                        window.draw(СharacteristicsModGunInitial);
-                        window.display();
-
-
-                        Initial_Input_Window = true;
-                        
-                        inputVector[0] = CharacteristicsInitial[GunStats::ACCURACY]              ;     // 0 куч
-                        inputVector[1] = CharacteristicsInitial[GunStats::RATE_OF_FIRE]          ;     // 1 темп
-                        inputVector[2] = CharacteristicsInitial[GunStats::PENETRATION]           ;     // 2 пробитие
-                        inputVector[3] = CharacteristicsInitial[GunStats::KICKBACK]              ;     // 3 отдача
-                        inputVector[4] = CharacteristicsInitial[GunStats::SWAY]                  ;     // 4 качание
-                        inputVector[5] = CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION] ;     // 6 сост
-                        inputVector[6] = CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]      ;     // 5 грязь
-
-                        for (int SelectOption = 0; SelectOption < inputVector.size(); SelectOption++)
+                        if (VectorThemeGUI[it].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                         {
-                            if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
-                            else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
-                            else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat[inputVector[SelectOption]])); }
+                            // снимаем выделение всех
+                            for (size_t it1 = 0; it1 < VectorThemeGUI.size(); it1++)
+                            {
+                                VectorThemeGUI[it1].setAsPressedButton();
+                            }
+
+                            VectorThemeGUI[it].setAsReleasedButton();
+
+
+
+                            /// Refresh всех GUI;
+
+                            auto Theme = VectorThemeGUI[it].getKeyString_and_TextWstring();
+
+                            if (holds_alternative<string>(Theme[0]))
+                            {
+                                auto StringTheme = get<string>(Theme[0]);
+                                GUI_TextAndRectangle::FREFRESH_THEME_GUI(StringTheme);
+                            }
+                            else
+                            {
+                                OutputLog("Main -> VectorThemeGUI - no string specified");
+                            }
+
+
                         }
-
-                        InputWindow.create(VideoMode({ LengthCharacteristicsInputWindow, HeightCharacteristicsInputWindow }), "CharacteristicsCurrent");
-                        InputWindow.setFramerateLimit(150);
                     }
-
-
-
-
-
-
-
-
 
 
 
@@ -1103,319 +1432,131 @@ int main()
 
 
                     // нажали рассчет мода
-                    else if (Calculation.getGlobalBounds().contains(MouseWorldPos))
+                    if (Calculation.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                     {
-
-
-
-                        Average10000.clear();
-                        Average10000_RANDOM_GEN.clear();
-                        Calculation.setOutlineColor(Color::Red);
-                        window.draw(Calculation);
-
-
-
                         
+                        Calculation.setAsReleasedButton();
 
 
                         // загружен ли файл?
                         if (!CurrentCharacteristicGun.is_Empty())
                         {
-                            TextInfoDebug.setString(L"Расчет");                            
-                            
-                            CurrentCharacteristicGun.ReturnDefaultstat();
-                        
+                            TextInfoDebug.setKeyString_and_TextWstring({ "calculation" });
 
 
-                            // пытаемся занизить мод?
-                            bool understatement = false;
+                            ALL_modifiers.clear();
+                            All_Random_Attempt_Used.clear();
 
-                            // работает при выключенном начальном моде InitialMod_ON_or_OFF
-                            if (   GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::ACCURACY)
-                                || GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::RATE_OF_FIRE)
-                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::PENETRATION)
-                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::KICKBACK)
-                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::SWAY)
-                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_DIRT)
-                                || GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] < CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_CONDITION)
-                                && !InitialMod_ON_or_OFF
-                                )
+                            for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
                             {
-                                understatement = true;
-                            }
+                                MOD_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                            }                            
 
-                            // если мод не пытаемся занизить 
-                            if (!understatement)
+
+                            // если не совпадает c начальным 
+                            if (PositionMod != InitialPosition)
                             {
+                                window.draw(background);
+
+                                window.draw(Calculation.getRectangle());
+                                window.draw(Calculation.getText());
+
+                                window.draw(TextInfoDebug.getRectangle());
+                                window.draw(TextInfoDebug.getText());
+                             
+                                window.display();
 
 
-                                // МОД СОВПАДАЕТ?
-                                bool ModMatches = false;
+                                vector<thread> threads_v;
+                                atomic<int> currentIndex = 0;
 
-                                if (   GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]]           == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::ACCURACY)
-                                    && GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]]       == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::RATE_OF_FIRE)
-                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]]           == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::PENETRATION)
-                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]]              == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::KICKBACK)
-                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]]                  == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::SWAY)
-                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]]      == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_DIRT)
-                                    && GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] == CurrentCharacteristicGun.GetVisualProcentStat(GunStats::MALFUNCTION_CONDITION)
-                                    && !InitialMod_ON_or_OFF
-                                    )
+
+
+                                // защита от деления на 0
+                                if (threadCount == 0) threadCount = 1;
+
+                                int chunkSize = totalIterations  / threadCount;
+                                int remainder = totalIterations  % threadCount;
+
+                                int start = 0;
+
+                                for (int i = 0; i < threadCount; ++i)
                                 {
-                                    ModMatches = true;
-                                }
+                                    int end = start + chunkSize + (i < remainder ? 1 : 0);  // равномерно распределяем остаток
 
-                                // если мод совпадает с начальными характеристиками ===>>>>> с включеным начальным модом
-                                if (CharacteristicsModded == CharacteristicsInitial && InitialMod_ON_or_OFF)
-                                {
-                                    ModMatches = true;
-                                }
-
-
-
-
-                                // если не совпадает
-                                if (!ModMatches)
-                                {
-
-
-                                    // реален ли мод?
-                                    bool exists_mod = true;
-
-                                    if (GunStats::Accuracy_VStat[CharacteristicsModded[GunStats::ACCURACY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::ACCURACY)) { TextInfoDebug.setString(L"кучность выше максимума"); exists_mod = false; }
-                                    else if (GunStats::RateFire_VStat[CharacteristicsModded[GunStats::RATE_OF_FIRE]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::RATE_OF_FIRE)) { TextInfoDebug.setString(L"темп стрельбы выше максимума"); exists_mod = false; }
-                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::PENETRATION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::PENETRATION)) { TextInfoDebug.setString(L"пробитие выше максимума"); exists_mod = false; }
-                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::KICKBACK]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::KICKBACK)) { TextInfoDebug.setString(L"отдача выше максимума"); exists_mod = false; }
-                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::SWAY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::SWAY)) { TextInfoDebug.setString(L"качание выше максимума"); exists_mod = false; }
-                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_DIRT]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_DIRT)) { TextInfoDebug.setString(L"отказ от грязи выше максимума"); exists_mod = false; }
-                                    else if (GunStats::Other_VStat[CharacteristicsModded[GunStats::MALFUNCTION_CONDITION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_CONDITION)) { TextInfoDebug.setString(L"отказ от состояния выше максимума"); exists_mod = false; }
-
-
-
-
-
-
-
-                                    /// проверка у нас мод с нуля?
-
-                                    //получилось ли домодать?
-                                    bool ReUpgrade = false;
-
-                                    // если включена кнопка начального мода, то есть начинаем с указанного начального мода
-                                    if (InitialMod_ON_or_OFF)
-                                    {
-                                        //значит не с нуля, значит до_модифицируем до нужных статов
-                                        for (size_t itm = 0; itm < method.size(); itm++)
-                                        {
-                                            int option = method[itm];
-
-                                            for (int i = 0; i <= 200; i++)
-                                            {
-
-
-                                                // получаем визуальный процент прибавки указанного мода указанным методом
-                                                double ModdedVisualProcent;
-
-                                                if (option == GunStats::ACCURACY) { ModdedVisualProcent = GunStats::Accuracy_VStat[CharacteristicsInitial[GunStats::ACCURACY]]; }
-                                                else if (option == GunStats::RATE_OF_FIRE) { ModdedVisualProcent = GunStats::RateFire_VStat[CharacteristicsInitial[GunStats::RATE_OF_FIRE]]; }
-                                                else { ModdedVisualProcent = GunStats::Other_VStat[CharacteristicsInitial[option]]; }
-
-                                                if (CurrentCharacteristicGun.GetVisualProcentStat(option) == ModdedVisualProcent)
-                                                {
-                                                    ReUpgrade = true;
-                                                    break;
-                                                }
-                                                if (i == 200)
-                                                {
-                                                    TextInfoDebug.setString(L"не получилось домодать до начальнных статов");
-                                                    OutputLog(" НЕ ПОЛУЧИЛОСЬ ДОМОДАТЬ ????");
-                                                    itm = method.size();
-                                                    break;
-                                                }
-
-                                                if (GunStats::Accuracy_VStat[CharacteristicsInitial[GunStats::ACCURACY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::ACCURACY)) { TextInfoDebug.setString(L"начальная кучность выше максимума");           ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::RateFire_VStat[CharacteristicsInitial[GunStats::RATE_OF_FIRE]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::RATE_OF_FIRE)) { TextInfoDebug.setString(L"начальная темп стрельбы выше максимума");      ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::PENETRATION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::PENETRATION)) { TextInfoDebug.setString(L"начальная пробитие выше максимума");           ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::KICKBACK]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::KICKBACK)) { TextInfoDebug.setString(L"начальная отдача выше максимума");             ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::SWAY]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::SWAY)) { TextInfoDebug.setString(L"начальная качание выше максимума");            ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_DIRT)) { TextInfoDebug.setString(L"начальная отказ от грязи выше максимума");     ReUpgrade = false; itm = method.size(); break; }
-                                                else if (GunStats::Other_VStat[CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION]] > CurrentCharacteristicGun.GetMaxStatVisualProcent(GunStats::MALFUNCTION_CONDITION)) { TextInfoDebug.setString(L"начальная отказ от состояния выше максимума"); ReUpgrade = false; itm = method.size(); break; }
-
-
-                                                CurrentCharacteristicGun.UpgradeStat(option);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ReUpgrade = true;
-                                    }
-
-                                    window.draw(background);
-                                    Calculation.setOutlineColor(Color::Red);
-                                    window.draw(Calculation);
-                                    window.display();
-
-
-                                    if (ReUpgrade)
-                                    {
-                                        if (exists_mod)
+                                    threads_v.emplace_back([=]()
                                         {
 
-
-
-
-
-
-
-
-
-                                            vector<thread> threads_v;
-
-                                            atomic<int> currentIndex = 0;
-
-
-                                            // защита от деления на 0
-                                            if (threadCount == 0) threadCount = 1;
-
-                                            int chunkSize = totalIterations / threadCount;
-                                            int remainder = totalIterations % threadCount;
-
-                                            int start = 0;
-
-                                            for (int i = 0; i < threadCount; ++i)
+                                            for (int j = start; j < end; ++j)
                                             {
-                                                int end = start + chunkSize + (i < remainder ? 1 : 0);  // равномерно распределяем остаток
-
-                                                threads_v.emplace_back([=]()
-                                                    {
-
-                                                        for (int j = start; j < end; ++j)
-                                                        {
-
-                                                            CharacteristicGun gunCopy = CurrentCharacteristicGun;
-
-
-                                                            RunSingleAssembly(
-                                                                j,
-                                                                gunCopy,
-                                                                method,
-                                                                CharacteristicsInitial,
-                                                                CharacteristicsModded,
-                                                                InitialMod_ON_or_OFF,
-                                                                get<0>(Tool_Kit_Skil),
-                                                                get<1>(Tool_Kit_Skil),
-                                                                get<2>(Tool_Kit_Skil)
-                                                            );
-
-                                                        }
-
-
-                                                    });
-
-                                                start = end;
+                                                CharacteristicGun gunCopy = CurrentCharacteristicGun;
+                                                RunSingleAssembly(j, method_MOD);
                                             }
-
-                                            // Ждём завершения всех потоков
-                                            for (auto& t : threads_v) t.join();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                            CurrentCharacteristicGun = RunSingleAssembly(
-                                                -1,
-                                                CurrentCharacteristicGun,
-                                                method,
-                                                CharacteristicsInitial,
-                                                CharacteristicsModded,
-                                                InitialMod_ON_or_OFF,
-                                                get<0>(Tool_Kit_Skil),
-                                                get<1>(Tool_Kit_Skil),
-                                                get<2>(Tool_Kit_Skil)
-                                            );
-
-
-
-                                            // чистим переменные чтобы записать в них отображаемые данны для графика
-                                            RESULT_CHARACTERISTIC = CurrentCharacteristicGun.GetFullCurrentVisualStat();
-                                            START_CHARACTERISTIC.clear();
-                                            INITIAL_CHARACTERISTIC.clear();
-
-
-
-
-
-
-
-
-
-                                            for (int i = 0; i < CharacteristicsModded.size(); i++)
-                                            {
-                                                if (i == 0) { START_CHARACTERISTIC.push_back(GunStats::Accuracy_VStat[CharacteristicsModded[i]]); }
-                                                else if (i == 1) { START_CHARACTERISTIC.push_back(GunStats::RateFire_VStat[CharacteristicsModded[i]]); }
-                                                else { START_CHARACTERISTIC.push_back(GunStats::Other_VStat[CharacteristicsModded[i]]); }
-                                            }
-
-                                            if (InitialMod_ON_or_OFF)
-                                            {
-                                                for (int i = 0; i < CharacteristicsInitial.size(); i++)
-                                                {
-                                                    if (i == 0) { INITIAL_CHARACTERISTIC.push_back(GunStats::Accuracy_VStat[CharacteristicsInitial[i]]); }
-                                                    else if (i == 1) { INITIAL_CHARACTERISTIC.push_back(GunStats::RateFire_VStat[CharacteristicsInitial[i]]); }
-                                                    else { INITIAL_CHARACTERISTIC.push_back(GunStats::Other_VStat[CharacteristicsInitial[i]]); }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                INITIAL_CHARACTERISTIC = DEFAULT_RESULT_CHARACTERISTIC;
-                                            }
-
-                                            Diagram.create(VideoMode({ sizeXGrafWindow, sizeYGrafWindow }), "Diagram");
-                                            Diagram.setFramerateLimit(150);
-
-                                            VectorDiagram.push_back(move(Diagram));
-                                            DiagramBool.push_back(false);
-
-                                            Diagram.close();
-
-                                            if (!CurrentCharacteristicGun.ReturnDefaultstat())
-                                            {
-                                                // выход
-                                                OutputLog("не удалось вернуть начальные статы, почему?");
-                                                TextInfoDebug.setString(L"не удалось вернуть начальные статы, почему?");
-
-                                            }
-                                        }
-                                    }
+                                        });
+                                    start = end;
                                 }
-                                else
+
+                                // Ждём завершения всех потоков
+                                for (auto& t : threads_v) t.join();
+
+                                Error = 0;
+                                switch (RunSingleAssembly(-1, method_MOD))
                                 {
-                                    TextInfoDebug.setString(L"мод совпадает");
+                                case 0:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Success_assemble" } );
+                                    break;
 
+                                case -1:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Empty_vector_method" });
+                                    break;
+
+                                case -2:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "ChanceUpgrade_<=_0" });
+                                    break;
+
+                                case -3:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Key_Tool_not_found" });
+                                    break;
+
+                                case -4:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Key_Kit_not_found" });
+                                    break;
+
+                                case -5:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Key_Skill_not_found" });
+                                    break;
+
+                                case -6:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "modifiers_noKit_noTool" });
+                                    Error = -6;
+                                    break;
+
+
+                                default:
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Unknown_error_RunSingleAssembly" });
+                                    break;
                                 }
+
+
+
+                                Diagram.create(VideoMode({ LengthWindowDiagram, HeightWindowDiagram }), "Diagram");
+
+                                VectorDiagramPack.emplace_back();
+                                VectorWindowsDiagram.push_back(move(Diagram));
+                                DiagramBool.push_back(false);
+
                             }
                             else
                             {
-                                TextInfoDebug.setString(L"попытка уменьшить мод");
+                                TextInfoDebug.setKeyString_and_TextWstring({ "mod_matches" });
                             }
 
+
                         }
                         else
                         {
-                            TextInfoDebug.setString(L"файл не загружен");
+                            TextInfoDebug.setKeyString_and_TextWstring({ "File_not_uploaded" });
+                            PositionMod = InitialPosition = NullPosition;
                         }
                     }
 
@@ -1432,25 +1573,6 @@ int main()
 
 
 
-
-
-
-                    // кнопка начального мода
-                    else if (ButtonСharacteristicsModGunInitial.getGlobalBounds().contains(MouseWorldPos))
-                    {
-                        if (InitialMod_ON_or_OFF)
-                        {
-                            InitialMod_ON_or_OFF = false;
-                            ButtonСharacteristicsModGunInitial.setTexture(RedMark.get(), true);
-
-                        }
-                        else
-                        {
-                            InitialMod_ON_or_OFF = true;
-                            ButtonСharacteristicsModGunInitial.setTexture(GreenMark.get(), true);
-
-                        }
-                    }
 
 
 
@@ -1470,11 +1592,366 @@ int main()
 
 
                     // окно смены колличества повторений
-                    else if (ShapeTargetIter.getGlobalBounds().contains(MouseWorldPos))
+                    else if (ShapeTargetIter.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                     {
-                        ShapeTargetIter.setOutlineColor(Color::Red);
-                        totalIterations < 5000 ? totalIterations += 1000 : totalIterations = 500;
-                        TextTargetIter.setString(L"колличество сборок: " + to_string(totalIterations));
+                        ShapeTargetIter.setAsReleasedButton();
+                        totalIterations < 6000 ? totalIterations += 1000 : totalIterations = 1000; 
+
+
+                        ShapeTargetIter.setKeyString_and_TextWstring({ "Number_weapon_assemblies", to_wstring(totalIterations) });
+                    }
+
+
+
+
+
+
+
+                    
+
+
+
+
+
+
+
+
+                    // Окно параметров
+                    else if (ShaheGeneralMod.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                    {
+                        // нажали по кнопке 
+                        for ( int it = 0; it < GeneralModOption.size(); it++)
+                        {
+                            if (GeneralModOption[it].MarkButtonCharacteristic.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                            {
+                                
+                                for (int it2 = 0; it2 < GeneralModOption.size(); it2++)
+                                {
+                                    GeneralModOption[it2].MarkButtonCharacteristic.setAsReleasedButton();
+                                }
+
+                                GeneralModOption[it].MarkButtonCharacteristic.setAsPressedButton();                                   
+                                break;
+                            }
+                        }
+
+
+
+                        
+
+                        // нажали применить как мод
+                        if (ButtonGeneralModApplyStat.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                        {                          
+                                                        
+                            ButtonGeneralModApplyStat.setAsReleasedButton();
+
+                            if (!CurrentCharacteristicGun.is_Empty())
+                            {                            
+                                for (int it = 0; it < GeneralModOption.size(); it++)
+                                {
+                                    if (GeneralModOption[it].MarkButtonCharacteristic.isPressed()) 
+                                    {
+                                        if (PositionMod[it] < CurrentCharacteristicGun.GetMaxStatPosition()[ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it] ] )
+                                        {   
+
+
+                                            //////////////////////////////////////////////////////////////////////////////////////////////
+                                            auto RealProcent =
+                                                CalculateSuccessChance(
+                                                    CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                    GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                                    GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                                    GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                                );
+                                            //////////////////////////////////////////////////////////////////////////////////////////////
+
+                                            if (!PressedApplyAsMod)
+                                            {
+                                                for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
+                                                {
+                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                                                }
+                                            }
+
+
+                                            if (CurrentCharacteristicGun.UpgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
+                                            {
+
+
+
+
+                                                //////////////////////////////////////////////////////////////////////////////////////////////
+                                                PositionMod = CurrentCharacteristicGun.GetCurrentPosition();
+                                                moveElement(PositionMod, 4, 2);
+
+                                                // вектор уменьшения характеристик по GunStats
+                                                auto Des = CurrentCharacteristicGun.GetDecreaseForCurrentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
+                                                moveElement(Des, 4, 2);
+
+                                                for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
+                                                { 
+                                                    InitialPosition[i] -= Des[i];
+                                                }
+                                                //////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+                                                
+
+
+
+                                                //////////////////////////////////////////////////////////////////////////////////////////////
+                                                HistoryPosition.push_back({ PositionMod,  InitialPosition });
+                                                method_MOD.push_back({ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it], RealProcent, {CurrentModifiers}, CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]) });
+                                                //////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                                //////////////////////////////////////////////////////////////////////////////////////////////
+                                                PressedApplyAsMod = true;
+                                                ShapeGeneralModApplyStatInitial.setAsReleasedButton();
+                                                //////////////////////////////////////////////////////////////////////////////////////////////                                              
+
+
+                                                TextInfoDebug.setKeyString_and_TextWstring({ "Applied_mod_step_recorded" });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            TextInfoDebug.setKeyString_and_TextWstring({ "Cannot_improved_beyond_maximum" });
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                TextInfoDebug.setKeyString_and_TextWstring({ "Data_not_loaded" });
+                            }
+                        }
+
+
+
+
+
+                        // нажали применить как начальную
+                        else if (ShapeGeneralModApplyStatInitial.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                        {
+                            if (!PressedApplyAsMod)
+                            {                               
+
+                                ShapeGeneralModApplyStatInitial.setAsReleasedButton();
+
+                                if (!CurrentCharacteristicGun.is_Empty())
+                                {
+
+                                    for (int it = 0; it < GeneralModOption.size(); it++)
+                                    {
+
+                                        if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                                        {
+
+                                            if (CurrentCharacteristicGun.UpgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
+                                            {
+
+                                                InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+                                                moveElement(InitialPosition, 4, 2);
+
+                                                PositionMod = InitialPosition;
+
+                                                for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
+                                                {
+                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                                                }
+
+                                                HistoryPosition.push_back({ PositionMod,  InitialPosition });
+
+                                                TextInfoDebug.setKeyString_and_TextWstring({ "Marked_as_initial" });
+                                            }
+                                            else
+                                            {
+                                                TextInfoDebug.setKeyString_and_TextWstring({ "Cannot_improved_beyond_maximum" });
+                                            }
+                                            break;
+                                        }
+
+
+
+                                    }
+                                }
+                                else
+                                {
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Data_not_loaded" } );
+                                }
+                            }
+                            else
+                            {
+                                TextInfoDebug.setKeyString_and_TextWstring({ "Prohibited_after_applying_mod" });
+                            }
+                        }
+
+
+
+
+
+                        // нажали сбросить
+                        else if (ShapeGeneralModReset.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                        {
+                            HistoryPosition.clear();
+                            method_MOD.clear();
+
+                            ShapeGeneralModReset.setAsReleasedButton();
+                            CurrentCharacteristicGun.ReturnDefaultstat();
+
+
+                            InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+                            moveElement(InitialPosition, 4, 2);
+                            PositionMod = InitialPosition;
+
+                            PressedApplyAsMod = false;                        
+
+
+                            INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+                            MOD_CHARACTERISTIC     = DEFAULT_CHARACTERISTIC;
+
+
+                            TextInfoDebug.setKeyString_and_TextWstring({ "Mod_reset" });
+
+                        }
+
+
+
+
+                        //нажали вернуться на шаг  назад
+                        else if (ShapeGeneralModBack.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                        {
+                            ShapeGeneralModBack.setAsReleasedButton();
+                            
+                            //возвращаем шаг назад
+                            if (!CurrentCharacteristicGun.is_Empty())
+                            {
+                                if (CurrentCharacteristicGun.StepBack())
+                                {
+                                    TextInfoDebug.setKeyString_and_TextWstring({ "Step_back" });
+
+                                    // если была нажата принять как мод, удаляем последний элемент
+                                    if (PressedApplyAsMod)
+                                    {
+                                        if (!method_MOD.empty())
+                                        {
+                                            method_MOD.pop_back();
+                                        }
+                                        else 
+                                        { 
+                                            TextInfoDebug.setKeyString_and_TextWstring({ "Error - vector was not reduced, it was empty" } );
+                                        }
+
+
+
+                                        if (method_MOD.empty()) { PressedApplyAsMod = false; }
+                                    }
+                                    if (!HistoryPosition.empty())
+                                    {
+                                        HistoryPosition.pop_back();
+
+                                        auto cp_temp = CurrentCharacteristicGun.GetCurrentPosition();
+                                        moveElement(cp_temp, 4, 2);
+
+                                        if (!HistoryPosition.empty())
+                                        {
+                                            PositionMod = HistoryPosition[HistoryPosition.size() - 1].first;
+                                            InitialPosition = HistoryPosition[HistoryPosition.size() - 1].second;
+                                        }
+                                        else
+                                        {
+                                            PositionMod = InitialPosition = cp_temp;
+                                        }
+
+                                        // проверка всегда по PositionMod
+                                        if (PositionMod != cp_temp) { TextInfoDebug.setKeyString_and_TextWstring({ L"ERROR 'Position != Check' " }); }
+                                    }
+                                    else { TextInfoDebug.setKeyString_and_TextWstring({ L"No more steps ERROR 'HistoryPosition' " }); }
+                                }
+                                else { TextInfoDebug.setKeyString_and_TextWstring({ "No_steps" }); }
+                            }
+                            else { TextInfoDebug.setKeyString_and_TextWstring({ "Cant_take_step_back_there_no_data" }); }
+                        }
+
+
+
+
+                        // размечаем процент
+                        for (int it = 0; it < GeneralModOption.size(); it++)
+                        {
+
+                            GeneralModOption[it].TextCharacteristicVisualProcent.resetColorText();
+
+                            if (!CurrentCharacteristicGun.is_Empty())
+                            {
+                                auto VProcent = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
+
+                                if      (VProcent > 0) { GeneralModOption[it].TextCharacteristicVisualProcent.setColorText(Color::Green); }
+                                else if (VProcent < 0) { GeneralModOption[it].TextCharacteristicVisualProcent.setColorText(Color::Red);   }
+
+                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ format(L"{:.1f}", VProcent), L"%" });
+
+                                // если не нажата
+                                if (!PressedApplyAsMod)
+                                {
+                                    INITIAL_CHARACTERISTIC[it] = VProcent;
+                                    MOD_CHARACTERISTIC[it]     = VProcent;
+                                }
+                                else
+                                {
+                                    MOD_CHARACTERISTIC[it] = VProcent;
+                                }
+
+                            }
+                            else
+                            {
+                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ L"0.0%" });
+                            }
+
+                            // разметка шанса улучшения процента
+                            if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                            {
+
+                                Procent = L" ";
+
+                                if (!CurrentCharacteristicGun.is_Empty())
+                                {
+                                    Procent += format(
+                                        L"{:.2f}",
+
+                                        CalculateSuccessChance(
+                                            CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                            GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                            GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                            GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                        )
+                                    );
+                                }
+                                else
+                                {
+                                    Procent += L"0.0";
+                                }
+                                Procent += L"%";
+
+
+
+                                NameCharacteristic = string(GunStats::MapCharacteristicName_Index[it]);
+
+                                TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade" , NameCharacteristic ,  Procent});
+                            }
+
+                        }
+
+
+                        EditShaheUnits(GeneralModOption, CurrentCharacteristicGun, InitialPosition, PositionMod);
+                        
+
                     }
 
 
@@ -1490,405 +1967,624 @@ int main()
 
 
 
-
-
-                    // окно метода
-                    else if (CurrentMethod.getGlobalBounds().contains(MouseWorldPos))
-                    {
-                        if (method == StandartMethodV)
-                        {
-                            method = MaxModMethodV;
-                            TextCurrentMethod.setString(MaxModMethod);
-                            CurrentMethod.setOutlineColor(Color::Red);
-                        }
-                        else
-                        {
-                            method = StandartMethodV;
-                            TextCurrentMethod.setString(StandartMethod);
-                            CurrentMethod.setOutlineColor(Color::Red);
-                        }
-
-                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    //МОДИЦИФКАТОРЫ
 
                     // инструменты
-                    for (int i = 0; i < ToolShapes.size(); i++)
+                    for (int i = 0; i < ModifiersIcon.ToolRectangleGUI.size(); i++)
                     {
-                        if (ToolShapes[i].getGlobalBounds().contains(MouseWorldPos))
+                        if (ModifiersIcon.ToolRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                         {
-                            for (auto& sh : ToolShapes)
-                            {
-                                sh.setOutlineColor(Color::Black);
+                            for (auto& sh : ModifiersIcon.ToolRectangleGUI)
+                            { 
+                                sh.setAsReleasedButton();
                             }
+                            ModifiersIcon.ToolRectangleGUI[i].setAsPressedButton();
 
-                            switch (i)
+
+
+                            string STip = toolpath[i].stem().string().erase(0, 3);
+                            auto tool = GunStats::Modifiers::ToolType_begin;
+                            for (tool++ ; tool < GunStats::Modifiers::ToolType_end; tool++)
                             {
-
-                            case 0:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::NO_TOOL);          break;
-                            case 1:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::IMPROVED_TOOL);    break;
-                            case 2:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::NORMAL_TOOL);      break;
-                            case 3:     ToolShapes[i].setOutlineColor(Color::Green);    get<0>(Tool_Kit_Skil) = GunStats::GetToolModifier(GunStats::ToolType::OLD_TOOL);         break;
-
-                            default:
-                                break;
+                                if (GunStats::Modifiers::GetToolName(tool) == STip)
+                                {
+                                    break;
+                                }
                             }
+                            CurrentModifiers.Tool = tool;
+                            TextInfoDebug.setKeyString_and_TextWstring({ "Select",  GunStats::Modifiers::GetToolName(tool) });
+
+
+
+                            for (int it = 0; it < GeneralModOption.size(); it++)
+                            {
+                                if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                                {
+
+                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
+                                    Procent =  + L" ";
+
+                                    if (!CurrentCharacteristicGun.is_Empty())
+                                    {
+                                        Procent += format(
+                                            L"{:.2f}",
+
+                                            CalculateSuccessChance(
+                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                            )
+                                        );
+                                    }
+                                    else
+                                    {
+                                        Procent += L"0.0";
+                                    }
+                                    Procent += L"%";
+
+                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic, Procent});
+                                    break;
+                                }
+                            }
+                            break;
                         }
                     }
-
-
-
-
-
-
-
-
-
                     // наборы
-                    for (int i = 0; i < KitShapes.size(); i++)
-                    {
-                        if (KitShapes[i].getGlobalBounds().contains(MouseWorldPos))
+                    for (int i = 0; i < ModifiersIcon.KitRectangleGUI.size(); i++)
                         {
-                            for (auto& sh : KitShapes)
+                            if (ModifiersIcon.KitRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                             {
-                                sh.setOutlineColor(Color::Black);
-                            }
+                                for (auto& sh : ModifiersIcon.KitRectangleGUI)
+                                {
+                                    sh.setAsReleasedButton();
+                                }
+                                ModifiersIcon.KitRectangleGUI[i].setAsPressedButton();
 
-                            switch (i)
-                            {
 
-                            case 0:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::NO_KIT);        break;
-                            case 1:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::DETAIL_KIT);    break;
-                            case 2:     KitShapes[i].setOutlineColor(Color::Green);    get<1>(Tool_Kit_Skil) = GunStats::GetKitModifier(GunStats::KitType::REPAIR_KIT);    break;
-                                 
-                            default:
+                                string STip = kitpath[i].stem().string().erase(0, 3);
+                                auto KitSelect = GunStats::Modifiers::KitType_begin;
+                                for (KitSelect++; KitSelect < GunStats::Modifiers::KitType_end; KitSelect++)
+                                {
+                                    if (GunStats::Modifiers::GetKitName(KitSelect) == STip)
+                                    {
+                                        break;
+                                    }
+                                }
+                                CurrentModifiers.Kit = KitSelect;
+                                TextInfoDebug.setKeyString_and_TextWstring({ "Select", GunStats::Modifiers::GetKitName(KitSelect) });
+
+
+                                for (int it = 0; it < GeneralModOption.size(); it++)
+                                {
+                                    if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                                    {
+
+                                        NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
+                                        Procent = L" ";
+
+                                        if (!CurrentCharacteristicGun.is_Empty())
+                                        {
+                                            Procent += format(
+                                                L"{:.2f}",
+
+                                                CalculateSuccessChance(
+                                                    CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                    GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                                    GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                                    GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                                )
+                                            );
+                                        }
+                                        else
+                                        {
+                                            Procent += L"0.0";
+                                        }
+                                        Procent += L"%";
+
+                                        TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic, Procent });
+                                        break;
+                                    }
+                                }
                                 break;
                             }
                         }
-
-                    }
-
-
-
-
-
-
-
-
-
-
                     // скилы
-                    for (int i = 0; i < SkillShapes.size(); i++)
+                    for (int i = 0; i < ModifiersIcon.SkillRectangleGUI.size(); i++)
                     {
-                        if (SkillShapes[i].getGlobalBounds().contains(MouseWorldPos))
+                        if (ModifiersIcon.SkillRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                         {
-                            for (auto& sh : SkillShapes)
+                            for (auto& sh : ModifiersIcon.SkillRectangleGUI)
                             {
-                                sh.setOutlineColor(Color::Black);
+                                sh.setAsReleasedButton();
                             }
+                            ModifiersIcon.SkillRectangleGUI[i].setAsPressedButton();
 
-                            switch (i)
+
+
+                            string STip = skillpath[i].stem().string().erase(0, 3);
+                            auto SkillSelect = GunStats::Modifiers::SkillType_begin;
+                            for (SkillSelect++; SkillSelect < GunStats::Modifiers::SkillType_end; SkillSelect++)
                             {
-
-                            case 0:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_NO_SKILL);          break;
-                            case 1:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_1);          break;
-                            case 2:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_2);          break;
-                            case 3:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_3);          break;
-                            case 4:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_4);          break;
-                            case 5:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::PLAYER_MASTER_5);          break;
-                            case 6:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_2);          break;
-                            case 7:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_3);          break;
-                            case 8:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_4);          break;
-                            case 9:     SkillShapes[i].setOutlineColor(Color::Green);    get<2>(Tool_Kit_Skil) = GunStats::GetSkillModifier(GunStats::SkillType::NPC_MASTER_5);          break;
-
-
-                            default:
-                                break;
+                                if (GunStats::Modifiers::GetSkillName(SkillSelect) == STip)
+                                {                                    
+                                    break;
+                                }                                
                             }
+                            CurrentModifiers.Skill = SkillSelect;
+                            TextInfoDebug.setKeyString_and_TextWstring({ "Select", GunStats::Modifiers::GetSkillName(SkillSelect) });
+
+
+                            for (int it = 0; it < GeneralModOption.size(); it++)
+                            {
+                                if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
+                                {
+                                    Procent =  L" ";
+                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
+
+                                    if (!CurrentCharacteristicGun.is_Empty())
+                                    {
+                                        Procent += format(
+                                            L"{:.2f}",
+
+                                            CalculateSuccessChance(
+                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+                                            )
+                                        );
+                                    }
+                                    else
+                                    {
+                                        Procent += L"0.0";
+                                    }
+                                    Procent += L"%";
+
+                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic,  Procent });
+                                    break;
+                                }
+                            }
+                            break;
+
+
                         }
                     }
-
-
 
                 }
 
             }
-        }        
 
 
 
+            // прокрутка
+            else if (const auto& mouseScroll = event->getIf<Event::MouseWheelScrolled>())
+            {
+                if (ALLGunShapeScrollGUI.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+                {
+                    if (mouseScroll->delta < 0 && it_VectorGun < VectorGun.size() - CountGunList)
+                    {
+                        it_VectorGun++;
+
+
+                        wstring STLSTR = L"";
+                        if (it_VectorGun != 0)
+                        {
+                            STLSTR = to_wstring(it_VectorGun) + L"+";
+                        }
+                        TopScrollToolTip.setKeyString_and_TextWstring({ STLSTR });
+
+
+                        STLSTR = L"";
+                        if (VectorGun.size() - (it_VectorGun + CountGunList) > 0)
+                        {
+                            STLSTR = to_wstring(VectorGun.size() - (it_VectorGun + CountGunList )) + "+";
+                        }
+                        DownScrollToolTip.setKeyString_and_TextWstring({ STLSTR });
+
+                    }
+                    else if (mouseScroll->delta > 0 && it_VectorGun > 0)
+                    {
+                        it_VectorGun--;
+
+                        wstring STLSTR = L"";
+                        if (it_VectorGun != 0)
+                        {
+                            STLSTR = to_wstring(it_VectorGun) + L"+";
+                        }
+                        TopScrollToolTip.setKeyString_and_TextWstring({ STLSTR });
+
+
+                        STLSTR = L"";
+                        if (VectorGun.size() - (it_VectorGun + CountGunList ) > 0)
+                        {
+                            STLSTR = to_wstring(VectorGun.size() - (it_VectorGun + CountGunList )) + "+";
+                        }
+                        DownScrollToolTip.setKeyString_and_TextWstring({ STLSTR });
+
+                    }
+                }
+            }
+
+        }
 
 
 
-
-
-
-
-
-
-
+        ////////////////////////////////////////////////////////////////////////////////////
 
         window.clear(Color::White);
         window.draw(background);
+        ////////////////////////////////////////////////////////////////////////////////////
 
 
-        for (int i = 0; i < VectorTextureGun.size(); i++)
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        for (auto& GUI : VectorLangGUI)
         {
-            window.draw(get<0>(VectorTextureGun[i]));
-            window.draw(VectorNameGun[i]);
+            window.draw(GUI.getRectangle());
+            window.draw(GUI.getText());
+        }
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////       
+
+
+        for (auto& GUI : VectorThemeGUI)
+        {
+            window.draw(GUI.getRectangle());
+            window.draw(GUI.getText());
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        for (auto& GUI : ModifiersIcon.ToolRectangleGUI)
+        {
+            window.draw(GUI.getRectangle());
+            //window.draw(GUI.getText());
+        }
+        for (auto& GUI : ModifiersIcon.KitRectangleGUI)
+        {
+            window.draw(GUI.getRectangle());
+            //window.draw(GUI.getText());
+        }
+        for (auto& GUI : ModifiersIcon.SkillRectangleGUI)
+        {
+            window.draw(GUI.getRectangle());
+            //window.draw(GUI.getText());
+        }
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        window.draw(ALLGunShapeScrollGUI.getRectangle());
+        //window.draw(ALLGunShapeScrollGUI.getText());
+
+
+        window.draw(SelectWeaponGUI.getRectangle());
+        window.draw(SelectWeaponGUI.getText());
+
+
+        for (int it1 = 0, it_VectorGun2 = it_VectorGun; it1 < CountGunList; it1++, it_VectorGun2++)
+        {
+
+            VectorGun[it_VectorGun2].WeapoGUI.setPositionRectangle(Vector2f(0, SizeCell_default / 2 * it1));
+
+            window.draw(VectorGun[it_VectorGun2].WeapoGUI.getRectangle());
+            window.draw(VectorGun[it_VectorGun2].WeapoGUI.getText());            
+        }     
+
+        window.draw(TopScrollToolTip.getRectangle());
+        window.draw(TopScrollToolTip.getText());
+
+
+        window.draw(DownScrollToolTip.getRectangle());
+        window.draw(DownScrollToolTip.getText());
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        window.draw(Calculation.getRectangle());
+        window.draw(Calculation.getText());
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        window.draw(ShaheGeneralMod.getRectangle());
+        window.draw(ShaheGeneralMod.getText());
+
+
+        for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+        {
+
+            //window.draw(GeneralModOption[it1].TextCharacteristicName.getRectangle());
+            window.draw(GeneralModOption[it1].TextCharacteristicName.getText());
+
+
+
+            //window.draw(GeneralModOption[it1].TextCharacteristicVisualProcent.getRectangle());
+            window.draw(GeneralModOption[it1].TextCharacteristicVisualProcent.getText());
+
+
+
+            window.draw(GeneralModOption[it1].ShapeCharacteristic);
+
+
+
+
+            window.draw(GeneralModOption[it1].MarkButtonCharacteristic.getRectangle());
+            //window.draw(GeneralModOption[it1].MarkButtonCharacteristic.getText()); // текста нет
+
+
+            bool Select = GeneralModOption[it1].MarkButtonCharacteristic.isPressed();
+
+            // метка юнита
+            auto ps = PositionMod[it1];
+
+            if (ps >= GeneralModOption[it1].ShaheUnitsInCharacteristic.size())
+            {
+                ps = GeneralModOption[it1].ShaheUnitsInCharacteristic.size() - 1;
+            }
+
+            else if (Select && ps >= CurrentCharacteristicGun.GetMaxStatPosition()[GunStats::Trans_INDEX_to_INDEXGUNSTAT[it1]])
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[ps].setOutlineColor(Color(128, 128, 128));
+            }
+            else if (Select)
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[ps].setOutlineColor(Color::Green);
+            }
+
+
+            for (int it2 = 0; it2 < GeneralModOption[it1].ShaheUnitsInCharacteristic.size(); it2++)
+            {
+                window.draw(GeneralModOption[it1].ShaheUnitsInCharacteristic[it2]);
+            };
+
+
+            if (Select)
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[ps].setOutlineColor(Color::Black);
+            };
         }
 
 
-        for (int i = 0; i < ToolShapes.size(); i++)
+        //window.draw(TextGeneralModChance.getRectangle());
+        window.draw(TextGeneralModChance.getText());
+
+
+        window.draw(ShapeGeneralModApplyStatInitial.getRectangle());
+        window.draw(ShapeGeneralModApplyStatInitial.getText());
+
+
+        window.draw(ButtonGeneralModApplyStat.getRectangle());
+        window.draw(ButtonGeneralModApplyStat.getText());
+
+
+        window.draw(ShapeGeneralModReset.getRectangle());
+        window.draw(ShapeGeneralModReset.getText());
+
+
+        window.draw(ShapeGeneralModBack.getRectangle());
+        window.draw(ShapeGeneralModBack.getText());
+        
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        window.draw(TextInfoDebug.getRectangle());
+        window.draw(TextInfoDebug.getText());
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        window.draw(ShapeTargetIter.getRectangle());
+        window.draw(ShapeTargetIter.getText());
+
+        ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+     
+
+        ///////////////////////////    подсказки       /////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+
+        // инструменты
+        for (int i = 0; i < ModifiersIcon.ToolRectangleGUI.size(); i++)
         {
-            window.draw(ToolShapes[i]);
+            if (ModifiersIcon.ToolRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+            {
+
+                string STip = toolpath[i].stem().string().erase(0, 3);
+                wstring Tip = LANG_TRANSLATE(STip);
+
+                RectangleShape ShapeTool_tooltip;
+                ShapeTool_tooltip.setOutlineColor(Color::Black);
+                ShapeTool_tooltip.setOutlineThickness(-2);
+                ShapeTool_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
+                ShapeTool_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
+
+
+
+                Text TextTool_tooltip(ThemeGui::CurrentFont);
+                TextTool_tooltip.setString(Tip);
+                TextTool_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextTool_tooltip.setFillColor(Color::Black);
+
+
+                auto rectPos = ShapeTool_tooltip.getPosition();
+                auto rectSize = ShapeTool_tooltip.getSize();
+                auto textBounds = TextTool_tooltip.getLocalBounds();
+
+
+                TextTool_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+                TextTool_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+               
+
+                window.draw(ShapeTool_tooltip);
+                window.draw(TextTool_tooltip);
+
+            }
         }
-        for (int i = 0; i < KitShapes.size(); i++)
+        // наборы
+        for (int i = 0; i < ModifiersIcon.KitRectangleGUI.size(); i++)
         {
-            window.draw(KitShapes[i]);
+            if (ModifiersIcon.KitRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+            {
+                string STip = kitpath[i].stem().string().erase(0, 3);
+                wstring Tip = LANG_TRANSLATE(STip);
+
+
+                RectangleShape ShapeKit_tooltip;
+                ShapeKit_tooltip.setOutlineColor(Color::Black);
+                ShapeKit_tooltip.setOutlineThickness(-2);
+                ShapeKit_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
+                ShapeKit_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
+
+
+
+                Text TextKit_tooltip(ThemeGui::CurrentFont);
+                TextKit_tooltip.setString(Tip);
+                TextKit_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextKit_tooltip.setFillColor(Color::Black);
+
+
+
+                auto textBounds = TextKit_tooltip.getLocalBounds();
+                auto rectPos = ShapeKit_tooltip.getPosition();
+                auto rectSize = ShapeKit_tooltip.getSize();
+
+                TextKit_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+                TextKit_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+
+
+                window.draw(ShapeKit_tooltip);
+                window.draw(TextKit_tooltip);
+            }
         }
-        for (int i = 0; i < SkillShapes.size(); i++)
+        // скиллы
+        for (int i = 0; i < ModifiersIcon.SkillRectangleGUI.size(); i++)
         {
-            window.draw(SkillShapes[i]);
+            if (ModifiersIcon.SkillRectangleGUI[i].getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
+            {
+                string STip = skillpath[i].stem().string().erase(0, 3);
+                wstring Tip = LANG_TRANSLATE(STip);
+
+                RectangleShape ShapeSkill_tooltip;
+                ShapeSkill_tooltip.setOutlineColor(Color::Black);
+                ShapeSkill_tooltip.setOutlineThickness(-2);
+                ShapeSkill_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
+                ShapeSkill_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
+
+
+
+                Text TextSkill_tooltip(ThemeGui::CurrentFont);
+                TextSkill_tooltip.setString(Tip);
+                TextSkill_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextSkill_tooltip.setFillColor(Color::Black);
+
+
+                
+                auto rectPos = ShapeSkill_tooltip.getPosition();
+                auto rectSize = ShapeSkill_tooltip.getSize();
+                auto textBounds = TextSkill_tooltip.getLocalBounds();
+
+                TextSkill_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+                TextSkill_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+
+
+
+                window.draw(ShapeSkill_tooltip);
+                window.draw(TextSkill_tooltip);
+
+            }
         }
 
-        window.draw(SelectedGunShape);
-        window.draw(Calculation);
-        window.draw(TextCalculation);
-
-        window.draw(ShapeInfoDebug);
-        window.draw(TextInfoDebug);
-
-        window.draw(СharacteristicsModGun);
-        window.draw(TextСharacteristicsModGun);
-
-        window.draw(СharacteristicsModGunInitial);
-        window.draw(TextСharacteristicsModGunInitial);
-
-        window.draw(ButtonСharacteristicsModGunInitial);
-
-        window.draw(ShapeTargetIter);
-        window.draw(TextTargetIter);
-
-
-        window.draw(CurrentMethod);
-        window.draw(TextCurrentMethod);
+        ////////////////////////////////////////////////////////////////////////////////
 
 
 
-        window.draw(СharacteristicsModGunMAX);
-        window.draw(TextСharacteristicsModGunMAX);
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////
 
 
         window.display();
 
 
-
-
-        if (WI % 50 == 10)
-        {
-            СharacteristicsModGun.setOutlineColor(Color::Green);
-            СharacteristicsModGunInitial.setOutlineColor(Color::Green);
-            Calculation.setOutlineColor(Color::Green);
-            ShapeTargetIter.setOutlineColor(Color::Green);
-            CurrentMethod.setOutlineColor(Color::Green);
-        }
-
-
-
-
-
-
-
-
-
-
         ////////////////////////////////////////////////////////////////////////////////
-        // окно ввода мода
-        if (InputWindow.isOpen())
-        {
-            // Получаем позицию главного окна
-            Vector2i mainPos = window.getPosition();
-            Vector2u mainSize = window.getSize();
-
-            // Центрируем Diagram поверх главного окна
-            int xPosDiagram = (mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(LengthCharacteristicsInputWindow)) / 2);
-            int yPosDiagram = (mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(HeightCharacteristicsInputWindow)) / 2);
-
-            InputWindow.setPosition(Vector2i(xPosDiagram, yPosDiagram));
-
-
-            PositionMouse = Mouse::getPosition(InputWindow);
-            MouseWorldPos = InputWindow.mapPixelToCoords(PositionMouse);
-
-
-            if (const optional eventD = InputWindow.pollEvent())
-            {
-                if (eventD->is<Event::Closed>())
-                {
-
-                    //ставим строку в главное окно
-                    string Сharacteristics_Input = " | ";
-
-                    for (int i = 7; i < 14; i++)
-                    {
-                        Сharacteristics_Input += InputCharacteristicsShapeText[i].second.getString();
-                        Сharacteristics_Input += " | ";
-                    }
-                    
-
-                    //// характеристики мода
-                    //vector<int> CharacteristicsModded;
-                    //// начальный мод
-                    //vector<int> CharacteristicsInitial;
-
-                    if (Initial_Input_Window)
-                    {
-                        TextСharacteristicsModGunInitial.setString(Сharacteristics_Input);                    
-
-
-                        CharacteristicsInitial[GunStats::ACCURACY]              = inputVector[0];     // 0 куч
-                        CharacteristicsInitial[GunStats::RATE_OF_FIRE]          = inputVector[1];     // 1 темп
-                        CharacteristicsInitial[GunStats::PENETRATION]           = inputVector[2];     // 2 пробитие
-                        CharacteristicsInitial[GunStats::KICKBACK]              = inputVector[3];     // 3 отдача
-                        CharacteristicsInitial[GunStats::SWAY]                  = inputVector[4];     // 4 качание
-                        CharacteristicsInitial[GunStats::MALFUNCTION_CONDITION] = inputVector[5];     // 6 сост
-                        CharacteristicsInitial[GunStats::MALFUNCTION_DIRT]      = inputVector[6];     // 5 грязь
-                        // |^||^||^||^||^||^|
-                        // 0 куч 
-                        // 1 темп
-                        // 2 отдача
-                        // 3 качание
-                        // 4 пробитие
-                        // 5 сост
-                        // 6 грязь
-                        /////////////////////
-
-                    }
-                    else
-                    {
-                        TextСharacteristicsModGun.setString(Сharacteristics_Input);
-
-                        CharacteristicsModded[GunStats::ACCURACY]              = inputVector[0];     // 0 куч
-                        CharacteristicsModded[GunStats::RATE_OF_FIRE]          = inputVector[1];     // 1 темп
-                        CharacteristicsModded[GunStats::PENETRATION]           = inputVector[2];     // 2 пробитие
-                        CharacteristicsModded[GunStats::KICKBACK]              = inputVector[3];     // 3 отдача
-                        CharacteristicsModded[GunStats::SWAY]                  = inputVector[4];     // 4 качание
-                        CharacteristicsModded[GunStats::MALFUNCTION_CONDITION] = inputVector[5];     // 6 сост
-                        CharacteristicsModded[GunStats::MALFUNCTION_DIRT]      = inputVector[6];     // 5 грязь
-                        // |^||^||^||^||^||^|
-                        // 0 куч 
-                        // 1 темп
-                        // 2 отдача
-                        // 3 качание
-                        // 4 пробитие
-                        // 5 сост
-                        // 6 грязь
-                        /////////////////////
-
-                    }
-
-
-
-
-                    InputWindow.close();
-                }
-
-                // нажали лкм
-                else if (const auto& mouseButtonPressed = eventD->getIf<Event::MouseButtonPressed>())
-                {
-                    if (mouseButtonPressed->button == Mouse::Button::Left)
-                    {
-
-                        for (size_t SelectOption = 0; SelectOption < InputCharacteristicsShapeText.size(); SelectOption++)
-                        {
-                            // если попали по стрелочкам
-                            if (InputCharacteristicsShapeText[SelectOption].first.getGlobalBounds().contains(MouseWorldPos) && (SelectOption < 7 || SelectOption >= 14))
-                            {
-                                InputCharacteristicsShapeText[SelectOption].first.setOutlineThickness(-3);
-
-                                // нажали повысить
-                                if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↑"){ inputVector[SelectOption]++;}
-                                // нажали понизить
-                                else if (InputCharacteristicsShapeText[SelectOption].second.getString() == L"↓"){ inputVector[SelectOption - 14]--;}
-                               
-                                auto clamp = [](int& val, size_t max) {
-                                    if (val >= static_cast<int>(max)) val--;
-                                    if (val < 0) val++;
-                                    };
-
-                                // Для 0 — AccuracyStat
-                                clamp(inputVector[0], GunStats::Accuracy_VStat.size());
-                                // Для 1 — RateFireStat
-                                clamp(inputVector[1], GunStats::RateFire_VStat.size());
-                                // Для остальных — тоже OtherStat
-                                for (size_t i = 2; i < Characteristics_DEFAULT.size(); ++i) {
-                                    clamp(inputVector[i], GunStats::Other_VStat.size());
-                                }
-
-
-                                if (SelectOption >= 14) { SelectOption -= 14; }
-                                //вывод процентов в инпут 
-                                if      (SelectOption == 0) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Accuracy_VStat[inputVector[SelectOption]])); }
-                                else if (SelectOption == 1) { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::RateFire_VStat[inputVector[SelectOption]])); }
-                                else                        { InputCharacteristicsShapeText[SelectOption + 7].second.setString(format("{:.1f}", GunStats::Other_VStat   [inputVector[SelectOption]])); }
-                                // выход
-                                SelectOption = InputCharacteristicsShapeText.size();
-                            }
-                        }
-                    }
-                }
-            }
-            InputWindow.clear(Color::White);
-
-            for (int i = 0; i < InputCharacteristicsShapeText.size(); i++)
-            {
-                InputWindow.draw(InputCharacteristicsShapeText[i].first);
-                InputWindow.draw(InputCharacteristicsShapeText[i].second);
-
-                InputCharacteristicsShapeText[i].first.setOutlineThickness(0);    
-
-            }
-            InputWindow.display();
-
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1897,41 +2593,688 @@ int main()
 
         ////////////////////////////////////////////////////////////////////////////////
         // отрисовка диаграмм
-        for (int i = VectorDiagram.size() - 1; i >= 0; --i)
+        for (int iter_graf = VectorWindowsDiagram.size() - 1; iter_graf >= 0; --iter_graf)
         {
-            if (VectorDiagram[i].isOpen())
+            if (VectorWindowsDiagram[iter_graf].isOpen())
             {
-                while (const optional event = VectorDiagram[i].pollEvent())
+                auto PositionMouseForGraf = Mouse::getPosition(VectorWindowsDiagram[iter_graf]);
+                auto MouseWorldPosForGraf = window.mapPixelToCoords(PositionMouseForGraf);
+                unsigned int MethodList = 22;
+
+                while (const optional event = VectorWindowsDiagram[iter_graf].pollEvent())
                 {
                     if (event->is<Event::Closed>())
                     {
-                        VectorDiagram[i].close();
-                        DiagramBool.erase(DiagramBool.begin() + i);
-                        VectorDiagram.erase(VectorDiagram.begin() + i);
+                        VectorWindowsDiagram[iter_graf].close();
+                        DiagramBool.erase(DiagramBool.begin() + iter_graf);
+                        VectorWindowsDiagram.erase(VectorWindowsDiagram.begin() + iter_graf);
+                        VectorDiagramPack.erase(VectorDiagramPack.begin() + iter_graf);
+
                         break; // чтобы не обращаться к уже удалённому i
+                    }
+                    else if (const auto& mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
+                    {
+                        if (mouseButtonPressed->button == Mouse::Button::Left)
+                        {
+
+                            // если прокрутка доступна
+                            if (VectorDiagramPack[iter_graf].GUIButtonTop.get() != nullptr && VectorDiagramPack[iter_graf].GUIButtonDown.get() != nullptr)
+                            {
+
+                                auto size = VectorDiagramPack[iter_graf].GUIMethodModifiers.size();
+
+                                // кнопка прокрутки верхняя
+                                if (VectorDiagramPack[iter_graf].GUIButtonTop.get()->getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf))
+                                {
+                                    // но не более размера 
+                                    if (VectorDiagramPack[iter_graf].InitialIndexMethod > 0)
+                                    {
+                                        VectorDiagramPack[iter_graf].InitialIndexMethod--;
+                                    }
+                                }
+
+
+
+                                //кнопка прокрутки вниз
+                                else if (VectorDiagramPack[iter_graf].GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf))
+                                {
+                                    // но не более размера 
+                                    if (VectorDiagramPack[iter_graf].InitialIndexMethod < size)
+                                    {
+                                        VectorDiagramPack[iter_graf].InitialIndexMethod++;
+                                    }
+
+                                }
+
+
+                                // корректировка 
+                                auto SizeRec = VectorDiagramPack[iter_graf].GUIMethodModifiers.begin()->getRectangle().getSize();
+                                auto XSizeWindow = VectorWindowsDiagram[iter_graf].getSize().x;
+
+                                for (size_t i = VectorDiagramPack[iter_graf].InitialIndexMethod; i < MethodList || i < size; i++)
+                                {
+                                    VectorDiagramPack[iter_graf].GUIMethodModifiers[i].setPositionRectangle(Vector2f(XSizeWindow - SizeRec.x, SizeRec.y * (i - VectorDiagramPack[iter_graf].InitialIndexMethod)));
+                                }
+                            }
+                        }
                     }
                 }
 
-                if (i < VectorDiagram.size() && !DiagramBool[i])
+                if (iter_graf < VectorWindowsDiagram.size() )
                 {
-                    // Получаем позицию главного окна
-                    Vector2i mainPos = window.getPosition();
-                    Vector2u mainSize = window.getSize();
 
-                    // Центрируем Diagram поверх главного окна
-                    int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(sizeXGrafWindow)) / 2;
-                    int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(sizeYGrafWindow)) / 2;
+                    if (!DiagramBool[iter_graf])
+                    {
 
-                    VectorDiagram[i].setPosition(Vector2i(xPosDiagram, yPosDiagram));
+                        // Получаем позицию главного окна
+                        Vector2i mainPos = VectorWindowsDiagram[iter_graf].getPosition();
+                        Vector2u mainSize = VectorWindowsDiagram[iter_graf].getSize();
+
+                        // Центрируем текущий Diagram поверх главного окна
+                        int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(LengthWindowDiagram)) / 2;
+                        int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(HeightWindowDiagram)) / 2;
+
+                        VectorWindowsDiagram[iter_graf].setPosition(Vector2i(xPosDiagram, yPosDiagram));                        
 
 
-                    VectorDiagram[i].clear(Color::White);
-                    drawNormalGraph(VectorDiagram[i], Average10000, 200.f, 50.f, Average10000_RANDOM_GEN, totalIterations, RESULT_CHARACTERISTIC, START_CHARACTERISTIC, INITIAL_CHARACTERISTIC, NameGun, method, Tool_Kit_Skil);
-                    
-                    DiagramBool[i] = true;
+                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        if (ALL_modifiers.empty())
+                        {
+                            OutputLog("main -> ALL_modifiers empty");
+                            continue;
+                        }
 
-                    OutputLog("отрисовка диаграммы закончена: " + to_string(i));
-                    VectorDiagram[i].display();
+                        if (All_Random_Attempt_Used.empty())
+                        {
+                            OutputLog("main -> All_Random_Attempt_Used empty");
+                            continue;
+                        }
+                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        float XposPack  = VectorWindowsDiagram[iter_graf].getSize().x * 0.1f;
+                        float YposPack  = VectorWindowsDiagram[iter_graf].getSize().y * 0.5f;
+
+                        float XsizePack = VectorWindowsDiagram[iter_graf].getSize().x * 0.4f;
+                        float YsizePack = VectorWindowsDiagram[iter_graf].getSize().y * 0.4f;
+
+
+                        RectangleShape RectangleForCurve;
+                        RectangleForCurve.setSize({ XsizePack, YsizePack });
+                        RectangleForCurve.setPosition({ XposPack, YposPack });
+                        RectangleForCurve.setFillColor(Color(255, 255, 255, 220));
+                        RectangleForCurve.setOutlineColor(Color::Black);
+                        RectangleForCurve.setOutlineThickness(-1);
+                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+                        // оформление кривой
+                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        //"сырые" частоты
+                        auto SourceFreqMap = GetFreqModifiers(ALL_modifiers);
+
+                        // проводим сглаживание 
+                        float Precent = 0.05f; // насколько сильно %
+                        auto SmoothedFreqMap = SmoothFreqModifiers(SourceFreqMap, Precent);                        
+
+                        string NameCurve;
+                        switch (Error)
+                        {
+                        case 0: 
+                            NameCurve = "modifiers";
+                            break;
+
+
+                        case -6:                        
+                            NameCurve = "modifiers_noKit_noTool";
+                            break;
+
+
+                        default:
+                            NameCurve = "Error";
+                            break;
+                        }
+                        VectorDiagramPack[iter_graf].CurrentFreqModifiers = SmoothedFreqMap;
+
+                        VectorDiagramPack[iter_graf].CurrentCurvePack = GetCurveFrequrency(RectangleForCurve, SmoothedFreqMap, Color::Red, NameCurve);
+
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+                        // оформление 50-ого перцентиля
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        auto InfoPercentile_50 = GetInfoForModifiers(GetPercentile(VectorDiagramPack[iter_graf].CurrentFreqModifiers, 50.0));
+
+
+
+
+
+
+                         GUI_TextAndRectangle PercentileGui = [&VectorWindowsDiagram, iter_graf, &InfoPercentile_50]()
+                         {
+                             float XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
+                             float YposPack = VectorWindowsDiagram[iter_graf].getSize().y  * 0.01f;
+
+                             float XsizePack = VectorWindowsDiagram[iter_graf].getSize().x * 0.27f;
+                             float YsizePack = VectorWindowsDiagram[iter_graf].getSize().y * 0.23f;
+
+
+                             RectangleShape RectangleTemp;
+                             RectangleTemp.setSize({ XsizePack, YsizePack });
+                             RectangleTemp.setPosition({ XposPack, YposPack });
+
+
+                             vector<variant<string, wstring>> VResultWS = { "Percentile_50", L"\n"};
+
+
+                             for (const auto& [name, count] : InfoPercentile_50)
+                             {
+                                 VResultWS.push_back(name);
+                                 VResultWS.push_back(to_wstring(count));
+                                 VResultWS.push_back(L"\n");
+                             }
+
+                             return GUI_TextAndRectangle(VResultWS, RectangleTemp, false, false);
+
+                         }();
+
+                         
+                         VectorDiagramPack[iter_graf].GuiPercentile50 = make_shared<GUI_TextAndRectangle>(PercentileGui);
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                         XsizePack = SizeCell_default * 8.0f;
+                         YsizePack = SizeCell_default * 0.4f;
+
+                         vector< GUI_TextAndRectangle> ResultGuiMethodMod;
+
+                         for (size_t i = 0; i < method_MOD.size(); i++)
+                         {
+                             XposPack = VectorWindowsDiagram[iter_graf].getSize().x - XsizePack;
+                             YposPack = YsizePack * i;
+
+                             GUI_TextAndRectangle GuiMethodMod = [XsizePack, YsizePack, XposPack, YposPack, &method_MOD, i]()
+                                 {
+                                     RectangleShape RectangleTemp;
+                                     RectangleTemp.setSize({ XsizePack, YsizePack });
+                                     RectangleTemp.setPosition({ XposPack, YposPack });
+
+                                     const auto& [tool, kit, skill] = method_MOD[i].ModifiersThisChance;
+
+                                     return GUI_TextAndRectangle(
+                                         { 
+                                            to_wstring(i + 1), L">",
+
+                                            string(GunStats::MapCharacteristicName_GunStat[method_MOD[i].Characteristic_Gunstat]),
+                                            format(L"{:.1f} ({:.2f}%)", method_MOD[i].VisualProcent ,method_MOD[i].ChanceUpgrade), L"- (",
+
+                                            GunStats::Modifiers::GetToolName(tool),   L"|",
+                                            GunStats::Modifiers::GetKitName(kit),     L"|",
+                                            GunStats::Modifiers::GetSkillName(skill), L")",
+
+                                         },
+                                         RectangleTemp, 
+                                         false,
+                                         false
+                                     );
+
+                                 }();
+
+                             ResultGuiMethodMod.push_back(move(GuiMethodMod));
+
+                         }
+                         VectorDiagramPack[iter_graf].GUIMethodModifiers = ResultGuiMethodMod;
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+                         
+
+                        // оформление метода
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                         XposPack = VectorWindowsDiagram[iter_graf].getSize().x - XsizePack;
+                         YposPack = 0;
+
+                         XsizePack = SizeCell_default * 2;
+                         YsizePack = SizeCell_default * 0.4f;
+
+                         XposPack -= XsizePack;
+
+                         GUI_TextAndRectangle GuiMethod = [XsizePack, YsizePack, XposPack, YposPack]()
+                             {
+                                 RectangleShape RectangleTemp;
+                                 RectangleTemp.setSize({ XsizePack, YsizePack });
+                                 RectangleTemp.setPosition({ XposPack, YposPack });
+                                 return GUI_TextAndRectangle( {"Method"}, RectangleTemp, false, false);
+
+                             }();
+                         
+                         VectorDiagramPack[iter_graf].GUIMethod = make_shared<GUI_TextAndRectangle>(GuiMethod);
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                         // добавляем стрелочки для прокрутки если выходим за указанный предел
+                         if (ResultGuiMethodMod.size() >= MethodList)
+                         {
+                             //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                             // верхняя
+                             XsizePack = SizeCell_default * 0.4f;
+                             YsizePack = SizeCell_default * 0.4f;
+
+                             XposPack = ResultGuiMethodMod[1].getRectangle().getPosition().x - XsizePack;
+                             YposPack = ResultGuiMethodMod[1].getRectangle().getPosition().y;
+
+                             GUI_TextAndRectangle Btop = [XsizePack, YsizePack, XposPack, YposPack]()
+                                 {
+                                     RectangleShape RectangleTemp;
+                                     RectangleTemp.setSize({ XsizePack, YsizePack });
+                                     RectangleTemp.setPosition({ XposPack, YposPack });
+
+
+                                     return GUI_TextAndRectangle({ L"↑" }, RectangleTemp, false, false);
+
+                                 }();
+                             VectorDiagramPack[iter_graf].GUIButtonTop = make_shared<GUI_TextAndRectangle>(Btop);
+
+                             //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+                             //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                             // нижняя
+                             XsizePack = SizeCell_default * 0.4f;
+                             YsizePack = SizeCell_default * 0.4f;
+
+                             XposPack = ResultGuiMethodMod[MethodList - 1].getRectangle().getPosition().x - XsizePack;
+                             YposPack = ResultGuiMethodMod[MethodList - 1].getRectangle().getPosition().y;
+
+                             GUI_TextAndRectangle Bdown = [XsizePack, YsizePack, XposPack, YposPack]()
+                                 {
+                                     RectangleShape RectangleTemp;
+                                     RectangleTemp.setSize({ XsizePack, YsizePack });
+                                     RectangleTemp.setPosition({ XposPack, YposPack });
+
+
+                                     return GUI_TextAndRectangle({ L"↓" }, RectangleTemp, false, false);
+
+                                 }();
+                             VectorDiagramPack[iter_graf].GUIButtonDown = make_shared<GUI_TextAndRectangle>(Bdown);
+
+                             //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                         }
+
+                         VectorDiagramPack[iter_graf].InitialIndexMethod = 0;
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+                       // оформление начального и конечного мода
+                       //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                         XsizePack = SizeCell_default * 8.f;
+                         YsizePack = SizeCell_default * 0.5f;
+
+                         XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
+                         YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.25f;
+
+
+                         GUI_TextAndRectangle GInitialMod = [XsizePack, YsizePack, XposPack, YposPack, INITIAL_CHARACTERISTIC]()
+                             {
+                                 RectangleShape RectangleTemp;
+                                 RectangleTemp.setSize({ XsizePack, YsizePack });
+                                 RectangleTemp.setPosition({ XposPack, YposPack });
+                                 wstring result;
+
+                                 for (const auto& ch : INITIAL_CHARACTERISTIC)
+                                 {
+                                     result += format(L"{:.1f}", ch) + L" |\t";
+                                 }
+
+                                 return GUI_TextAndRectangle({ "Initial_mod", L"\t\t" ,result}, RectangleTemp, false, false);
+
+                             }();
+
+
+                         VectorDiagramPack[iter_graf].GUIInitialMod = make_shared<GUI_TextAndRectangle>(GInitialMod);
+
+
+
+
+
+                         YposPack += YsizePack;
+
+                         GUI_TextAndRectangle GEndMod = [XsizePack, YsizePack, XposPack, YposPack, MOD_CHARACTERISTIC]()
+                             {
+                                 RectangleShape RectangleTemp;
+                                 RectangleTemp.setSize({ XsizePack, YsizePack });
+                                 RectangleTemp.setPosition({ XposPack, YposPack });
+                                 wstring result;
+
+                                 for (const auto& ch : MOD_CHARACTERISTIC)
+                                 {
+                                     result += format(L"{:.1f}", ch) + L" |\t";
+                                 }
+
+                                 return GUI_TextAndRectangle({ "End_mod", L"\t\t", result }, RectangleTemp, false, false);
+
+                             }();
+
+
+                         VectorDiagramPack[iter_graf].GUIEndMod = make_shared<GUI_TextAndRectangle>(GEndMod);
+
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        DiagramBool[iter_graf] = true;
+                        OutputLog("Main -> Graph setting is finished: " + to_string(iter_graf));
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    }
+
+
+
+
+
+                    VectorWindowsDiagram[iter_graf].clear(Color::White);
+                    VectorWindowsDiagram[iter_graf].draw(backgroundDiagram);
+
+
+
+
+                    ////////////////////////////////////////////////////////////////////////////////
+
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GuiPercentile50.get()->getRectangle());
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GuiPercentile50.get()->getText());
+
+                    ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+                    ////////////////////////////////////////////////////////////////////////////////
+
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethod.get()->getRectangle());
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethod.get()->getText());
+
+
+                    for (size_t it = VectorDiagramPack[iter_graf].InitialIndexMethod; it < MethodList && it < VectorDiagramPack[iter_graf].GUIMethodModifiers.size(); it++)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getText());
+                    }
+
+                    if (VectorDiagramPack[iter_graf].GUIButtonTop.get() != nullptr && VectorDiagramPack[iter_graf].GUIButtonDown.get() != nullptr)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonTop.get()->getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonTop.get()->getText());
+
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonDown.get()->getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonDown.get()->getText());
+                    }
+
+                    if (VectorDiagramPack[iter_graf].GUIInitialMod.get() != nullptr && VectorDiagramPack[iter_graf].GUIEndMod.get() != nullptr)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIInitialMod.get()->getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIInitialMod.get()->getText());
+
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIEndMod.get()->getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIEndMod.get()->getText());
+                    }
+
+                    ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+                    ////////////////////////////////////////////////////////////////////////////////
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve);
+
+                    for (size_t it2 = 0; it2 < VectorDiagramPack[iter_graf].CurrentCurvePack.VGUITextCurve.size(); it2++)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.VGUITextCurve[it2].getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.VGUITextCurve[it2].getText());
+                    }
+                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.Curve);
+
+                    ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+                    /// если мы навелись на кривую ->  выведем инфу о колличестваx на текущей позиции
+                    if (VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getGlobalBounds().contains(MouseWorldPosForGraf))
+                    {
+
+                        // вертикальная линия
+                        //////////////////////////////////////////////////////////////////////////////////////////
+                        auto posLineTop = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition();
+                        auto posLineDown = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition() + Vector2f( 0, VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getSize().y );
+
+                        // поправка линии на позицию мышки
+                        float PosMouseRelativeRectangleCure = MouseWorldPosForGraf.x - VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition().x;
+                        posLineTop  += Vector2f(PosMouseRelativeRectangleCure, 0);
+                        posLineDown += Vector2f(PosMouseRelativeRectangleCure, 0);
+
+                        //делаем прямую y - 0
+                        VertexArray VerticalLine(PrimitiveType::Lines, 2);    
+
+                        VerticalLine[0].position = posLineTop;
+                        VerticalLine[0].color    = Color::Black;
+
+                        VerticalLine[1].position = posLineDown;
+                        VerticalLine[1].color    = Color::Black;
+
+                        VectorWindowsDiagram[iter_graf].draw(VerticalLine);
+                        //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+                        // перебираем отрезки кривой для вывода информации
+                        //////////////////////////////////////////////////////////////////////////////////////////
+                        
+                        unsigned CountSectionCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.Curve.getVertexCount();
+                        if (CountSectionCurve == 0)
+                        {
+                            CountSectionCurve = 1;
+                        }
+
+                        auto LengthCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getSize().x;
+
+                        auto XposRectangle = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition().x;
+                        auto LengthOneSectionCurve = LengthCurve / CountSectionCurve;                        
+                        auto XposLine = posLineTop.x; // || posLineDown.x
+
+                        //имя инструмента \ кол-во
+                        vector<pair<string, int>> InfoCountModifiers;
+
+                        // перебираем все отрезки
+                        unsigned it_max;
+                        float Cur_Freq;
+
+                        for (it_max = 0; it_max < CountSectionCurve; it_max++)
+                        {
+                            // делаем допуск
+                            float epsilon = 0.01f;
+                            float start   = XposRectangle + LengthOneSectionCurve * it_max;
+                            float end     = XposRectangle + LengthOneSectionCurve * (it_max + 1);
+
+
+                            // проверяем позиция x вертикальной линии входит в секцию кривой?
+                            if (XposLine >= start - epsilon && XposLine < end + epsilon)
+                            {
+
+                                auto iteratorMap = VectorDiagramPack[iter_graf].CurrentFreqModifiers.begin();
+                                advance(iteratorMap, it_max);
+
+
+                                CountModifiers MODIFIERS_M = iteratorMap->first;
+
+                                Cur_Freq = iteratorMap->second;
+
+                                if (iteratorMap != VectorDiagramPack[iter_graf].CurrentFreqModifiers.end())
+                                {
+                                    MODIFIERS_M = iteratorMap->first;
+                                    Cur_Freq = iteratorMap->second;
+                                }
+
+
+                                InfoCountModifiers = GetInfoForModifiers(MODIFIERS_M);
+
+                                break;
+                            }
+                        }
+                        //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+                        // информация о секции
+                        //////////////////////////////////////////////////////////////////////////////////////////
+                        Text NameModifier(ThemeGui::CurrentFont);
+                        NameModifier.setFillColor(Color::Black);
+                        NameModifier.setCharacterSize(static_cast<unsigned>(ThemeGui::CharacterSize * 0.9f));
+
+                        RectangleShape RectangleForGraf;
+                        RectangleForGraf.setSize(Vector2f(SizeCell_default * 2.7, SizeCell_default * 0.23 * static_cast<float>(InfoCountModifiers.size() + 1)   ));
+                        RectangleForGraf.setPosition({ posLineTop + Vector2f(SizeCell_default * 0.3, 0) });
+                        RectangleForGraf.setFillColor(Color(230,230,230, 200));
+                        RectangleForGraf.setOutlineColor(Color::Black);
+                        RectangleForGraf.setOutlineThickness(-1);
+
+
+                        VectorWindowsDiagram[iter_graf].draw(RectangleForGraf);
+
+                        size_t it4;
+                        for (it4 = 0; it4 < InfoCountModifiers.size(); it4++)
+                        {
+                            //////////////////////////////////////////////////////////////////////////////////////////
+                            auto pos1 = posLineTop + Vector2f(SizeCell_default * 0.4, SizeCell_default * 0.2 * it4);
+
+                            NameModifier.setPosition(pos1);
+                            NameModifier.setString(to_wstring(InfoCountModifiers[it4].second));
+
+                            VectorWindowsDiagram[iter_graf].draw(NameModifier);
+                            //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+                            //////////////////////////////////////////////////////////////////////////////////////////
+                            auto pos2 = posLineTop + Vector2f(SizeCell_default * 0.8, SizeCell_default * 0.2 * it4);
+
+                            NameModifier.setPosition(pos2);
+                            NameModifier.setString(L" - " + LANG_TRANSLATE(InfoCountModifiers[it4].first));
+
+                            VectorWindowsDiagram[iter_graf].draw(NameModifier);
+                            //////////////////////////////////////////////////////////////////////////////////////////
+                        }
+
+
+
+                        //////////////////////////////////////////////////////////////////////////////////////////
+                        NameModifier.setPosition(posLineTop + Vector2f(SizeCell_default * 0.4, SizeCell_default * 0.2 * it4));
+                        NameModifier.setString(LANG_TRANSLATE("Section") + to_wstring(it_max + 1) + L" | " + LANG_TRANSLATE("Freq") + format(L"{:.2f}", Cur_Freq));
+
+                        VectorWindowsDiagram[iter_graf].draw(NameModifier);
+                        //////////////////////////////////////////////////////////////////////////////////////////
+                    }
+                    ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+                    VectorWindowsDiagram[iter_graf].display();
                 }                
             }
         }
@@ -1940,7 +3283,152 @@ int main()
 
 
 
+
+
+
+       
+        // возврат к дефолт цвету
+        if (WI % 50 == 10)
+        {
+            Calculation.setAsPressedButton();
+            ShapeTargetIter.setAsPressedButton();
+            ButtonGeneralModApplyStat.setAsPressedButton();
+            ShapeGeneralModReset.setAsPressedButton();
+            ShapeGeneralModBack.setAsPressedButton();
+
+            if (!PressedApplyAsMod) { ShapeGeneralModApplyStatInitial.setAsPressedButton(); }
+        }
+
     }
+
+
     
-    return 0;
+    return 0;    
+}
+
+
+vector<pair<string, int>> GetInfoForModifiers(const CountModifiers& MODIFIERS)
+{
+    vector<pair<string, int>> result;
+    // выводим информацию о 
+    // CountModifiers
+
+
+
+    for (const auto& [CurrentTool, count] : MODIFIERS.CountTool)
+    {
+        if (count)
+        {
+            if (CurrentTool != GunStats::Modifiers::ToolType::NO_TOOL)
+            {
+                result.emplace_back(GunStats::Modifiers::GetToolName(CurrentTool), count);
+            }
+        }
+    }
+    for (const auto& [Currentkit, count] : MODIFIERS.CountKit)
+    {
+        if (count)
+        {
+            if (Currentkit != GunStats::Modifiers::KitType::NO_KIT)
+            {
+                result.emplace_back(GunStats::Modifiers::GetKitName(Currentkit), count);
+            }
+        }
+    }
+    // не подсчитываем исп. скиллы ??
+    //for (const auto& [CurrentSkill, count] : MODIFIERS_M.CountSkill)
+    //{
+    //    if (count)
+    //    {
+    //        result.emplace_back(GunStats::Modifiers::GetSkillName(CurrentSkill), count);
+    //    }
+    //}
+
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& CurrentCharacteristicGun, vector<int> InitialPosition, vector<int> ModPosition)
+{
+    auto DefaultPosition = CurrentCharacteristicGun.GetDefaultStat();
+    moveElement(DefaultPosition, 4, 2);
+
+    auto MaxPosition     = CurrentCharacteristicGun.GetMaxStatPosition();
+    moveElement(MaxPosition, 4, 2);
+
+    auto Current         = CurrentCharacteristicGun.GetCurrentPosition();
+    moveElement(Current, 4, 2);
+    
+
+    for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+    {
+        for (int it2 = 0; it2 < GeneralModOption[it1].ShaheUnitsInCharacteristic.size(); it2++)
+        {
+            //отрисовали  текущие 
+            if (Current[it1] > it2 && it2 < DefaultPosition[it1]) 
+            { 
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(14, 88, 28)); 
+            }
+
+            //отрисовали  начальные мод статы 
+            else if ( InitialPosition[it1] > it2 && it2 < Current[it1]) 
+            { 
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(13, 38, 13));
+            }
+
+            //отрисовали  мод статы
+            else if (it2 < ModPosition[it1]) 
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color::Green);
+            }
+
+            // отрисовали  недостающие до дефолт статов
+            else if (it2 < DefaultPosition[it1]) 
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(128, 128, 128));
+            }
+
+            //отрисовали возможные до макс
+            else if (it2 < MaxPosition[it1]) 
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(66, 66, 66)); 
+            }
+
+            // отрисовали невозможные
+            else 
+            {
+                GeneralModOption[it1].ShaheUnitsInCharacteristic[it2].setFillColor(Color(30, 30, 30)); 
+            }
+        }
+    }
+}
+
+
+
+template<typename T>
+void moveElement(vector<T>& vec, size_t from, size_t to)
+{
+    if (from == to || from >= vec.size() || to > vec.size())
+    {
+        return;
+    }
+
+    auto itFrom = vec.begin() + from;
+    T val = move(*itFrom);
+    vec.erase(itFrom);
+
+    if (to > from)
+    {
+        --to;  // учёт сдвига после erase
+    }
+    vec.insert(vec.begin() + to, move(val));
 }

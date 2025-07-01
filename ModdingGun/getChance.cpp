@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-double getChance(int position, const vector<pair<int, double>>& chancePoints)
+double GetChance(int position, const vector<pair<int, double>>& chancePoints)
 {
 
     for (size_t i = 0; i < chancePoints.size() - 1; ++i)
@@ -19,3 +19,4 @@ double getChance(int position, const vector<pair<int, double>>& chancePoints)
 
     return 0.0; // если позиция вне диапазона
 }
+

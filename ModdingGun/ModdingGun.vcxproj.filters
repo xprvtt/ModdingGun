@@ -9,13 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Файлы ресурсов">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Исходные файлы\Related">
-      <UniqueIdentifier>{55e0d5d4-ebf8-428a-a25d-63d5a4c660e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Main">
       <UniqueIdentifier>{042c9d94-fee7-480a-a2c3-675daf533814}</UniqueIdentifier>
     </Filter>
@@ -28,69 +21,114 @@
     <Filter Include="Исходные файлы\Main\Main">
       <UniqueIdentifier>{5afed5d4-9e39-4acb-a2f0-de8987a1dbfd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\other">
+    <Filter Include="Исходные файлы\Main\MainRe\Graf">
+      <UniqueIdentifier>{65b2e572-e1df-48b1-8e50-295c3a1101e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\MainRe\Other">
+      <UniqueIdentifier>{f32ae52d-0bd4-4b49-8cc5-240f99526bbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Core">
+      <UniqueIdentifier>{55e0d5d4-ebf8-428a-a25d-63d5a4c660e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\other_h">
       <UniqueIdentifier>{8eadfcb9-cd1f-4f9e-a981-198755ee0d48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\Core">
+    <Filter Include="Исходные файлы\Core\Core_h">
       <UniqueIdentifier>{1e8413cc-31a7-488a-a9f9-929736435293}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Other">
+    <Filter Include="Исходные файлы\Main\class\Language">
+      <UniqueIdentifier>{35fa4754-69d6-459d-9203-ddc5540dad38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\class\CharacteristicGun">
+      <UniqueIdentifier>{112dcb1b-9e14-4627-a36e-f69d996dde83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\MainRe\Other\Thread">
       <UniqueIdentifier>{a8fb2129-8415-4fc6-9f54-ea545674c97e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main\class\GuiText">
+      <UniqueIdentifier>{f963fe8a-35c9-4b57-a89a-73d5b16947d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SearchFile.cpp">
-      <Filter>Исходные файлы\Related</Filter>
+      <Filter>Исходные файлы\Core</Filter>
     </ClCompile>
     <ClCompile Include="GetCurrentTimeMG.cpp">
-      <Filter>Исходные файлы\Related</Filter>
+      <Filter>Исходные файлы\Core</Filter>
     </ClCompile>
     <ClCompile Include="OutputMessage.cpp">
-      <Filter>Исходные файлы\Related</Filter>
+      <Filter>Исходные файлы\Core</Filter>
     </ClCompile>
-    <ClCompile Include="drawNormalGraph.cpp">
-      <Filter>Исходные файлы\Main\MainRe</Filter>
-    </ClCompile>
-    <ClCompile Include="getRandomDouble.cpp">
-      <Filter>Исходные файлы\Related</Filter>
-    </ClCompile>
-    <ClCompile Include="CharacteristicGun.cpp">
-      <Filter>Исходные файлы\Main\class</Filter>
-    </ClCompile>
-    <ClCompile Include="getChance.cpp">
-      <Filter>Исходные файлы\Main\MainRe</Filter>
-    </ClCompile>
-    <ClCompile Include="RunSingleAssembly.cpp">
-      <Filter>Исходные файлы\Main\MainRe</Filter>
+    <ClCompile Include="GetRandomDouble.cpp">
+      <Filter>Исходные файлы\Core</Filter>
     </ClCompile>
     <ClCompile Include="ModdingGun.cpp">
       <Filter>Исходные файлы\Main\Main</Filter>
     </ClCompile>
-    <ClCompile Include="Thread.cpp">
-      <Filter>Исходные файлы\Other</Filter>
+    <ClCompile Include="ThreadAssemble.cpp">
+      <Filter>Исходные файлы\Main\MainRe\Other\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawGraph.cpp">
+      <Filter>Исходные файлы\Main\MainRe\Graf</Filter>
+    </ClCompile>
+    <ClCompile Include="LangManager.cpp">
+      <Filter>Исходные файлы\Main\class\Language</Filter>
     </ClCompile>
     <ClCompile Include="LoadFont.cpp">
-      <Filter>Исходные файлы\Main\MainRe</Filter>
+      <Filter>Исходные файлы\Main\MainRe\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="CalculateSuccessChance.cpp">
+      <Filter>Исходные файлы\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="StringToWString.cpp">
+      <Filter>Исходные файлы\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GetChance.cpp">
+      <Filter>Исходные файлы\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="WstringToString.cpp">
+      <Filter>Исходные файлы\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacteristicGun.cpp">
+      <Filter>Исходные файлы\Main\class\CharacteristicGun</Filter>
+    </ClCompile>
+    <ClCompile Include="GUlText.cpp">
+      <Filter>Исходные файлы\Main\class\GuiText</Filter>
+    </ClCompile>
+    <ClCompile Include="ThemeGui.cpp">
+      <Filter>Исходные файлы\Main\class\GuiText</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharacteristicGun.h">
-      <Filter>Исходные файлы\Main\class</Filter>
-    </ClInclude>
     <ClInclude Include="ModdingGun.h">
       <Filter>Исходные файлы\Main\Main</Filter>
     </ClInclude>
     <ClInclude Include="GunStats.h">
-      <Filter>Файлы заголовков\other</Filter>
+      <Filter>Файлы заголовков\other_h</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
-      <Filter>Файлы заголовков\other</Filter>
+      <Filter>Файлы заголовков\other_h</Filter>
     </ClInclude>
     <ClInclude Include="Core.h">
-      <Filter>Файлы заголовков\Core</Filter>
+      <Filter>Исходные файлы\Core\Core_h</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>Исходные файлы\Other</Filter>
+    <ClInclude Include="ThreadAssemble.h">
+      <Filter>Исходные файлы\Main\MainRe\Other\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawGraph.h">
+      <Filter>Исходные файлы\Main\MainRe\Graf</Filter>
+    </ClInclude>
+    <ClInclude Include="LangManager.h">
+      <Filter>Исходные файлы\Main\class\Language</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacteristicGun.h">
+      <Filter>Исходные файлы\Main\class\CharacteristicGun</Filter>
+    </ClInclude>
+    <ClInclude Include="GUlText.h">
+      <Filter>Исходные файлы\Main\class\GuiText</Filter>
+    </ClInclude>
+    <ClInclude Include="ThemeGui.h">
+      <Filter>Исходные файлы\Main\class\GuiText</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
