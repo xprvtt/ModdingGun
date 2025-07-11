@@ -1,11 +1,13 @@
 ﻿#include "ModdingGun.h"
 
 
+
+
 int main()
 {
     // создаем вывод в логи
     permissions("Log/log.txt", perms::all); remove("Log/log.txt"); OutputLog("Start!");
-
+    locale::global(std::locale("en_US.UTF-8"));
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,16 +43,21 @@ int main()
 
     path Lang_Folder  = L"Lang/";
 
+
     path Gun_Folder   = L"Assets/Gun";
+
 
     path Tool_Folder  = L"Assets/Tool";
     path Kit_Folder   = L"Assets/Kit";
     path Skill_Folder = L"Assets/Skill";
 
-    // получаем расположение пушки
-    wstring  FileStat              = L"Attribute/AllGunStat/weaponstat.json";
-    path     backgroundPathDiagram = "Assets/Standart/background_graf.png";
-    path     backgroundPatchMain   = "Assets/Standart/background.png";
+
+    path FileStat                = L"Attribute/AllGunStat/weaponstat.json";
+    path PathToPriceModifiers_JS = L"Attribute/PriceModifiers/PriceModifiers.json";
+
+
+    path backgroundPathDiagram = L"Assets/Standart/background_graf.png";
+    path backgroundPatchMain   = L"Assets/Standart/background.png";
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,12 +68,13 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // колличество повторений сборок мода
-    unsigned int totalIterations = 1000;
+    unsigned int totalIterations = 5000;
 
     // записанные шаги модификаций 
     vector<Method> method_MOD;
 
-
+    // текущее оружие
+    string NameGun = "Empty";
 
 
     // текущие модификаторы улучающие шанс прока
@@ -76,6 +84,16 @@ int main()
         GunStats::Modifiers::KitType::NO_KIT,
         GunStats::Modifiers::SkillType::PLAYER_MASTER_5
     };
+
+    PriceModifiers CurrentPrice = 
+    {
+        0,
+        0,
+        0
+    };
+
+
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -225,6 +243,9 @@ int main()
         {            
             float i = 0;
             float j = 0;
+
+            float Size = SizeCell_default * 0.55f;
+
             for (const auto& patht : paths)
             {
                 auto tex = make_shared<Texture>();
@@ -237,8 +258,8 @@ int main()
                 textures.push_back(tex);
 
                 RectangleShape RectangleCurrentType;
-                RectangleCurrentType.setSize(Vector2f(SizeCell_default * 0.6f, SizeCell_default * 0.6f));
-                RectangleCurrentType.setPosition(Vector2f(SizeCell_default * 2.5f + SizeCell_default * 0.6f * i, Ypos + j * SizeCell_default * 0.6f));
+                RectangleCurrentType.setSize(Vector2f(Size, Size));
+                RectangleCurrentType.setPosition(Vector2f(SizeCell_default * 2.25f + Size * i, Ypos + j * Size));
                 RectangleCurrentType.setTexture(tex.get());
 
                 string NameModifiers = patht.stem().string();
@@ -255,14 +276,136 @@ int main()
         };
 
     // Загружаем всё:
-    LoadTexturesAndShapes(toolpath,  SizeCell_default * 2, ToolTextures,  ModifiersIcon.ToolRectangleGUI);
-    LoadTexturesAndShapes(kitpath,   SizeCell_default * 3, KitTextures,   ModifiersIcon.KitRectangleGUI);
-    LoadTexturesAndShapes(skillpath, SizeCell_default * 4, SkillTextures, ModifiersIcon.SkillRectangleGUI);
+    LoadTexturesAndShapes(toolpath,  SizeCell_default * 1.5f, ToolTextures,  ModifiersIcon.ToolRectangleGUI);
+    LoadTexturesAndShapes(kitpath,   SizeCell_default * 3.0f, KitTextures,   ModifiersIcon.KitRectangleGUI);
+    LoadTexturesAndShapes(skillpath, SizeCell_default * 4.5f, SkillTextures, ModifiersIcon.SkillRectangleGUI);
+
+
+
+    
+    /// стоимость
+    vector<GUI_TextAndRectangle> ToolPrice;
+    vector<GUI_TextAndRectangle> KitPrice;
+
+
+    RectangleShape RectangleAllPrice;
+    RectangleAllPrice.setSize(Vector2f(SizeCell_default * 3.5f, SizeCell_default * 0.4f));
+
+
+
+    {
+
+        wstring WsPrice = L"price";
+
+        const vector<pair<const float, const wstring>> allocation = 
+        {
+            {0.13f, L"--"},
+            {0.11f, L"-" },
+            {0.5f, WsPrice},
+            {0.11f, L"+" },
+            {0.13f, L"++"}
+        };
+
+        const float Yoffset = SizeCell_default * 0.05f;
+        const float Xoffset = SizeCell_default * 0.02f;
+
+        // Tool 
+
+        RectangleAllPrice.setPosition(Vector2f(SizeCell_default * 2.25f, ModifiersIcon.ToolRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.ToolRectangleGUI.rbegin()->getRectangle().getSize().y + Yoffset));
+
+        float Xpos = RectangleAllPrice.getPosition().x;
+        for (const auto& [fl, ws] : allocation)
+        {
+            if (!ToolPrice.empty())
+            {
+                Xpos += ToolPrice.rbegin()->getRectangle().getSize().x + Xoffset;
+            }
+
+
+            RectangleShape CellPrice;
+            CellPrice.setPosition(Vector2f(Xpos , RectangleAllPrice.getPosition().y));
+            CellPrice.setSize(Vector2f(RectangleAllPrice.getSize().x * fl, RectangleAllPrice.getSize().y) );
+
+            if (ws == WsPrice)
+            {
+                wstring Str_ValuePrice = L"0";
+
+                ifstream in_jsonFile_price(PathToPriceModifiers_JS);
+                if (!in_jsonFile_price)
+                {
+                    OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+                }
+                else
+                {
+                    nlohmann::json JSON_PRICE;
+                    in_jsonFile_price >> JSON_PRICE;
+                    in_jsonFile_price.close();
+
+                    unsigned val_price = 0;
+
+                    if (JSON_PRICE.contains("MD_Tool") && JSON_PRICE["MD_Tool"].contains(GunStats::Modifiers::GetToolName(CurrentModifiers.Tool)))
+                    {
+                        val_price = JSON_PRICE["MD_Tool"][GunStats::Modifiers::GetToolName(CurrentModifiers.Tool)].get<unsigned>();
+                        Str_ValuePrice = format( L"{:L}", val_price);
+
+                    }
+                    else
+                    {
+                        JSON_PRICE["MD_Tool"][GunStats::Modifiers::GetToolName(CurrentModifiers.Tool)] = 0;
+
+                        ofstream in_jsonFile_price(PathToPriceModifiers_JS);
+                        in_jsonFile_price << JSON_PRICE;
+                        in_jsonFile_price.close();
+                    }
+                    CurrentPrice.PriceTool = val_price;
+
+                }
+                ToolPrice.push_back(move(GUI_TextAndRectangle( { Str_ValuePrice, L"₽"}, CellPrice, false, false)));
+            } 
+            else
+            {
+                ToolPrice.push_back(move(GUI_TextAndRectangle({ ws }, CellPrice, true, false)));
+            }
+
+        }
+
+        // Kit 
+        RectangleAllPrice.setPosition(Vector2f(SizeCell_default * 2.25f, ModifiersIcon.KitRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.KitRectangleGUI.rbegin()->getRectangle().getSize().y + Yoffset));
+        Xpos = RectangleAllPrice.getPosition().x;
+        for (const auto& [fl, ws] : allocation)
+        {
+            if (!KitPrice.empty())
+            {
+                Xpos += KitPrice.rbegin()->getRectangle().getSize().x + Xoffset;
+            }
+
+            RectangleShape CellPrice;
+            CellPrice.setPosition(Vector2f(Xpos, RectangleAllPrice.getPosition().y));
+            CellPrice.setSize(Vector2f(RectangleAllPrice.getSize().x * fl, RectangleAllPrice.getSize().y));
+
+
+            if (ws == WsPrice)
+            {
+                wstring Str_ValuePrice = L"0";
+                KitPrice.push_back(move(GUI_TextAndRectangle({ Str_ValuePrice, L"₽" }, CellPrice, false, false)));
+            }
+            else
+            {
+                KitPrice.push_back(move(GUI_TextAndRectangle({ ws }, CellPrice, true, false)));
+            }
+            CurrentPrice.PriceKit = 0;
+
+        }
+
+    }
+    // skill
+    RectangleAllPrice.setPosition(Vector2f(SizeCell_default * 2.25f, ModifiersIcon.SkillRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.SkillRectangleGUI.rbegin()->getRectangle().getSize().y + SizeCell_default * 0.05f));
+    GUI_TextAndRectangle SkillPrice({ L"0", L"₽" }, move(RectangleAllPrice), false, false);
+
 
 
 
     /// устанавливаем настройки по умолчанию
-
     // по умолчанию старый инструмент
     for (size_t it = 0; it < ModifiersIcon.ToolRectangleGUI.size(); it++)
     {
@@ -351,7 +494,7 @@ int main()
     {
         shared_ptr<Texture> WTexture;
 
-        wstring WName;
+        string Str_Name;
 
         GUI_TextAndRectangle WeapoGUI;
     };
@@ -391,7 +534,7 @@ int main()
         RectangleWeaponCurrent.setSize(Vector2f(SizeCell_default * 2, SizeCell_default / 2));
 
 
-        VectorGun.push_back({ PtrTextureWeapon, Gun.stem().wstring(), GUI_TextAndRectangle({NameWeapon}, RectangleWeaponCurrent, false, false)});
+        VectorGun.push_back({ PtrTextureWeapon, NameWeapon, GUI_TextAndRectangle({NameWeapon}, RectangleWeaponCurrent, false, false)});
     }
     
 
@@ -518,7 +661,7 @@ int main()
         {
             RectangleShape GeneralMod;
             GeneralMod.setPosition(Vector2f(SizeCell_default * 6.f, SizeCell_default * 0.5f));
-            GeneralMod.setSize(Vector2f(SizeCell_default * 13.8f, SizeCell_default * 5.f));
+            GeneralMod.setSize(Vector2f(SizeCell_default * 13.8f, SizeCell_default * 5.15f));
             
             return GUI_TextAndRectangle({}, GeneralMod, false, false);
 
@@ -557,9 +700,8 @@ int main()
             float YposOneCharacteristic = (YsizeGeneral - YOffsetOne * 2.f) / ( GunStats::COUNT_CHARACTERISTIC + 2 );
 
 
-            // процентарное соотношение x размера (не учитывая кнопку)
-            
-            array<float, 4> ProcentSizeCell = { 0.12f, 0.06f, 0.78f, 0.04}; // sum = ~1  |||  => const 0.04
+            // процентарное соотношение x размера (не учитывая кнопку)            
+            const array<float, 5> PercentSizeCell = { 0.12f, 0.06f, 0.06f, 0.72f, 0.04f}; // sum = ~1  |||  => const 0.04
 
 
             for (size_t it = 0; it < GunStats::COUNT_CHARACTERISTIC; it++)
@@ -572,7 +714,7 @@ int main()
 
                 // имя характеристики 
                 /////////////////////////////////////////////////////////////////////////////////////
-                float XsizeName = XsizeGeneral * ProcentSizeCell[0];
+                float XsizeName = XsizeGeneral * PercentSizeCell[0];
 
                 RectangleTemp.setPosition({ XposGeneral , YOffsetOne + YposOneCharacteristic * it + YOffsetRelated * it });
                 RectangleTemp.setSize({ XsizeName, YsizeAll });
@@ -588,14 +730,37 @@ int main()
 
 
 
+
+
+
+                /// текущее отображение характеристики \\ темп пробитие ... \\
+                /////////////////////////////////////////////////////////////////////////////////////
+                float XsizeVisualCharacteristic = XsizeGeneral * PercentSizeCell[1];
+
+                RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeName, 0));
+                RectangleTemp.setSize({ XsizeVisualCharacteristic, YsizeAll });
+
+                GUI_TextAndRectangle VisualCharacteristic({ L"0" }, RectangleTemp, false, false);
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
                 /// визуальное отображения процента апгрейда
                 /////////////////////////////////////////////////////////////////////////////////////
-                float XsizeVisualProcent = XsizeGeneral * ProcentSizeCell[1];
+                float XsizeVisualPercent = XsizeGeneral * PercentSizeCell[2];
 
-                RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeName, 0 ));
-                RectangleTemp.setSize({ XsizeVisualProcent, YsizeAll });
+                RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeVisualCharacteristic, 0 ));
+                RectangleTemp.setSize({ XsizeVisualPercent, YsizeAll });
 
-                GUI_TextAndRectangle VisualProcentUpgrade({ L"0.0%" }, RectangleTemp, false, false);
+                GUI_TextAndRectangle VisualPercentUpgrade({ L"0.0%" }, RectangleTemp, false, false);
                 /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -609,10 +774,10 @@ int main()
 
                 // Общий "прямоугольник" в котором распалагаютися все юниты
                 /////////////////////////////////////////////////////////////////////////////////////
-                float XsizeRectangleALLUnits = XsizeGeneral * ProcentSizeCell[2];
+                float XsizeRectangleALLUnits = XsizeGeneral * PercentSizeCell[3];
 
                 RectangleShape RectanpleForUnits;
-                RectanpleForUnits.setPosition({ RectangleTemp.getPosition() + Vector2f(XsizeVisualProcent, 0) });
+                RectanpleForUnits.setPosition({ RectangleTemp.getPosition() + Vector2f(XsizeVisualPercent, 0) });
                 RectanpleForUnits.setSize(Vector2f(XsizeRectangleALLUnits, YsizeAll));
                 
                 /////////////////////////////////////////////////////////////////////////////////////
@@ -699,7 +864,7 @@ int main()
 
 
 
-                result.emplace_back( NameCharacteristic, VisualProcentUpgrade, RectanpleForUnits,  resultShapeUnits, ButtonCharacteristic  );
+                result.emplace_back( NameCharacteristic, VisualCharacteristic ,VisualPercentUpgrade, RectanpleForUnits,  resultShapeUnits, ButtonCharacteristic  );
             }
 
             return result;
@@ -763,7 +928,7 @@ int main()
     GUI_TextAndRectangle ButtonGeneralModApplyStat = [SizeCell_default, &ShapeGeneralModApplyStatInitial, YsizeAll, XOffsetRelated]()
         {
 
-            float Xsize = SizeCell_default * 1.8;
+            float Xsize = SizeCell_default * 1.8f;
 
             auto Rec = ShapeGeneralModApplyStatInitial.getRectangle();
 
@@ -788,7 +953,7 @@ int main()
     GUI_TextAndRectangle ShapeGeneralModReset = [SizeCell_default, &ButtonGeneralModApplyStat, YsizeAll, XOffsetRelated]()
         {
 
-            float Xsize = SizeCell_default * 1.8;
+            float Xsize = SizeCell_default * 1.8f;
 
             auto Rec = ButtonGeneralModApplyStat.getRectangle();
 
@@ -816,7 +981,7 @@ int main()
     GUI_TextAndRectangle ShapeGeneralModBack = [SizeCell_default, &ShapeGeneralModReset, YsizeAll, XOffsetRelated]()
         {
 
-            float Xsize = SizeCell_default * 1.6;
+            float Xsize = SizeCell_default * 1.6f;
 
             auto Rec = ShapeGeneralModReset.getRectangle();
 
@@ -1057,22 +1222,36 @@ int main()
 
     struct AllPackGraf
     {
-        map<CountModifiers, float> CurrentFreqModifiers;
-        CurvePack                  CurrentCurvePack;
-
-        shared_ptr<GUI_TextAndRectangle>  GuiPercentile50;
-
-        shared_ptr<GUI_TextAndRectangle>   GUIMethod;
-        vector<GUI_TextAndRectangle>       GUIMethodModifiers;
+        vector< GUI_TextAndRectangle> GUIPercentBinBt;
+        vector< GUI_TextAndRectangle> GUIPercentSmoothBt;
+        float PercentBin;
+        float PercentSmooth;
 
 
-        shared_ptr<GUI_TextAndRectangle>   GUIButtonTop;
-        shared_ptr<GUI_TextAndRectangle>   GUIButtonDown;
+
+        map<CountModifiers, float> CurrentSmoothFreqModifiers;
+        map<CountModifiers, float> CurrentSourceFreqModifiers;    
+        Color       ColorCurve;
+        CurvePack   CurrentCurvePack;
+
+
+
+
+        vector<GUI_TextAndRectangle>     GUIPercentile50;
+        shared_ptr<GUI_TextAndRectangle> GUIInitialMod;
+        shared_ptr<GUI_TextAndRectangle> GUIEndMod;
+
+
+
+
+        shared_ptr<GUI_TextAndRectangle> GUIMethod;
+        vector<GUI_TextAndRectangle>     GUIMethodModifiers;
+        shared_ptr<GUI_TextAndRectangle> GUIButtonTop;
+        shared_ptr<GUI_TextAndRectangle> GUIButtonDown;
+
+
 
         size_t InitialIndexMethod;
-
-        shared_ptr<GUI_TextAndRectangle>   GUIInitialMod;
-        shared_ptr<GUI_TextAndRectangle>   GUIEndMod;        
     };
 
     //вектор для кривых 
@@ -1138,8 +1317,7 @@ int main()
 
     vector<int> MaxStatPosition = { 60, 48, 40,    40,40,40,40, };
 
-    // имя передаваемое в drawNormalGraph (?)
-    wstring NameGun = L"Empty";
+
 
     // выгрузка данных из файла оружия
     CharacteristicGun CurrentCharacteristicGun(MaxStatPosition);
@@ -1193,11 +1371,6 @@ int main()
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
- 
-    string  NameCharacteristic;
-    wstring Procent;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1245,6 +1418,15 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
                     /// нажали на оружие в списке)
                     for (size_t it = 0; it < VectorGun.size(); it++)
                     {
@@ -1270,13 +1452,18 @@ int main()
                             }
 
 
+
+
+
+
+
                             ////////////////////////////////////////////////////////////////////////////////////
                             // получаем имя оружия
-                            NameGun = VectorGun[it].WName;
+                            NameGun = VectorGun[it].Str_Name;
 
-                            if (!CurrentCharacteristicGun.Load(FileStat, NameGun))
+                            if (!CurrentCharacteristicGun.load(FileStat, StringToWString( NameGun)))
                             {
-                                NameGun = L"Empty";
+                                NameGun = "Empty";
                                 TextInfoDebug.setKeyString_and_TextWstring({ "Error_File" });
                                 PositionMod = NullPosition;
                                 break;
@@ -1289,7 +1476,15 @@ int main()
 
 
 
-                            InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+
+
+
+
+
+
+                            ////////////////////////////////////////////////////////////////////////////////////
+
+                            InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
                             moveElement(InitialPosition, 4, 2);
                             PositionMod = InitialPosition;
 
@@ -1302,32 +1497,20 @@ int main()
                             {
                                 if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                                 {
-                                    Procent =  L" ";
-                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
-
-                                    if (!CurrentCharacteristicGun.is_Empty())
-                                    {
-                                        Procent += format(
-                                            L"{:.2f}",
-
-                                            CalculateSuccessChance(
-                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
-                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
-                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
-                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
-                                                )
-                                        );
-                                    }
-                                    else
-                                    {
-                                        Procent += L"0.0";
-                                    }
-                                    Procent += L"%";
-
-                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic,  Procent});
+                                    Set_Chahce_upgrade(CurrentCharacteristicGun, CurrentModifiers, TextGeneralModChance, it);
                                 }
-                                //GeneralModOption[it].TextCharacteristicVisualProcent.setFillColor(ColorText);
-                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ L"0.0%" });
+
+
+
+
+                                //GeneralModOption[it].TextCharacteristicVisualPercent.setFillColor(ColorText);
+                                GeneralModOption[it].TextCharacteristicVisualPercent.setKeyString_and_TextWstring({ L"0.0%" });
+
+
+                                // размета значений характеристики
+                                auto val = CurrentCharacteristicGun.getValueCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
+                                wstring WSval = it ? to_wstring(static_cast<int>(val)) : format(L"{:.1f}", val);
+                                GeneralModOption[it].TextVisualCharacteristic.setKeyString_and_TextWstring({ WSval });
 
                             }
 
@@ -1335,9 +1518,49 @@ int main()
 
 
 
+
+
+                            /// обновляем стоимость KitPrice
+                            /// tool уже выведен
+                            /// skill comming soon
+                            /////////////////////////////////////////////////////////
+
+                            unsigned value_price = Get_Price(PathToPriceModifiers_JS, CurrentModifiers, NameGun);
+                            CurrentPrice.PriceKit = value_price;
+                            for (auto& tp : KitPrice)
+                            {
+                                if (!tp.isButton())
+                                {
+                                    tp.setKeyString_and_TextWstring({ format(L"{:L}", value_price), L"₽" });
+                                    break;
+                                }
+                            }
+                            /////////////////////////////////////////////////////////
+
                             break;
                         }
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1377,6 +1600,41 @@ int main()
 
                         }
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1431,6 +1689,30 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     // нажали рассчет мода
                     if (Calculation.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                     {
@@ -1449,7 +1731,7 @@ int main()
 
                             for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
                             {
-                                MOD_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                                MOD_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
                             }                            
 
 
@@ -1591,15 +1873,50 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     // окно смены колличества повторений
                     else if (ShapeTargetIter.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain))
                     {
                         ShapeTargetIter.setAsReleasedButton();
-                        totalIterations < 6000 ? totalIterations += 1000 : totalIterations = 1000; 
+                        totalIterations < 10000 ? totalIterations += 1000 : totalIterations = 1000; 
 
 
                         ShapeTargetIter.setKeyString_and_TextWstring({ "Number_weapon_assemblies", to_wstring(totalIterations) });
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1651,14 +1968,14 @@ int main()
                                 {
                                     if (GeneralModOption[it].MarkButtonCharacteristic.isPressed()) 
                                     {
-                                        if (PositionMod[it] < CurrentCharacteristicGun.GetMaxStatPosition()[ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it] ] )
+                                        if (PositionMod[it] < CurrentCharacteristicGun.getMaxPositionCharacteristic()[ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it] ] )
                                         {   
 
 
                                             //////////////////////////////////////////////////////////////////////////////////////////////
-                                            auto RealProcent =
+                                            auto RealPercent =
                                                 CalculateSuccessChance(
-                                                    CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+                                                    CurrentCharacteristicGun.getChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
                                                     GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
                                                     GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
                                                     GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
@@ -1669,23 +1986,23 @@ int main()
                                             {
                                                 for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
                                                 {
-                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
                                                 }
                                             }
 
 
-                                            if (CurrentCharacteristicGun.UpgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
+                                            if (CurrentCharacteristicGun.upgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
                                             {
 
 
 
 
                                                 //////////////////////////////////////////////////////////////////////////////////////////////
-                                                PositionMod = CurrentCharacteristicGun.GetCurrentPosition();
+                                                PositionMod = CurrentCharacteristicGun.getCurrentPosition();
                                                 moveElement(PositionMod, 4, 2);
 
                                                 // вектор уменьшения характеристик по GunStats
-                                                auto Des = CurrentCharacteristicGun.GetDecreaseForCurrentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
+                                                auto Des = CurrentCharacteristicGun.getDecreaseForCurrentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
                                                 moveElement(Des, 4, 2);
 
                                                 for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
@@ -1703,7 +2020,7 @@ int main()
 
                                                 //////////////////////////////////////////////////////////////////////////////////////////////
                                                 HistoryPosition.push_back({ PositionMod,  InitialPosition });
-                                                method_MOD.push_back({ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it], RealProcent, {CurrentModifiers}, CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]) });
+                                                method_MOD.push_back({ GunStats::Trans_INDEX_to_INDEXGUNSTAT[it], RealPercent, {CurrentModifiers}, CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]), CurrentPrice });
                                                 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1753,17 +2070,17 @@ int main()
                                         if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                                         {
 
-                                            if (CurrentCharacteristicGun.UpgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
+                                            if (CurrentCharacteristicGun.upgradeStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]))
                                             {
 
-                                                InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+                                                InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
                                                 moveElement(InitialPosition, 4, 2);
 
                                                 PositionMod = InitialPosition;
 
                                                 for (int i = 0; i < GunStats::COUNT_CHARACTERISTIC; i++)
                                                 {
-                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
+                                                    INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[i]);
                                                 }
 
                                                 HistoryPosition.push_back({ PositionMod,  InitialPosition });
@@ -1803,10 +2120,10 @@ int main()
                             method_MOD.clear();
 
                             ShapeGeneralModReset.setAsReleasedButton();
-                            CurrentCharacteristicGun.ReturnDefaultstat();
+                            CurrentCharacteristicGun.returnDefaultPosition();
 
 
-                            InitialPosition = CurrentCharacteristicGun.GetCurrentPosition();
+                            InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
                             moveElement(InitialPosition, 4, 2);
                             PositionMod = InitialPosition;
 
@@ -1832,7 +2149,7 @@ int main()
                             //возвращаем шаг назад
                             if (!CurrentCharacteristicGun.is_Empty())
                             {
-                                if (CurrentCharacteristicGun.StepBack())
+                                if (CurrentCharacteristicGun.stepBack())
                                 {
                                     TextInfoDebug.setKeyString_and_TextWstring({ "Step_back" });
 
@@ -1856,7 +2173,7 @@ int main()
                                     {
                                         HistoryPosition.pop_back();
 
-                                        auto cp_temp = CurrentCharacteristicGun.GetCurrentPosition();
+                                        auto cp_temp = CurrentCharacteristicGun.getCurrentPosition();
                                         moveElement(cp_temp, 4, 2);
 
                                         if (!HistoryPosition.empty())
@@ -1886,73 +2203,66 @@ int main()
                         for (int it = 0; it < GeneralModOption.size(); it++)
                         {
 
-                            GeneralModOption[it].TextCharacteristicVisualProcent.resetColorText();
+                            GeneralModOption[it].TextCharacteristicVisualPercent.resetColorText();
 
                             if (!CurrentCharacteristicGun.is_Empty())
                             {
-                                auto VProcent = CurrentCharacteristicGun.GetVisualProcentStat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
+                                auto VPercent = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]);
 
-                                if      (VProcent > 0) { GeneralModOption[it].TextCharacteristicVisualProcent.setColorText(Color::Green); }
-                                else if (VProcent < 0) { GeneralModOption[it].TextCharacteristicVisualProcent.setColorText(Color::Red);   }
+                                if      (VPercent > 0) { GeneralModOption[it].TextCharacteristicVisualPercent.setColorText(Color::Green); }
+                                else if (VPercent < 0) { GeneralModOption[it].TextCharacteristicVisualPercent.setColorText(Color::Red);   }
 
-                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ format(L"{:.1f}", VProcent), L"%" });
+                                GeneralModOption[it].TextCharacteristicVisualPercent.setKeyString_and_TextWstring({ format(L"{:.1f}", VPercent), L"%" });
 
                                 // если не нажата
                                 if (!PressedApplyAsMod)
                                 {
-                                    INITIAL_CHARACTERISTIC[it] = VProcent;
-                                    MOD_CHARACTERISTIC[it]     = VProcent;
+                                    INITIAL_CHARACTERISTIC[it] = VPercent;
+                                    MOD_CHARACTERISTIC[it]     = VPercent;
                                 }
                                 else
                                 {
-                                    MOD_CHARACTERISTIC[it] = VProcent;
+                                    MOD_CHARACTERISTIC[it] = VPercent;
                                 }
 
                             }
                             else
                             {
-                                GeneralModOption[it].TextCharacteristicVisualProcent.setKeyString_and_TextWstring({ L"0.0%" });
+                                GeneralModOption[it].TextCharacteristicVisualPercent.setKeyString_and_TextWstring({ L"0.0%" });
                             }
 
                             // разметка шанса улучшения процента
                             if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                             {
-
-                                Procent = L" ";
-
-                                if (!CurrentCharacteristicGun.is_Empty())
-                                {
-                                    Procent += format(
-                                        L"{:.2f}",
-
-                                        CalculateSuccessChance(
-                                            CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
-                                            GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
-                                            GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
-                                            GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
-                                        )
-                                    );
-                                }
-                                else
-                                {
-                                    Procent += L"0.0";
-                                }
-                                Procent += L"%";
-
-
-
-                                NameCharacteristic = string(GunStats::MapCharacteristicName_Index[it]);
-
-                                TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade" , NameCharacteristic ,  Procent});
+                                Set_Chahce_upgrade(CurrentCharacteristicGun, CurrentModifiers, TextGeneralModChance, it);
                             }
 
+
+                            // размета значений характеристики
+                            auto val = CurrentCharacteristicGun.getValueCharacteristic(GunStats::Trans_INDEX_to_INDEXGUNSTAT[ it]);
+
+                            wstring WSval = it ? to_wstring(static_cast<int>(val)) : format(L"{:.1f}", val);
+
+                            GeneralModOption[it].TextVisualCharacteristic.setKeyString_and_TextWstring({ WSval });
                         }
 
-
                         EditShaheUnits(GeneralModOption, CurrentCharacteristicGun, InitialPosition, PositionMod);
-                        
-
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1982,8 +2292,13 @@ int main()
 
 
 
+
+
+
                             string STip = toolpath[i].stem().string().erase(0, 3);
+
                             auto tool = GunStats::Modifiers::ToolType_begin;
+
                             for (tool++ ; tool < GunStats::Modifiers::ToolType_end; tool++)
                             {
                                 if (GunStats::Modifiers::GetToolName(tool) == STip)
@@ -2000,33 +2315,29 @@ int main()
                             {
                                 if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                                 {
-
-                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
-                                    Procent =  + L" ";
-
-                                    if (!CurrentCharacteristicGun.is_Empty())
-                                    {
-                                        Procent += format(
-                                            L"{:.2f}",
-
-                                            CalculateSuccessChance(
-                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
-                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
-                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
-                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
-                                            )
-                                        );
-                                    }
-                                    else
-                                    {
-                                        Procent += L"0.0";
-                                    }
-                                    Procent += L"%";
-
-                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic, Procent});
+                                    Set_Chahce_upgrade(CurrentCharacteristicGun, CurrentModifiers, TextGeneralModChance, it);
                                     break;
                                 }
                             }
+
+
+
+                            /// стоимость ToolPrice
+                            /////////////////////////////////////////////////////////
+
+                            unsigned value_price = Get_Price(PathToPriceModifiers_JS, CurrentModifiers);
+                            CurrentPrice.PriceTool = value_price;
+
+                            for (auto& tp : ToolPrice)
+                            {
+                                if (!tp.isButton())
+                                {
+                                    tp.setKeyString_and_TextWstring({ format(L"{:L}", value_price), L"₽" });
+                                    break;
+                                }
+                            }
+                            /////////////////////////////////////////////////////////
+
                             break;
                         }
                     }
@@ -2043,6 +2354,7 @@ int main()
 
 
                                 string STip = kitpath[i].stem().string().erase(0, 3);
+
                                 auto KitSelect = GunStats::Modifiers::KitType_begin;
                                 for (KitSelect++; KitSelect < GunStats::Modifiers::KitType_end; KitSelect++)
                                 {
@@ -2059,33 +2371,29 @@ int main()
                                 {
                                     if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                                     {
-
-                                        NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
-                                        Procent = L" ";
-
-                                        if (!CurrentCharacteristicGun.is_Empty())
-                                        {
-                                            Procent += format(
-                                                L"{:.2f}",
-
-                                                CalculateSuccessChance(
-                                                    CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
-                                                    GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
-                                                    GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
-                                                    GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
-                                                )
-                                            );
-                                        }
-                                        else
-                                        {
-                                            Procent += L"0.0";
-                                        }
-                                        Procent += L"%";
-
-                                        TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic, Procent });
+                                        Set_Chahce_upgrade(CurrentCharacteristicGun, CurrentModifiers, TextGeneralModChance, it);
                                         break;
                                     }
                                 }
+
+
+
+
+                                /// стоимость KitPrice
+                                /////////////////////////////////////////////////////////
+
+                                unsigned value_price = Get_Price(PathToPriceModifiers_JS, CurrentModifiers, NameGun);
+                                CurrentPrice.PriceKit = value_price;
+                                for (auto& kp : KitPrice)
+                                {
+                                    if (!kp.isButton())
+                                    {
+                                        kp.setKeyString_and_TextWstring({ format(L"{:L}", value_price), L"₽" });
+                                        break;
+                                    }
+                                }
+                                /////////////////////////////////////////////////////////
+
                                 break;
                             }
                         }
@@ -2119,40 +2427,120 @@ int main()
                             {
                                 if (GeneralModOption[it].MarkButtonCharacteristic.isPressed())
                                 {
-                                    Procent =  L" ";
-                                    NameCharacteristic = string(GunStats::MapCharacteristicName_GunStat[it]);
-
-                                    if (!CurrentCharacteristicGun.is_Empty())
-                                    {
-                                        Procent += format(
-                                            L"{:.2f}",
-
-                                            CalculateSuccessChance(
-                                                CurrentCharacteristicGun.GetChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
-                                                GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
-                                                GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
-                                                GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
-                                            )
-                                        );
-                                    }
-                                    else
-                                    {
-                                        Procent += L"0.0";
-                                    }
-                                    Procent += L"%";
-
-                                    TextGeneralModChance.setKeyString_and_TextWstring({ "Chahce_upgrade", NameCharacteristic,  Procent });
+                                    Set_Chahce_upgrade(CurrentCharacteristicGun, CurrentModifiers, TextGeneralModChance, it);
                                     break;
                                 }
                             }
+
+
+                            CurrentPrice.PriceSkill = 0;
                             break;
-
-
                         }
                     }
 
-                }
 
+
+
+
+                    /// стоимость      
+                    for (auto& GUI_ToolPrice : ToolPrice)
+                    {
+                        if (GUI_ToolPrice.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain) && GUI_ToolPrice.isButton())
+                        {
+                            auto vvstr = *GUI_ToolPrice.getKeyString_and_TextWstring().begin();
+                            if ( holds_alternative<wstring>(vvstr))
+                            {
+                                if (get<wstring>(vvstr) == L"--")
+                                {
+                                    GUI_ToolPrice.setAsReleasedButton();
+                                    Set_Price_Tool(PathToPriceModifiers_JS, CurrentModifiers.Tool, CurrentPrice.PriceTool - 100'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"-")
+                                {
+                                    GUI_ToolPrice.setAsReleasedButton();
+
+                                    Set_Price_Tool(PathToPriceModifiers_JS, CurrentModifiers.Tool, CurrentPrice.PriceTool - 5'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"+")
+                                {
+                                    GUI_ToolPrice.setAsReleasedButton();
+                                    Set_Price_Tool(PathToPriceModifiers_JS, CurrentModifiers.Tool, CurrentPrice.PriceTool + 5'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"++")
+                                {
+                                    GUI_ToolPrice.setAsReleasedButton();
+                                    Set_Price_Tool(PathToPriceModifiers_JS, CurrentModifiers.Tool, CurrentPrice.PriceTool + 100'000);
+                                }
+
+
+                                /// стоимость ToolPrice
+                                /////////////////////////////////////////////////////////
+
+                                unsigned value_price = Get_Price(PathToPriceModifiers_JS, CurrentModifiers);
+                                CurrentPrice.PriceTool = value_price;
+
+                                for (auto& tp : ToolPrice)
+                                {
+                                    if (!tp.isButton())
+                                    {
+                                        tp.setKeyString_and_TextWstring({ format(L"{:L}", value_price), L"₽" });
+                                        break;
+                                    }
+                                }
+                                /////////////////////////////////////////////////////////
+                            }
+                        }
+                    }
+
+
+                    for (auto& GUI_KitPrice : KitPrice)
+                    {
+                        if (GUI_KitPrice.getRectangle().getGlobalBounds().contains(MouseWorldPosForMain) && GUI_KitPrice.isButton())
+                        {
+                            auto vvstr = *GUI_KitPrice.getKeyString_and_TextWstring().begin();
+                            if (holds_alternative<wstring>(vvstr))
+                            {
+                                if (get<wstring>(vvstr) == L"--")
+                                {
+                                    GUI_KitPrice.setAsReleasedButton();
+
+                                    Set_Price_Kit(PathToPriceModifiers_JS, CurrentModifiers.Kit, NameGun, CurrentPrice.PriceKit - 100'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"-")
+                                {
+                                    GUI_KitPrice.setAsReleasedButton();
+                                    Set_Price_Kit(PathToPriceModifiers_JS, CurrentModifiers.Kit, NameGun, CurrentPrice.PriceKit - 5'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"+")
+                                {
+                                    GUI_KitPrice.setAsReleasedButton();
+                                    Set_Price_Kit(PathToPriceModifiers_JS, CurrentModifiers.Kit, NameGun, CurrentPrice.PriceKit + 5'000);
+                                }
+                                else if (get<wstring>(vvstr) == L"++")
+                                {
+                                    GUI_KitPrice.setAsReleasedButton();
+                                    Set_Price_Kit(PathToPriceModifiers_JS, CurrentModifiers.Kit, NameGun, CurrentPrice.PriceKit + 100'000);
+                                }
+
+
+                                /// стоимость KitPrice
+                                /////////////////////////////////////////////////////////
+
+                                unsigned value_price = Get_Price(PathToPriceModifiers_JS, CurrentModifiers, NameGun);
+                                CurrentPrice.PriceKit = value_price;
+                                for (auto& kp : KitPrice)
+                                {
+                                    if (!kp.isButton())
+                                    {
+                                        kp.setKeyString_and_TextWstring({ format(L"{:L}", value_price), L"₽" });
+                                        break;
+                                    }
+                                }
+                                /////////////////////////////////////////////////////////
+                            }
+                        }
+                    }
+                }
             }
 
 
@@ -2249,7 +2637,7 @@ int main()
 
 
 
-
+        // модификаторы
         ////////////////////////////////////////////////////////////////////////////////////
         for (auto& GUI : ModifiersIcon.ToolRectangleGUI)
         {
@@ -2266,6 +2654,24 @@ int main()
             window.draw(GUI.getRectangle());
             //window.draw(GUI.getText());
         }
+
+
+        
+        /// стоимость
+        for (auto& GUI : ToolPrice)
+        {
+            window.draw(GUI.getRectangle());
+            window.draw(GUI.getText());
+        }
+        for (auto& GUI : KitPrice)
+        {
+            window.draw(GUI.getRectangle());
+            window.draw(GUI.getText());
+        }
+        window.draw(SkillPrice.getRectangle());
+        window.draw(SkillPrice.getText());
+        
+        
         ////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -2337,20 +2743,23 @@ int main()
         for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
         {
 
-            //window.draw(GeneralModOption[it1].TextCharacteristicName.getRectangle());
+            window.draw(GeneralModOption[it1].TextCharacteristicName.getRectangle());
             window.draw(GeneralModOption[it1].TextCharacteristicName.getText());
 
 
+            window.draw(GeneralModOption[it1].TextVisualCharacteristic.getRectangle());
+            window.draw(GeneralModOption[it1].TextVisualCharacteristic.getText());
 
-            //window.draw(GeneralModOption[it1].TextCharacteristicVisualProcent.getRectangle());
-            window.draw(GeneralModOption[it1].TextCharacteristicVisualProcent.getText());
+
+            window.draw(GeneralModOption[it1].TextCharacteristicVisualPercent.getRectangle());
+            window.draw(GeneralModOption[it1].TextCharacteristicVisualPercent.getText());
+
+
+
 
 
 
             window.draw(GeneralModOption[it1].ShapeCharacteristic);
-
-
-
 
             window.draw(GeneralModOption[it1].MarkButtonCharacteristic.getRectangle());
             //window.draw(GeneralModOption[it1].MarkButtonCharacteristic.getText()); // текста нет
@@ -2359,14 +2768,14 @@ int main()
             bool Select = GeneralModOption[it1].MarkButtonCharacteristic.isPressed();
 
             // метка юнита
-            auto ps = PositionMod[it1];
+            size_t ps = PositionMod[it1];
 
             if (ps >= GeneralModOption[it1].ShaheUnitsInCharacteristic.size())
             {
                 ps = GeneralModOption[it1].ShaheUnitsInCharacteristic.size() - 1;
             }
 
-            else if (Select && ps >= CurrentCharacteristicGun.GetMaxStatPosition()[GunStats::Trans_INDEX_to_INDEXGUNSTAT[it1]])
+            else if (Select && ps >= CurrentCharacteristicGun.getMaxPositionCharacteristic()[GunStats::Trans_INDEX_to_INDEXGUNSTAT[it1]])
             {
                 GeneralModOption[it1].ShaheUnitsInCharacteristic[ps].setOutlineColor(Color(128, 128, 128));
             }
@@ -2456,7 +2865,7 @@ int main()
 
      
 
-        ///////////////////////////    подсказки       /////////////////////////////////
+        ///////////////////////////     тоолтипы       /////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
 
         // инструменты
@@ -2471,14 +2880,14 @@ int main()
                 RectangleShape ShapeTool_tooltip;
                 ShapeTool_tooltip.setOutlineColor(Color::Black);
                 ShapeTool_tooltip.setOutlineThickness(-2);
-                ShapeTool_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
-                ShapeTool_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
+                ShapeTool_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), SizeCell_default / 3.f));
+                ShapeTool_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3.f));
 
 
 
                 Text TextTool_tooltip(ThemeGui::CurrentFont);
                 TextTool_tooltip.setString(Tip);
-                TextTool_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextTool_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::CharacterSize * 0.8f));
                 TextTool_tooltip.setFillColor(Color::Black);
 
 
@@ -2508,14 +2917,14 @@ int main()
                 RectangleShape ShapeKit_tooltip;
                 ShapeKit_tooltip.setOutlineColor(Color::Black);
                 ShapeKit_tooltip.setOutlineThickness(-2);
-                ShapeKit_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
-                ShapeKit_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
+                ShapeKit_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), SizeCell_default / 3.f));
+                ShapeKit_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3.f));
 
 
 
                 Text TextKit_tooltip(ThemeGui::CurrentFont);
                 TextKit_tooltip.setString(Tip);
-                TextKit_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextKit_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::CharacterSize * 0.8f));
                 TextKit_tooltip.setFillColor(Color::Black);
 
 
@@ -2543,14 +2952,14 @@ int main()
                 RectangleShape ShapeSkill_tooltip;
                 ShapeSkill_tooltip.setOutlineColor(Color::Black);
                 ShapeSkill_tooltip.setOutlineThickness(-2);
-                ShapeSkill_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3));
-                ShapeSkill_tooltip.setSize(Vector2f(15 + 7 * Tip.size(), SizeCell_default / 3));
+                ShapeSkill_tooltip.setPosition(Vector2f(MouseWorldPosForMain.x, MouseWorldPosForMain.y - SizeCell_default / 3.f));
+                ShapeSkill_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), SizeCell_default / 3.f));
 
 
 
                 Text TextSkill_tooltip(ThemeGui::CurrentFont);
                 TextSkill_tooltip.setString(Tip);
-                TextSkill_tooltip.setCharacterSize(ThemeGui::CharacterSize * 0.8);
+                TextSkill_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::CharacterSize * 0.8f));
                 TextSkill_tooltip.setFillColor(Color::Black);
 
 
@@ -2591,9 +3000,65 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         ////////////////////////////////////////////////////////////////////////////////
         // отрисовка диаграмм
-        for (int iter_graf = VectorWindowsDiagram.size() - 1; iter_graf >= 0; --iter_graf)
+        for (int iter_graf = static_cast<int>(VectorWindowsDiagram.size()) - 1; iter_graf >= 0; --iter_graf)
         {
             if (VectorWindowsDiagram[iter_graf].isOpen())
             {
@@ -2633,8 +3098,6 @@ int main()
                                     }
                                 }
 
-
-
                                 //кнопка прокрутки вниз
                                 else if (VectorDiagramPack[iter_graf].GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf))
                                 {
@@ -2643,9 +3106,7 @@ int main()
                                     {
                                         VectorDiagramPack[iter_graf].InitialIndexMethod++;
                                     }
-
                                 }
-
 
                                 // корректировка 
                                 auto SizeRec = VectorDiagramPack[iter_graf].GUIMethodModifiers.begin()->getRectangle().getSize();
@@ -2656,6 +3117,97 @@ int main()
                                     VectorDiagramPack[iter_graf].GUIMethodModifiers[i].setPositionRectangle(Vector2f(XSizeWindow - SizeRec.x, SizeRec.y * (i - VectorDiagramPack[iter_graf].InitialIndexMethod)));
                                 }
                             }
+
+
+
+
+
+
+
+                            bool NeedRefresh = false;
+                            float SizeValBN = 0.010f;
+                            float SizeValSM = 0.005f;
+                            for (auto& GUIBinBt : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+                            {
+                                auto vbt = *GUIBinBt.getKeyString_and_TextWstring().begin();
+                                if (GUIBinBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
+                                {
+                                    GUIBinBt.setAsReleasedButton();
+                                    if (VectorDiagramPack[iter_graf].PercentBin - SizeValBN >= 0.f)
+                                    {
+                                        VectorDiagramPack[iter_graf].PercentBin -= SizeValBN;
+                                        NeedRefresh = true;
+                                    }
+                                    break;
+                                }
+                                else if (GUIBinBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
+                                {
+                                    GUIBinBt.setAsReleasedButton();
+                                    if (VectorDiagramPack[iter_graf].PercentBin + SizeValBN <= 1.f)
+                                    {
+                                        VectorDiagramPack[iter_graf].PercentBin += SizeValBN;
+                                        NeedRefresh = true;
+                                    }  
+                                    break;
+                                }
+
+                            }
+                            for (auto& GUISmoothBt : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+                            {
+
+                                auto vbt = *GUISmoothBt.getKeyString_and_TextWstring().begin();
+                                if (GUISmoothBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
+                                {
+                                    GUISmoothBt.setAsReleasedButton();
+
+                                    if (VectorDiagramPack[iter_graf].PercentSmooth - SizeValSM >= 0.f)
+                                    {
+                                        VectorDiagramPack[iter_graf].PercentSmooth -= SizeValSM;
+                                        NeedRefresh = true;
+                                    }
+                                    break;
+                                }
+                                else if (GUISmoothBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
+                                {
+                                    GUISmoothBt.setAsReleasedButton();
+
+                                    if (VectorDiagramPack[iter_graf].PercentSmooth + SizeValSM <= 1.f)
+                                    {
+                                        VectorDiagramPack[iter_graf].PercentSmooth += SizeValSM;
+                                        NeedRefresh = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (NeedRefresh)
+                            {
+                                for (auto& GUISmoothBt : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+                                {
+                                    auto vbt = *GUISmoothBt.getKeyString_and_TextWstring().begin();
+                                    if (holds_alternative<wstring>(vbt) && !GUISmoothBt.isButton())
+                                    {
+                                        GUISmoothBt.setKeyString_and_TextWstring({ format( L"{:.3f}", VectorDiagramPack[iter_graf].PercentSmooth)});
+                                        break;
+
+                                    }
+                                }
+                                for (auto& GUIBinBt : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+                                {
+                                    auto vbt = *GUIBinBt.getKeyString_and_TextWstring().begin();
+                                    if (holds_alternative<wstring>(vbt) && !GUIBinBt.isButton())
+                                    {
+                                        GUIBinBt.setKeyString_and_TextWstring({ format(L"{:.3f}", VectorDiagramPack[iter_graf].PercentBin) });
+                                        break;
+                                    }
+                                }
+
+                                auto BinnedFreqMap = GetBinedFreqModifiers(VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers, VectorDiagramPack[iter_graf].PercentBin); // сколько % оставим? (%)
+                                auto SmoothedFreqMap = GetSmoothFreqModifiers(BinnedFreqMap, VectorDiagramPack[iter_graf].PercentSmooth); // насколько сильно (%)
+
+                                VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
+
+                                VectorDiagramPack[iter_graf].CurrentCurvePack.Curve = CurveFun(VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve, VectorDiagramPack[iter_graf].ColorCurve, VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers);
+                            }
                         }
                     }
                 }
@@ -2665,18 +3217,6 @@ int main()
 
                     if (!DiagramBool[iter_graf])
                     {
-
-                        // Получаем позицию главного окна
-                        Vector2i mainPos = VectorWindowsDiagram[iter_graf].getPosition();
-                        Vector2u mainSize = VectorWindowsDiagram[iter_graf].getSize();
-
-                        // Центрируем текущий Diagram поверх главного окна
-                        int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(LengthWindowDiagram)) / 2;
-                        int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(HeightWindowDiagram)) / 2;
-
-                        VectorWindowsDiagram[iter_graf].setPosition(Vector2i(xPosDiagram, yPosDiagram));                        
-
-
                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                         if (ALL_modifiers.empty())
                         {
@@ -2692,6 +3232,26 @@ int main()
                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+                        // стандартный вид
+                        VectorDiagramPack[iter_graf].PercentBin = 1.0f;
+                        VectorDiagramPack[iter_graf].PercentSmooth = 0.05f;
+
+
+
+                        // на сколько делим цену ? 
+                        float PriceValueDegree = 1'000'000; // до KK
+                        VectorDiagramPack[iter_graf].ColorCurve = Color::Red;
+
+
+                        // Получаем позицию главного окна
+                        Vector2i mainPos = VectorWindowsDiagram[iter_graf].getPosition();
+                        Vector2u mainSize = VectorWindowsDiagram[iter_graf].getSize();
+
+                        // Центрируем текущий Diagram поверх главного окна
+                        int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(LengthWindowDiagram)) / 2;
+                        int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(HeightWindowDiagram)) / 2;
+
+                        VectorWindowsDiagram[iter_graf].setPosition(Vector2i(xPosDiagram, yPosDiagram));
 
 
 
@@ -2700,13 +3260,41 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        // оформление кривой
                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                        float XposPack  = VectorWindowsDiagram[iter_graf].getSize().x * 0.1f;
-                        float YposPack  = VectorWindowsDiagram[iter_graf].getSize().y * 0.5f;
+                        float XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.1f;
+                        float YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.5f;
 
                         float XsizePack = VectorWindowsDiagram[iter_graf].getSize().x * 0.4f;
                         float YsizePack = VectorWindowsDiagram[iter_graf].getSize().y * 0.4f;
+
 
 
                         RectangleShape RectangleForCurve;
@@ -2718,30 +3306,29 @@ int main()
                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
-                        // оформление кривой
-                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
                         //"сырые" частоты
                         auto SourceFreqMap = GetFreqModifiers(ALL_modifiers);
 
-                        // проводим сглаживание 
-                        float Precent = 0.05f; // насколько сильно %
-                        auto SmoothedFreqMap = SmoothFreqModifiers(SourceFreqMap, Precent);                        
+                        auto BinnedFreqMap = GetBinedFreqModifiers(SourceFreqMap, VectorDiagramPack[iter_graf].PercentBin); // сколько % оставим? (%)
+
+                        auto SmoothedFreqMap = GetSmoothFreqModifiers(BinnedFreqMap, VectorDiagramPack[iter_graf].PercentSmooth); // насколько сильно (%)
+
+
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
+                        VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers = SourceFreqMap;
 
                         string NameCurve;
                         switch (Error)
                         {
-                        case 0: 
+                        case 0:
                             NameCurve = "modifiers";
                             break;
 
 
-                        case -6:                        
+                        case -6:
                             NameCurve = "modifiers_noKit_noTool";
                             break;
 
@@ -2750,12 +3337,37 @@ int main()
                             NameCurve = "Error";
                             break;
                         }
-                        VectorDiagramPack[iter_graf].CurrentFreqModifiers = SmoothedFreqMap;
 
-                        VectorDiagramPack[iter_graf].CurrentCurvePack = GetCurveFrequrency(RectangleForCurve, SmoothedFreqMap, Color::Red, NameCurve);
+                        VectorDiagramPack[iter_graf].CurrentCurvePack = GetCurveFrequrency(RectangleForCurve, VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers, VectorDiagramPack[iter_graf].ColorCurve, NameCurve);
 
 
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2768,43 +3380,68 @@ int main()
 
                         // оформление 50-ого перцентиля
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        auto InfoPercentile_50 = GetInfoForModifiers(GetPercentile(VectorDiagramPack[iter_graf].CurrentFreqModifiers, 50.0));
 
 
+                        XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
+                        YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.01f;
+
+                        XsizePack = SizeCell_default * 3.5f;
+                        YsizePack = SizeCell_default * 0.3f;
+
+                        auto InfoPercentile_50 = GetInfoForModifiers(GetPercentile(VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers, 50.0));
+                        {
+                            vector<variant<string, wstring>> VResultWS = { "Percentile_50" };
+
+                            GUI_TextAndRectangle PercentileGuiName = [XposPack, YposPack, XsizePack, YsizePack, VResultWS]()
+                                {
+                                    RectangleShape RectangleTemp;
+                                    RectangleTemp.setSize({ XsizePack * 2, YsizePack });
+                                    RectangleTemp.setPosition({ XposPack, YposPack });
+                                    return GUI_TextAndRectangle(VResultWS, RectangleTemp, false, false);
+
+                                }();
+                            VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiName);
 
 
+                            for (const auto& info_item : InfoPercentile_50)
+                            {                                
+                                XposPack = VectorDiagramPack[iter_graf].GUIPercentile50.begin()->getRectangle().getPosition().x;
+                                YposPack = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getRectangle().getPosition().y + YsizePack;
 
+                                VResultWS = { info_item.first };
 
-                         GUI_TextAndRectangle PercentileGui = [&VectorWindowsDiagram, iter_graf, &InfoPercentile_50]()
-                         {
-                             float XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
-                             float YposPack = VectorWindowsDiagram[iter_graf].getSize().y  * 0.01f;
+                                GUI_TextAndRectangle PercentileGuiInfo = [XposPack, YposPack, XsizePack, YsizePack, VResultWS]()
+                                    {
+                                        RectangleShape RectangleTemp;
+                                        RectangleTemp.setSize({ XsizePack, YsizePack });
+                                        RectangleTemp.setPosition({ XposPack, YposPack });
+                                        return GUI_TextAndRectangle(VResultWS, RectangleTemp, false, false);
 
-                             float XsizePack = VectorWindowsDiagram[iter_graf].getSize().x * 0.27f;
-                             float YsizePack = VectorWindowsDiagram[iter_graf].getSize().y * 0.23f;
+                                    }();
 
+                                VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiInfo);
 
-                             RectangleShape RectangleTemp;
-                             RectangleTemp.setSize({ XsizePack, YsizePack });
-                             RectangleTemp.setPosition({ XposPack, YposPack });
+                                PercentileGuiInfo.setPositionRectangle(PercentileGuiInfo.getPositionRectangle() + Vector2f( PercentileGuiInfo.getRectangle().getSize().x, 0 ));
 
+                                vector<variant<string, wstring>> NameVal = { format(L"{:L}", info_item.second) } ;
 
-                             vector<variant<string, wstring>> VResultWS = { "Percentile_50", L"\n"};
+                                if (info_item.first == "AllPrice")
+                                {
+                                    NameVal.push_back(L"->");
+                                    NameVal.push_back(format(L"{:L}", static_cast<float>(info_item.second / PriceValueDegree)));
+                                    NameVal.push_back("kk");
+                                }
+                                else
+                                {
+                                    NameVal.push_back("units");
+                                }
 
+                                PercentileGuiInfo.setKeyString_and_TextWstring(NameVal);
+                                VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiInfo);
 
-                             for (const auto& [name, count] : InfoPercentile_50)
-                             {
-                                 VResultWS.push_back(name);
-                                 VResultWS.push_back(to_wstring(count));
-                                 VResultWS.push_back(L"\n");
-                             }
-
-                             return GUI_TextAndRectangle(VResultWS, RectangleTemp, false, false);
-
-                         }();
-
+                            }
+                        }
                          
-                         VectorDiagramPack[iter_graf].GuiPercentile50 = make_shared<GUI_TextAndRectangle>(PercentileGui);
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -2820,6 +3457,135 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                       // оформление начального и конечного мода
+                       //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        auto size = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getRectangle().getSize();
+                        XsizePack = size.x * 2.3f;
+                        YsizePack = size.y;
+
+                        XposPack = VectorDiagramPack[iter_graf].GUIPercentile50.begin()->getPositionRectangle().x;
+                        YposPack = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getPositionRectangle().y + size.y;
+
+
+                        GUI_TextAndRectangle GInitialMod = [XsizePack, YsizePack, XposPack, YposPack, INITIAL_CHARACTERISTIC]()
+                            {
+                                RectangleShape RectangleTemp;
+                                RectangleTemp.setSize({ XsizePack, YsizePack });
+                                RectangleTemp.setPosition({ XposPack, YposPack });
+                                wstring result;
+
+                                for (const auto& ch : INITIAL_CHARACTERISTIC)
+                                {
+                                    result += format(L"{:.1f}", ch) + L" |\t";
+                                }
+
+                                return GUI_TextAndRectangle({ "Initial_mod", L"\t\t" ,result }, RectangleTemp, false, false);
+
+                            }();
+
+
+                        VectorDiagramPack[iter_graf].GUIInitialMod = make_shared<GUI_TextAndRectangle>(GInitialMod);
+
+
+
+
+
+                        YposPack += YsizePack;
+
+                        GUI_TextAndRectangle GEndMod = [XsizePack, YsizePack, XposPack, YposPack, MOD_CHARACTERISTIC]()
+                            {
+                                RectangleShape RectangleTemp;
+                                RectangleTemp.setSize({ XsizePack, YsizePack });
+                                RectangleTemp.setPosition({ XposPack, YposPack });
+                                wstring result;
+
+                                for (const auto& ch : MOD_CHARACTERISTIC)
+                                {
+                                    result += format(L"{:.1f}", ch) + L" |\t";
+                                }
+
+                                return GUI_TextAndRectangle({ "End_mod", L"\t\t", result }, RectangleTemp, false, false);
+
+                            }();
+
+
+                        VectorDiagramPack[iter_graf].GUIEndMod = make_shared<GUI_TextAndRectangle>(GEndMod);
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        // оформление метода
                          //////////////////////////////////////////////////////////////////////////////////////////////////////////
                          XsizePack = SizeCell_default * 8.0f;
                          YsizePack = SizeCell_default * 0.4f;
@@ -2831,7 +3597,7 @@ int main()
                              XposPack = VectorWindowsDiagram[iter_graf].getSize().x - XsizePack;
                              YposPack = YsizePack * i;
 
-                             GUI_TextAndRectangle GuiMethodMod = [XsizePack, YsizePack, XposPack, YposPack, &method_MOD, i]()
+                             GUI_TextAndRectangle GuiMethodMod = [XsizePack, YsizePack, XposPack, YposPack, &method_MOD, i, PriceValueDegree]()
                                  {
                                      RectangleShape RectangleTemp;
                                      RectangleTemp.setSize({ XsizePack, YsizePack });
@@ -2839,16 +3605,25 @@ int main()
 
                                      const auto& [tool, kit, skill] = method_MOD[i].ModifiersThisChance;
 
-                                     return GUI_TextAndRectangle(
-                                         { 
+
+
+                                     auto cancheUp = method_MOD[i].ChanceUpgrade;
+
+                                     float pricet = method_MOD[i].Price.PriceTool  / PriceValueDegree;
+                                     float pricek = method_MOD[i].Price.PriceKit   / PriceValueDegree;
+                                     float prices = method_MOD[i].Price.PriceSkill / PriceValueDegree;
+
+
+
+                                     GUI_TextAndRectangle result(
+                                         {
                                             to_wstring(i + 1), L">",
 
                                             string(GunStats::MapCharacteristicName_GunStat[method_MOD[i].Characteristic_Gunstat]),
-                                            format(L"{:.1f} ({:.2f}%)", method_MOD[i].VisualProcent ,method_MOD[i].ChanceUpgrade), L"- (",
-
-                                            GunStats::Modifiers::GetToolName(tool),   L"|",
-                                            GunStats::Modifiers::GetKitName(kit),     L"|",
-                                            GunStats::Modifiers::GetSkillName(skill), L")",
+                                            format(L"{:.1f} ({:.2f}%)", method_MOD[i].VisualPercent , cancheUp), L"- (",                                            
+                                            GunStats::Modifiers::GetToolName(tool),   format(L"{:.1f}", pricet) + LANG_TRANSLATE("kk"), L"|",
+                                            GunStats::Modifiers::GetKitName(kit),     format(L"{:.1f}", pricek) + LANG_TRANSLATE("kk"), L"|",
+                                            GunStats::Modifiers::GetSkillName(skill), format(L"{:.1f}", prices) + LANG_TRANSLATE("kk"), L")"
 
                                          },
                                          RectangleTemp, 
@@ -2856,25 +3631,23 @@ int main()
                                          false
                                      );
 
+
+                                     if (cancheUp >= 100.0)
+                                     {
+                                         result.setColorText(Color::Green);
+                                     }
+
+                                     return result;
+
                                  }();
 
-                             ResultGuiMethodMod.push_back(move(GuiMethodMod));
+                             ResultGuiMethodMod.push_back(GuiMethodMod);
 
                          }
                          VectorDiagramPack[iter_graf].GUIMethodModifiers = ResultGuiMethodMod;
 
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
                          
-
                         // оформление метода
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2967,59 +3740,163 @@ int main()
 
 
 
-                       // оформление начального и конечного мода
-                       //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                         XsizePack = SizeCell_default * 8.f;
-                         YsizePack = SizeCell_default * 0.5f;
-
-                         XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
-                         YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.25f;
 
 
-                         GUI_TextAndRectangle GInitialMod = [XsizePack, YsizePack, XposPack, YposPack, INITIAL_CHARACTERISTIC]()
-                             {
-                                 RectangleShape RectangleTemp;
-                                 RectangleTemp.setSize({ XsizePack, YsizePack });
-                                 RectangleTemp.setPosition({ XposPack, YposPack });
-                                 wstring result;
 
-                                 for (const auto& ch : INITIAL_CHARACTERISTIC)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                         // сглаживание графика
+                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                         vector<pair<wstring, float>> AllocationBt =
+                         {
+                             {L"name",0.55f},
+                             {L"-",   0.12f},
+                             {L"val", 0.30f},
+                             {L"+",   0.12f}
+                         };
+
+                         int itbt1 = 0;
+                         for (const auto& [wstrbt, SizeP] : AllocationBt)
+                         {
+                             GUI_TextAndRectangle GUI_BinBt = [&wstrbt, &SizeP, &VectorDiagramPack, iter_graf, SizeCell_default, itbt1]()
                                  {
-                                     result += format(L"{:.1f}", ch) + L" |\t";
-                                 }
-
-                                 return GUI_TextAndRectangle({ "Initial_mod", L"\t\t" ,result}, RectangleTemp, false, false);
-
-                             }();
-
-
-                         VectorDiagramPack[iter_graf].GUIInitialMod = make_shared<GUI_TextAndRectangle>(GInitialMod);
+                                     RectangleShape BinBt;
+                                     BinBt.setSize(Vector2f((SizeCell_default * 3.f) * SizeP, SizeCell_default * 0.35f));
 
 
 
 
 
-                         YposPack += YsizePack;
 
-                         GUI_TextAndRectangle GEndMod = [XsizePack, YsizePack, XposPack, YposPack, MOD_CHARACTERISTIC]()
-                             {
-                                 RectangleShape RectangleTemp;
-                                 RectangleTemp.setSize({ XsizePack, YsizePack });
-                                 RectangleTemp.setPosition({ XposPack, YposPack });
-                                 wstring result;
+                                     auto posR = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition();
+                                     auto SizeR = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getSize();
+                                     if (itbt1 == 1)
+                                     {
+                                         posR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getPositionRectangle();
+                                         SizeR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+                                         BinBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
 
-                                 for (const auto& ch : MOD_CHARACTERISTIC)
+                                     }
+                                     else if (itbt1)
+                                     {
+                                         posR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getPositionRectangle();
+                                         SizeR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+                                         BinBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+                                     }
+                                     else
+                                     {
+                                         BinBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+                                     }
+
+
+
+
+
+
+
+
+                                     if (wstrbt == L"val")
+                                     {
+                                         return GUI_TextAndRectangle({format(L"{:.1f}", VectorDiagramPack[iter_graf].PercentBin)}, BinBt, false, false);
+                                     }
+                                     else if (wstrbt == L"name")
+                                     {
+                                         return GUI_TextAndRectangle({ "PercentBin" }, BinBt, false, false);
+                                     }
+                                     return GUI_TextAndRectangle({ wstrbt }, BinBt, true, false);
+
+                                 }();
+
+
+                             VectorDiagramPack[iter_graf].GUIPercentBinBt.push_back(GUI_BinBt);
+                             itbt1++;
+                         }
+
+
+
+                         itbt1 = 0;
+                         for (const auto& [wstrbt, SizeP] : AllocationBt)
+                         {
+                             GUI_TextAndRectangle GUI_SmoothBt = [&wstrbt, &SizeP, &VectorDiagramPack, iter_graf, SizeCell_default, itbt1]()
                                  {
-                                     result += format(L"{:.1f}", ch) + L" |\t";
-                                 }
-
-                                 return GUI_TextAndRectangle({ "End_mod", L"\t\t", result }, RectangleTemp, false, false);
-
-                             }();
+                                     RectangleShape SmBt;
+                                     SmBt.setSize(Vector2f((SizeCell_default * 3.f) * SizeP, SizeCell_default * 0.35f));
 
 
-                         VectorDiagramPack[iter_graf].GUIEndMod = make_shared<GUI_TextAndRectangle>(GEndMod);
+
+
+
+
+                                     auto posR = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getPosition() + Vector2f(0, SizeCell_default * 0.35f * 3.f );
+                                     auto SizeR = VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getSize();
+                                     if (itbt1 == 1)
+                                     {
+                                         posR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+                                         SizeR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+                                         SmBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
+
+                                     }
+                                     else if (itbt1)
+                                     {
+                                         posR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+                                         SizeR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+                                         SmBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+                                     }
+                                     else
+                                     {
+                                         SmBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+                                     }
+
+
+
+                                     if (wstrbt == L"val")
+                                     {
+                                         return GUI_TextAndRectangle({ format(L"{:.2f}", VectorDiagramPack[iter_graf].PercentSmooth) }, SmBt, false, false);
+                                     }
+                                     else if (wstrbt == L"name")
+                                     {
+                                         return GUI_TextAndRectangle({ "PercentSmooth" }, SmBt, false, false);
+                                     }
+                                     return GUI_TextAndRectangle({ wstrbt }, SmBt, true, false);
+
+                                 }();
+
+
+                             VectorDiagramPack[iter_graf].GUIPercentSmoothBt.push_back(GUI_SmoothBt);
+                             itbt1++;
+                         }
 
                          //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3029,11 +3906,64 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        // end
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
                         DiagramBool[iter_graf] = true;
                         OutputLog("Main -> Graph setting is finished: " + to_string(iter_graf));
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
                     }
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3044,12 +3974,34 @@ int main()
 
 
 
-
+                    ////////////////////////////////////////////////////////////////////////////////
+                    for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+                    }
                     ////////////////////////////////////////////////////////////////////////////////
 
-                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GuiPercentile50.get()->getRectangle());
-                    VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GuiPercentile50.get()->getText());
 
+
+
+                                        ////////////////////////////////////////////////////////////////////////////////
+                    for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+                    }
+                    ////////////////////////////////////////////////////////////////////////////////
+
+                    
+
+
+                    ////////////////////////////////////////////////////////////////////////////////
+                    for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentile50)
+                    {
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
+                        VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+                    }
                     ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -3065,7 +4017,7 @@ int main()
                     VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethod.get()->getText());
 
 
-                    for (size_t it = VectorDiagramPack[iter_graf].InitialIndexMethod; it < MethodList && it < VectorDiagramPack[iter_graf].GUIMethodModifiers.size(); it++)
+                    for (size_t it = VectorDiagramPack[iter_graf].InitialIndexMethod; it < VectorDiagramPack[iter_graf].GUIMethodModifiers.size(); it++)
                     {
                         VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getRectangle());
                         VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getText());
@@ -3122,6 +4074,22 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     /// если мы навелись на кривую ->  выведем инфу о колличестваx на текущей позиции
                     if (VectorDiagramPack[iter_graf].CurrentCurvePack.MainRectangleCurve.getGlobalBounds().contains(MouseWorldPosForGraf))
                     {
@@ -3156,7 +4124,7 @@ int main()
                         // перебираем отрезки кривой для вывода информации
                         //////////////////////////////////////////////////////////////////////////////////////////
                         
-                        unsigned CountSectionCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.Curve.getVertexCount();
+                        size_t CountSectionCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.Curve.getVertexCount();
                         if (CountSectionCurve == 0)
                         {
                             CountSectionCurve = 1;
@@ -3169,7 +4137,7 @@ int main()
                         auto XposLine = posLineTop.x; // || posLineDown.x
 
                         //имя инструмента \ кол-во
-                        vector<pair<string, int>> InfoCountModifiers;
+                        vector<pair<string, unsigned long long>> InfoCountModifiers;
 
                         // перебираем все отрезки
                         unsigned it_max;
@@ -3187,7 +4155,7 @@ int main()
                             if (XposLine >= start - epsilon && XposLine < end + epsilon)
                             {
 
-                                auto iteratorMap = VectorDiagramPack[iter_graf].CurrentFreqModifiers.begin();
+                                auto iteratorMap = VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers.begin();
                                 advance(iteratorMap, it_max);
 
 
@@ -3195,7 +4163,7 @@ int main()
 
                                 Cur_Freq = iteratorMap->second;
 
-                                if (iteratorMap != VectorDiagramPack[iter_graf].CurrentFreqModifiers.end())
+                                if (iteratorMap != VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers.end())
                                 {
                                     MODIFIERS_M = iteratorMap->first;
                                     Cur_Freq = iteratorMap->second;
@@ -3223,8 +4191,8 @@ int main()
                         NameModifier.setCharacterSize(static_cast<unsigned>(ThemeGui::CharacterSize * 0.9f));
 
                         RectangleShape RectangleForGraf;
-                        RectangleForGraf.setSize(Vector2f(SizeCell_default * 2.7, SizeCell_default * 0.23 * static_cast<float>(InfoCountModifiers.size() + 1)   ));
-                        RectangleForGraf.setPosition({ posLineTop + Vector2f(SizeCell_default * 0.3, 0) });
+                        RectangleForGraf.setSize(Vector2f(SizeCell_default * 2.7f, SizeCell_default * 0.23f * static_cast<float>(InfoCountModifiers.size() + 1)   ));
+                        RectangleForGraf.setPosition({ posLineTop + Vector2f(SizeCell_default * 0.3f, 0) });
                         RectangleForGraf.setFillColor(Color(230,230,230, 200));
                         RectangleForGraf.setOutlineColor(Color::Black);
                         RectangleForGraf.setOutlineThickness(-1);
@@ -3236,10 +4204,21 @@ int main()
                         for (it4 = 0; it4 < InfoCountModifiers.size(); it4++)
                         {
                             //////////////////////////////////////////////////////////////////////////////////////////
-                            auto pos1 = posLineTop + Vector2f(SizeCell_default * 0.4, SizeCell_default * 0.2 * it4);
+                            auto pos1 = posLineTop + Vector2f(SizeCell_default * 0.4f, SizeCell_default * 0.2f * it4);
 
                             NameModifier.setPosition(pos1);
-                            NameModifier.setString(to_wstring(InfoCountModifiers[it4].second));
+                            
+                            if (it4 == InfoCountModifiers.size() - 1)
+                            {
+
+                                NameModifier.setString(  format(L"{:L}", static_cast<float>(InfoCountModifiers[it4].second / 1'000'000)) + LANG_TRANSLATE("kk"));
+
+                            }
+                            else
+                            {
+                                NameModifier.setString(to_wstring(InfoCountModifiers[it4].second));
+                            }
+                            
 
                             VectorWindowsDiagram[iter_graf].draw(NameModifier);
                             //////////////////////////////////////////////////////////////////////////////////////////
@@ -3248,7 +4227,7 @@ int main()
 
 
                             //////////////////////////////////////////////////////////////////////////////////////////
-                            auto pos2 = posLineTop + Vector2f(SizeCell_default * 0.8, SizeCell_default * 0.2 * it4);
+                            auto pos2 = posLineTop + Vector2f(SizeCell_default * 0.85f, SizeCell_default * 0.2f * it4);
 
                             NameModifier.setPosition(pos2);
                             NameModifier.setString(L" - " + LANG_TRANSLATE(InfoCountModifiers[it4].first));
@@ -3260,7 +4239,7 @@ int main()
 
 
                         //////////////////////////////////////////////////////////////////////////////////////////
-                        NameModifier.setPosition(posLineTop + Vector2f(SizeCell_default * 0.4, SizeCell_default * 0.2 * it4));
+                        NameModifier.setPosition(posLineTop + Vector2f(SizeCell_default * 0.4f, SizeCell_default * 0.2f * it4));
                         NameModifier.setString(LANG_TRANSLATE("Section") + to_wstring(it_max + 1) + L" | " + LANG_TRANSLATE("Freq") + format(L"{:.2f}", Cur_Freq));
 
                         VectorWindowsDiagram[iter_graf].draw(NameModifier);
@@ -3274,19 +4253,52 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     VectorWindowsDiagram[iter_graf].display();
+
+
+
+
+
+
+
+
+                    // возврат к дефолт цвету
+                    if (WI % 50 == 10)
+                    {
+                        for (auto& button : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+                        {
+                            button.setAsPressedButton();
+                        }
+                        for (auto& button : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+                        {
+                            button.setAsPressedButton();
+                        }
+                    }
                 }                
             }
         }
-        ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-       
+        ////////////////////////////////////////////////////////////////////////////////       
         // возврат к дефолт цвету
         if (WI % 50 == 10)
         {
@@ -3297,6 +4309,16 @@ int main()
             ShapeGeneralModBack.setAsPressedButton();
 
             if (!PressedApplyAsMod) { ShapeGeneralModApplyStatInitial.setAsPressedButton(); }
+
+            /// стоимость
+            for (auto& button : ToolPrice)
+            {
+                button.setAsPressedButton();
+            }
+            for (auto& button : KitPrice)
+            {
+                button.setAsPressedButton();
+            }
         }
 
     }
@@ -3307,42 +4329,54 @@ int main()
 }
 
 
-vector<pair<string, int>> GetInfoForModifiers(const CountModifiers& MODIFIERS)
+vector<pair<string, unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS)
 {
-    vector<pair<string, int>> result;
+    vector<pair<string, unsigned long long>> result;
     // выводим информацию о 
     // CountModifiers
 
 
 
-    for (const auto& [CurrentTool, count] : MODIFIERS.CountTool)
+    for (const auto& [CurrentTool, CountTool] : MODIFIERS.CountTool)
     {
-        if (count)
+        if (CountTool) // != 0
         {
             if (CurrentTool != GunStats::Modifiers::ToolType::NO_TOOL)
             {
-                result.emplace_back(GunStats::Modifiers::GetToolName(CurrentTool), count);
+                result.emplace_back(GunStats::Modifiers::GetToolName(CurrentTool), CountTool);
             }
         }
     }
-    for (const auto& [Currentkit, count] : MODIFIERS.CountKit)
+    for (const auto& [Currentkit, CountKit] : MODIFIERS.CountKit)
     {
-        if (count)
+        if (CountKit) // != 0
         {
             if (Currentkit != GunStats::Modifiers::KitType::NO_KIT)
             {
-                result.emplace_back(GunStats::Modifiers::GetKitName(Currentkit), count);
+                result.emplace_back(GunStats::Modifiers::GetKitName(Currentkit), CountKit);
             }
         }
     }
-    // не подсчитываем исп. скиллы ??
-    //for (const auto& [CurrentSkill, count] : MODIFIERS_M.CountSkill)
-    //{
-    //    if (count)
-    //    {
-    //        result.emplace_back(GunStats::Modifiers::GetSkillName(CurrentSkill), count);
-    //    }
-    //}
+    
+    for (const auto& [CurrentSkill, CountSkill] : MODIFIERS.CountSkill)
+    {
+        if (CountSkill) // != 0 
+        {
+            // не учитываем
+            if (CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_MASTER_1 &&
+                CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_MASTER_2 &&
+                CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_MASTER_3 &&
+                CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_MASTER_4 &&
+                CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_MASTER_5 &&
+                CurrentSkill != GunStats::Modifiers::SkillType::PLAYER_NO_SKILL
+                )
+            {
+                result.emplace_back(GunStats::Modifiers::GetSkillName(CurrentSkill), CountSkill);
+            }
+        }
+    }
+    result.emplace_back("AllPrice", MODIFIERS.AllPrice);
+
 
     return result;
 }
@@ -3359,13 +4393,13 @@ vector<pair<string, int>> GetInfoForModifiers(const CountModifiers& MODIFIERS)
 
 void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& CurrentCharacteristicGun, vector<int> InitialPosition, vector<int> ModPosition)
 {
-    auto DefaultPosition = CurrentCharacteristicGun.GetDefaultStat();
+    auto DefaultPosition = CurrentCharacteristicGun.getDefaultPosition();
     moveElement(DefaultPosition, 4, 2);
 
-    auto MaxPosition     = CurrentCharacteristicGun.GetMaxStatPosition();
+    auto MaxPosition     = CurrentCharacteristicGun.getMaxPositionCharacteristic();
     moveElement(MaxPosition, 4, 2);
 
-    auto Current         = CurrentCharacteristicGun.GetCurrentPosition();
+    auto Current         = CurrentCharacteristicGun.getCurrentPosition();
     moveElement(Current, 4, 2);
     
 
@@ -3412,6 +4446,47 @@ void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& Cu
     }
 }
 
+bool Set_Chahce_upgrade(const CharacteristicGun& CurrentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUI_TextAndRectangle& GUI_Chance, size_t it)
+{
+    GUI_Chance.resetColorText();
+
+    if (CurrentCharacteristicGun.is_Empty())
+    {
+        return false;
+    }
+
+
+    auto TempChance = CalculateSuccessChance(
+        CurrentCharacteristicGun.getChanceFor_NEXT_Stat(GunStats::Trans_INDEX_to_INDEXGUNSTAT[it]),
+
+        GunStats::Modifiers::GetToolModifier(CurrentModifiers.Tool),
+        GunStats::Modifiers::GetKitModifier(CurrentModifiers.Kit),
+        GunStats::Modifiers::GetSkillModifier(CurrentModifiers.Skill)
+    );
+
+    wstring Percent = L" ";
+
+    if (!CurrentCharacteristicGun.is_Empty())
+    {
+        Percent += format(L"{:.2f}", TempChance);
+    }
+    else
+    {
+        Percent += L"0.0";
+    }
+    Percent += L"%";
+
+    auto NameCharacteristic = string(GunStats::MapCharacteristicName_Index[it]);
+
+    GUI_Chance.setKeyString_and_TextWstring({ "Chahce_upgrade" , NameCharacteristic ,  Percent });
+
+    if (TempChance >= 100.0f)
+    {
+        GUI_Chance.setColorText(Color::Green);
+    }
+    return true;
+}
+
 
 
 template<typename T>
@@ -3431,4 +4506,150 @@ void moveElement(vector<T>& vec, size_t from, size_t to)
         --to;  // учёт сдвига после erase
     }
     vec.insert(vec.begin() + to, move(val));
+}
+
+unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers)
+{
+    int result = -1;
+
+
+    ifstream in_jsonFile_price(PathToPriceModifiers_JS);
+    if (!in_jsonFile_price)
+    {
+        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+    }
+    else
+    {
+        nlohmann::json JSON_PRICE;
+        in_jsonFile_price >> JSON_PRICE;
+        in_jsonFile_price.close();
+
+
+        string Str_tool = GunStats::Modifiers::GetToolName(CurrentModifiers.Tool);
+
+
+        if (JSON_PRICE.contains("MD_Tool") && JSON_PRICE["MD_Tool"].contains(Str_tool))
+        {
+            result = JSON_PRICE["MD_Tool"][Str_tool].get<unsigned>();
+        }
+        else
+        {
+            JSON_PRICE["MD_Tool"][Str_tool] = 0;
+        }
+
+        if (result == -1)
+        {
+            ofstream out_jsonFile_price(PathToPriceModifiers_JS);
+            out_jsonFile_price << JSON_PRICE.dump(2);
+            out_jsonFile_price.close();
+
+            result = 0;
+        }
+    }
+    return static_cast<unsigned>(result);
+}
+unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers, string NameGun)
+{
+    int result = -1;
+
+
+    ifstream in_jsonFile_price(PathToPriceModifiers_JS);
+    if (!in_jsonFile_price)
+    {
+        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+    }
+    else
+    {
+
+        nlohmann::json JSON_PRICE;
+        in_jsonFile_price >> JSON_PRICE;
+        in_jsonFile_price.close();
+
+
+        if (JSON_PRICE.contains("MD_Kit") && JSON_PRICE["MD_Kit"].contains(NameGun) && JSON_PRICE["MD_Kit"][NameGun].contains(GunStats::Modifiers::GetKitName(CurrentModifiers.Kit)))
+        {
+            result = JSON_PRICE["MD_Kit"][NameGun][GunStats::Modifiers::GetKitName(CurrentModifiers.Kit)].get<unsigned>();
+        }
+        else
+        {
+            JSON_PRICE["MD_Kit"][NameGun][GunStats::Modifiers::GetKitName(CurrentModifiers.Kit)] = 0;
+        }
+
+        if (result == -1)
+        {
+            ofstream out_jsonFile_price(PathToPriceModifiers_JS);
+            out_jsonFile_price << JSON_PRICE.dump(2);
+            out_jsonFile_price.close();
+
+            result = 0;
+        }
+    }
+    return static_cast<unsigned>(result);
+}
+
+
+
+
+bool Set_Price_Tool(const path& PathToPriceModifiers_JS, GunStats::Modifiers::ToolType Tool, unsigned Price)
+{
+    if (Tool == GunStats::Modifiers::ToolType::NO_TOOL)
+    {
+        return false;
+    }
+
+    ifstream in_jsonFile_price(PathToPriceModifiers_JS);
+    if (!in_jsonFile_price)
+    {
+        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+        return false;
+    }
+    else
+    {
+        nlohmann::json JSON_PRICE;
+        in_jsonFile_price >> JSON_PRICE;
+        in_jsonFile_price.close();
+
+        JSON_PRICE["MD_Tool"][GunStats::Modifiers::GetToolName(Tool)] = Price;
+
+        ofstream out_jsonFile_price(PathToPriceModifiers_JS);
+        out_jsonFile_price << JSON_PRICE.dump(2);
+        out_jsonFile_price.close();
+    }
+    return true;
+}
+
+
+bool Set_Price_Kit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitType Kit, string nameGun, unsigned Price)
+{
+    if (Kit == GunStats::Modifiers::KitType::NO_KIT)
+    {
+        return false;
+    }
+    if (nameGun == "Empty")
+    {
+        return false;
+    }
+
+
+    ifstream in_jsonFile_price(PathToPriceModifiers_JS);
+    if (!in_jsonFile_price)
+    {
+        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+        return false;
+    }
+    else
+    {
+        nlohmann::json JSON_PRICE;
+        in_jsonFile_price >> JSON_PRICE;
+        in_jsonFile_price.close();
+
+
+        JSON_PRICE["MD_Kit"][nameGun][GunStats::Modifiers::GetKitName(Kit)] = Price;
+
+
+        ofstream out_jsonFile_price(PathToPriceModifiers_JS);
+        out_jsonFile_price << JSON_PRICE.dump(2);
+        out_jsonFile_price.close();
+    }
+    return true;
 }

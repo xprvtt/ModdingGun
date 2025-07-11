@@ -168,6 +168,8 @@ public:
     const RectangleShape& getRectangle();
 
 
+    bool isButton();
+
     /// <summary>
     /// кнопка сейчас нажата?
     /// </summary>

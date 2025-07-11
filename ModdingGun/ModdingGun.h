@@ -28,11 +28,16 @@ struct GeneralStat
     /// имя характеристики \ первое
     /// </summary>
     GUI_TextAndRectangle    TextCharacteristicName;
+
+    /// <summary>
+    /// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
+    /// </summary>
+    GUI_TextAndRectangle    TextVisualCharacteristic;
+
     /// <summary>
     /// визуальное отображения процента апгрейда
     /// </summary>
-    GUI_TextAndRectangle    TextCharacteristicVisualProcent;
-
+    GUI_TextAndRectangle    TextCharacteristicVisualPercent;
 
 
 
@@ -52,16 +57,12 @@ struct GeneralStat
 
 
 
-
     /// <summary>
     /// кнопка для выбора
     /// </summary>
     GUI_TextAndRectangle    MarkButtonCharacteristic;
 };
 ///////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 
@@ -87,6 +88,21 @@ void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& Cu
 
 
 
+bool Set_Chahce_upgrade(const CharacteristicGun& CurrentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUI_TextAndRectangle& GUI_Chance, size_t it);
+
+
+unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers);
+unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers, string NameGun);
+
+
+
+
+bool Set_Price_Tool(const path& PathToPriceModifiers_JS, GunStats::Modifiers::ToolType Tool, unsigned Price);
+bool Set_Price_Kit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitType Kit, string nameGun, unsigned Price);
+
+
+
+
 
 
 /// <summary>
@@ -94,4 +110,6 @@ void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& Cu
 /// </summary>
 /// <param name="MODIFIERS"></param>
 /// <returns></returns>
-vector<pair<string, int>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
+vector<pair<string,unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
+
+

@@ -3,9 +3,11 @@
 #include "Core.h"
 #include "GunStats.h"
 
+
+
+
 class CharacteristicGun
 {
-
 	struct AllStat
 	{
 		/// <summary>
@@ -16,7 +18,7 @@ class CharacteristicGun
 		/// <summary>
 		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
 		/// </summary>
-		float parametr;
+		double ValueCharacteristic;
 
 		/// <summary>
 		/// текуший РЕАЛЬНЫЙ шанс НА УЛУЧШЕНИЕ
@@ -26,7 +28,7 @@ class CharacteristicGun
 		/// <summary>
 		/// текущий ВИЗУАЛЬНЫЙ процент
 		/// </summary>
-		double VisualProcentStat;
+		double VisualPercentStat;
 	};
 
 	struct DecreaseStatST
@@ -48,8 +50,9 @@ class CharacteristicGun
 
 	};
 
-
 	/// <summary>
+	/// <para>v1 - характеристика</para>
+	/// <para>v2 - позиция</para>	/// 
 	/// <para>0 - кучность вектор возможных стат</para> 
 	/// <para>1 - темп</para>
 	/// <para>2 - отдача</para>
@@ -58,7 +61,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<vector<AllStat>> FulAllStat;
+	vector<vector<AllStat>> FulAllStat;
 
 
 	/// <summary>
@@ -70,7 +73,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<vector<DecreaseStatST>> FullDecreaseStat;
+	vector<vector<DecreaseStatST>> FullDecreaseStat;
 
 	/// <summary>
 	/// текущая позиция статов</para>
@@ -82,7 +85,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<int> CurrentStatPosition;
+	vector<int> CurrentStatPosition;
 
 	/// <summary>
 	/// максимальная позиция статов</para>
@@ -94,7 +97,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	std::vector<int> MaxStatPosition;
+	vector<int> MaxStatPosition;
 
 	/// <summary>
 	/// начальная позиция статов</para>
@@ -117,7 +120,7 @@ class CharacteristicGun
 
 	bool Empty;
 
-	bool UpStat(int stat_No);
+	bool upStat(int stat_No);
 
 
 public:
@@ -126,27 +129,27 @@ public:
 
 	CharacteristicGun(vector<int> MaxStatPosition);
 
-	bool is_Empty();
+	bool is_Empty()  const;
 
-	bool Load(path PathToInfo, wstring namegun);
+	bool load(path PathToInfo, wstring namegun);
 
 	void clear();
 
-	bool UpgradeStat(int CharacteristicGun_in_NAMESTAT);
+	bool upgradeStat(int CharacteristicGun_in_NAMESTAT);
 
 	/// <summary>
 	/// получить шанс услучшения ДЛЯ УЛУЧШЕНИЯ НА СЛЕД ПОЗИЦИЮ характеристики
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-	double GetChanceFor_NEXT_Stat(unsigned int stat);
+	double getChanceFor_NEXT_Stat(size_t stat) const;
 
 	/// <summary>
 	/// получить вектор уменьшения характеристик, для текущей статы
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-	vector<int> GetDecreaseForCurrentStat(unsigned int stat);
+	vector<int> getDecreaseForCurrentStat(size_t stat) const;
 
 
 	/// <summary>
@@ -154,7 +157,7 @@ public:
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-	bool StepBack();
+	bool stepBack();
 
 
 	/// <summary>
@@ -162,27 +165,27 @@ public:
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-	double GetVisualProcentStat(int stat);
+	double getVisualPercentUpgradeCharacteristic(size_t stat) const;
 
 
 	/// <summary>
 	/// вернуть начальные характеристики
 	/// </summary>
 	/// <returns></returns>
-	bool ReturnDefaultstat();
+	bool returnDefaultPosition();
 
 	/// <summary>
 	/// получить стандартные позиции
 	/// </summary>
 	/// <returns></returns>
-	vector<int> GetDefaultStat();
+	vector<int> getDefaultPosition() const;
 
 
 	/// <summary>
-	/// получить максимально возможные статы
+	/// получить максимально возможные позиции
 	/// </summary>
 	/// <returns></returns>
-	vector<int> GetMaxStatPosition();
+	vector<int> getMaxPositionCharacteristic() const;
 
 
 	/// <summary>
@@ -190,20 +193,27 @@ public:
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-	double GetMaxStatVisualProcent(unsigned int stat);
+	double getMaxStatVisualPercent(size_t stat) const;
 
 
 	/// <summary>
 	/// получить вектор отображаемых процентов для текущей статы
 	/// </summary>
 	/// <returns></returns>
-	vector<double> GetFullCurrentVisualStat();
+	vector<double> getFullCurrentVisualStat() const;
 
 
 	/// <summary>
 	/// получить текущую позицию
 	/// </summary>
 	/// <returns></returns>
-	vector<int> GetCurrentPosition();
+	vector<int> getCurrentPosition() const;
+
+
+	/// <summary>
+	/// 
+	/// </summary>
+	double getValueCharacteristic(size_t stat) const;
+	
 
 };

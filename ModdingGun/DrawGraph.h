@@ -13,7 +13,7 @@ struct CurvePack
 {
     RectangleShape MainRectangleCurve;
 
-    vector< GUI_TextAndRectangle> VGUITextCurve;
+    vector<GUI_TextAndRectangle> VGUITextCurve;
 
     VertexArray    Curve;
 };
@@ -38,6 +38,9 @@ CurvePack GetCurveFrequrency
 );
 
 
+VertexArray CurveFun(RectangleShape MainRectangleCurve, Color ColorCurve, const map<CountModifiers, float>& FreqModifiers);
+
+
 /// <summary>
 /// получаем частоту экземпляров
 /// </summary>
@@ -48,6 +51,11 @@ map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& OtherV
 
 
 
+
+map<CountModifiers,float> GetBinedFreqModifiers(const map<CountModifiers, float>& OtherMap, float PercentBin);
+
+
+
 /// <summary>
 /// получаем сглаженный график по частоте/// </summary>
 /// <param name="OtherMap"></param>
@@ -55,7 +63,7 @@ map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& OtherV
 /// <param name="original_min"></param>
 /// <param name="original_max"></param>
 /// <returns></returns>
-map<CountModifiers, float> SmoothFreqModifiers(const map<CountModifiers, float>& OtherMap, float smoothnessPercent);
+map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, float>& OtherMap, float smoothnessPercent);
 
 
 

@@ -1,0 +1,305 @@
+{
+  "MD_Kit": {
+    "AUG": {
+      "Detail": 5000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "Benelli": {
+      "Detail": 5000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "DEagle": {
+      "Detail": 2000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "Empty": {
+      "Detail": 0,
+      "Repair_kit": 0,
+      "Without_set_parts": 0
+    },
+    "FAL": {
+      "Detail": 1000000,
+      "Repair_kit": 600000,
+      "Without_set_parts": 0
+    },
+    "FAMASF1": {
+      "Detail": 1000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "FAMASG2": {
+      "Detail": 3000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "FNC": {
+      "Detail": 5000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "Glock17": {
+      "Detail": 2000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "Glock18": {
+      "Detail": 3000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "L96A1": {
+      "Detail": 10000000,
+      "Repair_kit": 5000000,
+      "Without_set_parts": 0
+    },
+    "M16A1": {
+      "Detail": 1000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "M16A2": {
+      "Detail": 2500000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "M16A3": {
+      "Detail": 2500000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "M16A4": {
+      "Detail": 10000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "M249": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "M4A1": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "MAC10": {
+      "Detail": 500000,
+      "Repair_kit": 100000,
+      "Without_set_parts": 0
+    },
+    "MP5A2": {
+      "Detail": 2000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "MP5SD": {
+      "Detail": 3000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "Mossberg": {
+      "Detail": 500000,
+      "Repair_kit": 200000,
+      "Without_set_parts": 0
+    },
+    "SIG550": {
+      "Detail": 5000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "SIG552": {
+      "Detail": 5000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "SPAS12": {
+      "Detail": 2000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "Scorpion": {
+      "Detail": 500000,
+      "Repair_kit": 200000,
+      "Without_set_parts": 0
+    },
+    "Spectre": {
+      "Detail": 500000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "USAS": {
+      "Detail": 5000000,
+      "Repair_kit": 200000,
+      "Without_set_parts": 0
+    },
+    "UZI": {
+      "Detail": 500000,
+      "Repair_kit": 100000,
+      "Without_set_parts": 0
+    },
+    "WA2000": {
+      "Detail": 2000000,
+      "Repair_kit": 400000,
+      "Without_set_parts": 0
+    },
+    "АК103": {
+      "Detail": 3000000,
+      "Repair_kit": 2000000,
+      "Without_set_parts": 0
+    },
+    "АК104": {
+      "Detail": 3000000,
+      "Repair_kit": 2000000,
+      "Without_set_parts": 0
+    },
+    "АК105": {
+      "Detail": 2000000,
+      "Repair_kit": 2000000,
+      "Without_set_parts": 0
+    },
+    "АК107": {
+      "Detail": 10000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "АК109": {
+      "Detail": 10000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "АК74": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "АК74М": {
+      "Detail": 3000000,
+      "Repair_kit": 2000000,
+      "Without_set_parts": 0
+    },
+    "АК74У": {
+      "Detail": 500000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "АКМ": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "АКМС": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "АКС74": {
+      "Detail": 1000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "ВСС": {
+      "Detail": 10000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "Вал": {
+      "Detail": 10000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "Вихрь": {
+      "Detail": 20000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "Гроза1": {
+      "Detail": 2000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "Гроза4": {
+      "Detail": 3000000,
+      "Repair_kit": 3000000,
+      "Without_set_parts": 0
+    },
+    "Мосина": {
+      "Detail": 100000,
+      "Repair_kit": 60000,
+      "Without_set_parts": 0
+    },
+    "Наган": {
+      "Detail": 50000,
+      "Repair_kit": 60000,
+      "Without_set_parts": 0
+    },
+    "НаганОхот": {
+      "Detail": 100000,
+      "Repair_kit": 60000,
+      "Without_set_parts": 0
+    },
+    "НаганПогран": {
+      "Detail": 100000,
+      "Repair_kit": 60000,
+      "Without_set_parts": 0
+    },
+    "Обрез": {
+      "Detail": 500000,
+      "Repair_kit": 60000,
+      "Without_set_parts": 0
+    },
+    "ПМ": {
+      "Detail": 70000,
+      "Repair_kit": 50000,
+      "Without_set_parts": 0
+    },
+    "ППШ": {
+      "Detail": 500000,
+      "Repair_kit": 100000,
+      "Without_set_parts": 0
+    },
+    "РПГ": {
+      "Detail": 5000000,
+      "Repair_kit": 500000,
+      "Without_set_parts": 0
+    },
+    "СВД": {
+      "Detail": 5000000,
+      "Repair_kit": 1000000,
+      "Without_set_parts": 0
+    },
+    "СКС": {
+      "Detail": 70000,
+      "Repair_kit": 50000,
+      "Without_set_parts": 0
+    },
+    "СР3М": {
+      "Detail": 20000000,
+      "Repair_kit": 5000000,
+      "Without_set_parts": 0
+    },
+    "Сайга": {
+      "Detail": 1000000,
+      "Repair_kit": 100000,
+      "Without_set_parts": 0
+    },
+    "ТОЗ34": {
+      "Detail": 70000,
+      "Repair_kit": 50000,
+      "Without_set_parts": 0
+    },
+    "ТТ": {
+      "Detail": 50000,
+      "Repair_kit": 50000,
+      "Without_set_parts": 0
+    }
+  },
+  "MD_Tool": {
+    "Common_tool": 600000,
+    "Improved_tool": 700000,
+    "Old_tool": 500000,
+    "without_tool": 0
+  }
+}

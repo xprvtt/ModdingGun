@@ -52,6 +52,10 @@ int RunSingleAssembly(
             SuccsessRandom = GetRandomDouble(100.0);
             Average_random_temp.push_back(static_cast<unsigned int>(round(SuccsessRandom * 100))); /// 0 ~ 10'000 точность не важна
 
+
+            CurrentUsedModifiers.AllPrice += method_MOD[iteration].Price.PriceTool + method_MOD[iteration].Price.PriceKit + method_MOD[iteration].Price.PriceSkill;
+
+
             if (it_index != -1)
             {
                 CurrentUsedModifiers.CountTool[method_MOD[iteration].ModifiersThisChance.Tool]++;

@@ -362,6 +362,13 @@ struct Select_Modifiers
     };
 };
 
+struct PriceModifiers
+{
+    unsigned PriceTool;
+    unsigned PriceKit;
+    unsigned PriceSkill;
+};
+
 
 
 /// содержит 
@@ -375,7 +382,7 @@ struct Method
     /// </summary>
     int Characteristic_Gunstat;
     /// <summary>
-    /// шанс улучшения для 4этого параметра
+    /// шанс улучшения для этого параметра
     /// </summary>
     double ChanceUpgrade;
 
@@ -387,7 +394,12 @@ struct Method
     /// <summary>
     /// визуальный процент
     /// </summary>
-    double VisualProcent;
+    double VisualPercent;
+
+    /// <summary>
+    /// цены на улучшение этого параметра
+    /// </summary>
+    PriceModifiers Price;
 
 };
 

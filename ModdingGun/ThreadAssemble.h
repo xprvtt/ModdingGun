@@ -9,11 +9,11 @@
 /// </summary>
 struct CountModifiers
 {
-    map<GunStats::Modifiers::ToolType, unsigned int > CountTool;
-    map<GunStats::Modifiers::KitType, unsigned int > CountKit;
+    map<GunStats::Modifiers::ToolType,  unsigned int > CountTool;
+    map<GunStats::Modifiers::KitType,   unsigned int > CountKit;
     map<GunStats::Modifiers::SkillType, unsigned int > CountSkill;
 
-
+    unsigned long long AllPrice;
 
     CountModifiers()
     {
@@ -21,6 +21,7 @@ struct CountModifiers
         auto kit   = GunStats::Modifiers::KitType::KitType_begin;
         auto skill = GunStats::Modifiers::SkillType::SkillType_begin;
 
+        this->AllPrice = 0;
 
         for (tool++; tool < GunStats::Modifiers::ToolType::ToolType_end; tool++)
         {
@@ -84,7 +85,7 @@ struct CountModifiers
             }
         }
 
-
+        
         auto skill = GunStats::Modifiers::SkillType::SkillType_begin;
         for (skill++; skill < GunStats::Modifiers::SkillType::SkillType_end; skill++)
         {
@@ -104,10 +105,10 @@ struct CountModifiers
                 exit(-10);
             }
         }
+        
+        // осталось сравнить цену
 
-
-
-        return true;
+        return this->AllPrice == other.AllPrice;
     };
 
 
@@ -115,7 +116,7 @@ struct CountModifiers
     
     bool operator<(const CountModifiers& other) const 
     {
-        // приоритет 1
+
         unsigned CountToolThis = 0;
         unsigned CountToolOther = 0;
 
@@ -139,7 +140,7 @@ struct CountModifiers
         }
 
 
-        // приоритет 2
+
         unsigned CountKitThis = 0;
         unsigned CountKitOther = 0;
 
@@ -162,10 +163,10 @@ struct CountModifiers
             }
         }
 
-        /*     
+           
 
 
-        // приоритет 3 (не подситываем?)
+
         unsigned CountSkillThis = 0;
         unsigned CountSkillOther = 0;
 
@@ -186,11 +187,12 @@ struct CountModifiers
                 exit(-11);
             }
         }
+        
+        
 
-        */
 
 
-        return ( tie(CountToolThis, CountKitThis) < tie(CountToolOther, CountKitOther) );
+        return tie(CountKitThis , CountToolThis, CountSkillThis, this->AllPrice) < tie(CountKitOther, CountToolOther, CountSkillOther, other.AllPrice);
     }
 
 

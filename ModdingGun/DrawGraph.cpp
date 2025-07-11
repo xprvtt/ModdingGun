@@ -66,24 +66,12 @@ CurvePack GetCurveFrequrency
         {{name}, r0_Info_LeftTop ,false, false},
         {{"Often"}, r1_LeftTop      ,false, false},
         {{"Rarely"}, r1_LeftDown     ,false, false},
-        {{"Count"}, r2_LeftDown     ,false, false},
+        {{"CountMin"}, r2_LeftDown     ,false, false},
         {{"CountMax"}, r2_RightDown    ,false, false},
     };
     VGUITextCurve[0].setColorText(ColorCurve);
 
     ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 
@@ -101,25 +89,18 @@ CurvePack GetCurveFrequrency
     //////////////////////////////////////////////////////////////////////////////////
 
 
+    return { MainRectangleCurve, VGUITextCurve,  CurveFun(MainRectangleCurve, ColorCurve, FreqModifiers)};
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
+VertexArray CurveFun(RectangleShape MainRectangleCurve, Color ColorCurve, const map<CountModifiers, float>& FreqModifiers)
+{
 
     //////////////////////////////////////////////////////////////////////////////////
     float Xsize = MainRectangleCurve.getSize().x;
     float Ysize = MainRectangleCurve.getSize().y;
-    float Xpos  = XposGeneral;
-    float Ypos  = MainRectangleCurve.getPosition().y;
+    float Xpos = MainRectangleCurve.getPosition().x;;
+    float Ypos = MainRectangleCurve.getPosition().y;
 
     VertexArray curve(PrimitiveType::LineStrip, FreqModifiers.size());
     //////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +119,7 @@ CurvePack GetCurveFrequrency
         max_freq = max(max_freq, freq);
     }
     //////////////////////////////////////////////////////////////////////////////////
-
+    
 
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -162,10 +143,7 @@ CurvePack GetCurveFrequrency
     }
     //////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-    return { MainRectangleCurve, VGUITextCurve,  curve };
+    return curve;
 }
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -210,6 +188,114 @@ map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& OtherV
 
 
 
+//////////////////////////////////////////////////////////////////////////////////
+map<CountModifiers, float> GetBinedFreqModifiers(const map<CountModifiers, float>& OtherMap, float PercentBin)
+{
+    if (OtherMap.empty())
+    {
+        return {};
+    }
+
+    // Если указано 100%, биннинг не нужен
+    if (PercentBin >= 1.0f)
+    {
+        return OtherMap;
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Определение количества корзин
+    int CountBascet = max(1, static_cast<int>(OtherMap.size() * PercentBin));
+
+    //////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Сбор и сортировка всех частот с привязкой к CountModifiers
+
+    vector<pair<CountModifiers, float>> sortedFreqs(OtherMap.begin(), OtherMap.end());
+
+    sort(sortedFreqs.begin(), sortedFreqs.end(),
+        [](const auto& a, const auto& b)
+        {
+            return a.second < b.second;
+        });
+    //////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Распределение по корзинам по квантилям
+
+    map<int, vector<pair<CountModifiers, float>>> bins;
+
+    int total = static_cast<int>(sortedFreqs.size());
+    int itemsPerBin = total / CountBascet;
+
+    int currentBin = 0;
+    int countInCurrent = 0;
+
+    for (const auto& [mod, freq] : sortedFreqs)
+    {
+        bins[currentBin].push_back({ mod, freq });
+        countInCurrent++;
+
+        if (countInCurrent >= itemsPerBin && currentBin + 1 < CountBascet)
+        {
+            currentBin++;
+            countInCurrent = 0;
+        }
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Формирование результата на основе среднего значения в корзине
+
+    map<CountModifiers, float> result;
+
+    for (const auto& [binIdx, items] : bins)
+    {
+        if (items.empty())
+        {
+            continue;
+        }
+
+        CountModifiers representative = items[0].first;
+
+        float sumFreq = 0.0f;
+        for (const auto& [_, freq] : items)
+        {
+            sumFreq += freq;
+        }
+
+        float averageFreq = sumFreq / items.size();
+
+        result[representative] = averageFreq;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 
 
@@ -227,7 +313,7 @@ map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& OtherV
 //////////////////////////////////////////////////////////////////////////////////
 
 
-map<CountModifiers, float> SmoothFreqModifiers(const map<CountModifiers, float>& OtherMap, float smoothnessPercent)
+map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, float>& OtherMap, float smoothnessPercent)
 {
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -237,6 +323,11 @@ map<CountModifiers, float> SmoothFreqModifiers(const map<CountModifiers, float>&
     {
         OutputLog("GetFreqCountModifiers -> empty");
         return result;
+    }
+
+    if (smoothnessPercent == 0)
+    {
+        return OtherMap;
     }
     //////////////////////////////////////////////////////////////////////////////////
 

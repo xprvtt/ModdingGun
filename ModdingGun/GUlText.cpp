@@ -5,7 +5,7 @@ set<GUI_TextAndRectangle*> GUI_TextAndRectangle::instancesGui;
 
 void GUI_TextAndRectangle::centerText()
 {
-    float XOffset = UI_Rectangle.getSize().y * 0.3;
+    float XOffset = UI_Rectangle.getSize().y * 0.3f;
 
     // Горизонтальное позиционирование — от левого края с отступом
     float x = UI_Rectangle.getPosition().x + XOffset;
@@ -16,6 +16,17 @@ void GUI_TextAndRectangle::centerText()
     float textOffsetY = UI_Text.get()->getLocalBounds().position.y; 
 
     float y = rectCenterY - (textHeight / 2.0f + textOffsetY);
+
+
+    // Уменьшение размера текста, если ширина превышает прямоугольник
+    float maxWidth = UI_Rectangle.getSize().x - (XOffset * 2.0f); // допустимая ширина с учётом отступов
+    unsigned int charSize = UI_Text.get()->getCharacterSize();
+
+    while (UI_Text.get()->getLocalBounds().size.x > maxWidth && charSize > 5) // нижний предел
+    {
+        charSize -= 1;
+        UI_Text.get()->setCharacterSize(charSize);
+    }
 
     // Установка позиции
     UI_Text.get()->setPosition(Vector2f(x, y));
@@ -341,6 +352,10 @@ void GUI_TextAndRectangle::setPositionRectangle(Vector2f position)
 const RectangleShape& GUI_TextAndRectangle::getRectangle()
 {
     return UI_Rectangle;
+}
+bool GUI_TextAndRectangle::isButton()
+{
+    return is_Button;
 }
 bool GUI_TextAndRectangle::isPressed()
 {

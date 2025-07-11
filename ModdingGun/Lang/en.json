@@ -128,7 +128,7 @@
     "modifiers": "Modifiers",
     "Often": "More often",
     "Rarely": "Less often",
-    "Count": "Min count",
+    "CountMin": "Min count",
     "CountMax": "Max count",
     "modifiers_noKit_noTool": "Used 1 or more combos (no tool + no kit)",
     "Error": "Erorr",
@@ -141,5 +141,12 @@
 
     "Success_assemble": "Successfully",
     "End_mod": "Specified mod",
-    "Initial_mod": "Starter mod"
+    "Initial_mod": "Starter mod",
+
+    "units": "",
+    "kk": "kk",
+    "AllPrice": "Price of modifiers",
+
+    "PercentBin": "Binning",
+    "PercentSmooth": "Smoothing"
 }
