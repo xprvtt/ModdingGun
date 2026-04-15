@@ -3,160 +3,132 @@
 mutex mtx;
 
 
-int threadCount = OneThread ? 1 : thread::hardware_concurrency();
+int threadCount = USING_ONE_THREAD ? 1 : thread::hardware_concurrency();
 
-vector<CountModifiers> ALL_modifiers;
-vector<unsigned int>   All_Random_Attempt_Used;
+vector<CountModifiers> allModifiers;
+vector<unsigned int>   allRandomAttemptUsed;
 
 
 int RunSingleAssembly(
     // -1 = debug
-    int it_index, 
-    vector<Method> method_MOD
+    int index, 
+    vector<Method> methodMod
 )
 {
-    if (method_MOD.empty())
+    if (methodMod.empty())
     {
-        if (it_index == -1)
+        if (index == -1)
         {
-            OutputLog("RunSingleAssembly -> Empty vector method_MOD");
+            OUTPUT_LOG("RunSingleAssembly -> empty vector methodMod");
         }
         return -1;
     }
 
 
-    vector<unsigned int> Average_random_temp;
-    CountModifiers CurrentUsedModifiers;
+    vector<unsigned int> averageRandomTemp;
+    CountModifiers currentUsedModifiers;
 
-    double ChanceUpgrade;
+    double chanceUpgrade;
 
 
     // проходимся по параметрам используя метод
-    for (int iteration = 0; iteration < method_MOD.size(); iteration++)
+    for (int it = 0; it < methodMod.size(); it++)
     {
-        ChanceUpgrade = method_MOD[iteration].ChanceUpgrade;
-        if (ChanceUpgrade <= 0.0)
+        chanceUpgrade = methodMod[it].chanceUpgrade;
+        if (chanceUpgrade <= 0.f)
         {
-            if (it_index == -1)
+            if (index == -1)
             {
-                OutputLog("RunSingleAssembly -> ChanceUpgrade <= 0");
+                OUTPUT_LOG("RunSingleAssembly -> chanceUpgrade <= 0");
             }
             return -2;
         }
 
-        double SuccsessRandom;
-
+        double succsessRandom;
 
         while (true)
         {
-            SuccsessRandom = GetRandomDouble(100.0);
-            Average_random_temp.push_back(static_cast<unsigned int>(round(SuccsessRandom * 100))); /// 0 ~ 10'000 точность не важна
+            succsessRandom = GetRandomDouble(100.0);
+            averageRandomTemp.push_back(static_cast<unsigned int>(round(succsessRandom * 100))); /// 0 ~ 10'000 точность не важна
 
+            currentUsedModifiers.m_allPrice += methodMod[it].Price.PriceTool + methodMod[it].Price.PriceKit + methodMod[it].Price.PriceSkill;
 
-            CurrentUsedModifiers.AllPrice += method_MOD[iteration].Price.PriceTool + method_MOD[iteration].Price.PriceKit + method_MOD[iteration].Price.PriceSkill;
-
-
-            if (it_index != -1)
+            if (index != -1)
             {
-                CurrentUsedModifiers.CountTool[method_MOD[iteration].ModifiersThisChance.Tool]++;
-                CurrentUsedModifiers.CountKit[method_MOD[iteration].ModifiersThisChance.Kit]++;
-                CurrentUsedModifiers.CountSkill[method_MOD[iteration].ModifiersThisChance.Skill]++;
+                currentUsedModifiers.m_countTool[methodMod[it].ModifiersThisChance.Tool]++;
+                currentUsedModifiers.m_countKit[methodMod[it].ModifiersThisChance.Kit]++;
+                currentUsedModifiers.m_countSkill[methodMod[it].ModifiersThisChance.Skill]++;
             }
             else
             {
-                auto tool  = method_MOD[iteration].ModifiersThisChance.Tool;
-                auto kit   = method_MOD[iteration].ModifiersThisChance.Kit;
-                auto Skill = method_MOD[iteration].ModifiersThisChance.Skill;
-
-
-                ///////////////////////////////////////////////////
-                if (CurrentUsedModifiers.CountTool.find(tool) != CurrentUsedModifiers.CountTool.end())
+                auto tool  = methodMod[it].ModifiersThisChance.Tool;
+                auto kit   = methodMod[it].ModifiersThisChance.Kit;
+                auto skill = methodMod[it].ModifiersThisChance.Skill;
+                
+                if (currentUsedModifiers.m_countTool.find(tool) != currentUsedModifiers.m_countTool.end())
                 {
-                    CurrentUsedModifiers.CountTool[tool]++;
+                    currentUsedModifiers.m_countTool[tool]++;
                 }
                 else
                 {
-                    if (it_index == -1)
+                    if (index == -1)
                     {
-                        OutputLog("RunSingleAssembly -> Key Tool not found: " + GunStats::Modifiers::GetToolName(tool));
+                        OUTPUT_LOG("RunSingleAssembly -> Key Tool not found: " + GunStats::Modifiers::GetToolName(tool));
                     }
-                    CurrentUsedModifiers.CountTool[tool] = -101;
+                    currentUsedModifiers.m_countTool[tool] = -101;
                     return -3;
                 }
-                ///////////////////////////////////////////////////
-
-
-
-
-
-                ///////////////////////////////////////////////////
-                if (CurrentUsedModifiers.CountKit.find(kit) != CurrentUsedModifiers.CountKit.end())
+                
+                if (currentUsedModifiers.m_countKit.find(kit) != currentUsedModifiers.m_countKit.end())
                 {
-                    CurrentUsedModifiers.CountKit[kit]++;
+                    currentUsedModifiers.m_countKit[kit]++;
                 }
                 else
                 {
-                    if (it_index == -1)
+                    if (index == -1)
                     {
-                        OutputLog("RunSingleAssembly -> Key Kit not found: " + GunStats::Modifiers::GetKitName(kit));
+                        OUTPUT_LOG("RunSingleAssembly -> Key Kit not found: " + GunStats::Modifiers::GetKitName(kit));
                     }
-                    CurrentUsedModifiers.CountKit[kit] = -102;
+                    currentUsedModifiers.m_countKit[kit] = -102;
                     return -4;
                 }
-                ///////////////////////////////////////////////////
-
-
-
-
-
-                ///////////////////////////////////////////////////
-                if (CurrentUsedModifiers.CountSkill.find(Skill) != CurrentUsedModifiers.CountSkill.end())
+                
+                if (currentUsedModifiers.m_countSkill.find(skill) != currentUsedModifiers.m_countSkill.end())
                 {
-                    CurrentUsedModifiers.CountSkill[Skill]++;
+                    currentUsedModifiers.m_countSkill[skill]++;
                 }
                 else
                 {
-                    if (it_index == -1)
+                    if (index == -1)
                     {
-                        OutputLog("RunSingleAssembly -> Key Skill not found: " + GunStats::Modifiers::GetSkillName(Skill));
+                        OUTPUT_LOG("RunSingleAssembly -> Key skill not found: " + GunStats::Modifiers::GetSkillName(skill));
                     }
-                    CurrentUsedModifiers.CountSkill[Skill] = -103;
+                    currentUsedModifiers.m_countSkill[skill] = -103;
                     return -5;
                 }
-                ///////////////////////////////////////////////////
 
-
-                if (tool == GunStats::Modifiers::ToolType::NO_TOOL && kit == GunStats::Modifiers::KitType::NO_KIT)
+                if (tool == GunStats::Modifiers::ToolType::noTool && kit == GunStats::Modifiers::KitType::noKit)
                 {
                     return -6;
                 }
             }
-
-
-
-
-
-
-            ///////////////////////////////////////////////////
-            if (SuccsessRandom <= ChanceUpgrade)
+            
+            if (succsessRandom <= chanceUpgrade)
             {
                 break;
             }
-            ///////////////////////////////////////////////////
-
         }
     }
 
-
-    add_results( Average_random_temp, CurrentUsedModifiers);
+    add_results( averageRandomTemp, currentUsedModifiers);
     return 0;
 }
 
 
-void add_results(  const vector<unsigned int>& other_Average_RANDOM_GEN, CountModifiers Current_modifiers_count )
+void add_results(  const vector<unsigned int>& otherAverageRandomGen, CountModifiers currentModifiersCount )
 {
     lock_guard<mutex> lock(mtx);
 
-    All_Random_Attempt_Used.insert(All_Random_Attempt_Used.end(), other_Average_RANDOM_GEN.begin(), other_Average_RANDOM_GEN.end());
-    ALL_modifiers.push_back(Current_modifiers_count);
+    allRandomAttemptUsed.insert(allRandomAttemptUsed.end(), otherAverageRandomGen.begin(), otherAverageRandomGen.end());
+    allModifiers.push_back(currentModifiersCount);
 }

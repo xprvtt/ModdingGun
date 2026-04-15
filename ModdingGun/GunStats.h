@@ -1,81 +1,62 @@
 ﻿#pragma once
 #include "Core.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// общие параметры 
 namespace GunStats 
 {
     struct Modifiers 
     {
-
-        //////////////////////////////////
-        enum ToolType
+        enum ToolType : uint8_t
         {
-            ToolType_begin,
+            toolTypeBegin = 0,
 
-            NO_TOOL,
-            OLD_TOOL,
-            NORMAL_TOOL,
-            IMPROVED_TOOL,
+            noTool,
+            old,
+            normal,
+            improved,
 
-            ToolType_end            
+            toolTypeEnd = 100
         };
 
-        //////////////////////////////////
-        enum KitType
+        enum KitType : uint8_t
         {
-            KitType_begin,
+            kitTypeBegin = 0,
 
-            NO_KIT,
-            REPAIR_KIT,
-            DETAIL_KIT,
+            noKit,
+            repair,
+            detail,
 
-            KitType_end
-
+            kitTypeEnd = 100
         };
-        //////////////////////////////////
 
-        enum SkillType
+        enum SkillType : uint8_t
         {
-            SkillType_begin,
+            skillTypeBegin = 0,
 
-            PLAYER_NO_SKILL,
+            playerNoSkill,
 
-            PLAYER_MASTER_1,
-            PLAYER_MASTER_2,
-            PLAYER_MASTER_3,
-            PLAYER_MASTER_4,
-            PLAYER_MASTER_5,
+            playerMaster1,
+            playerMaster2,
+            playerMaster3,
+            playerMaster4,
+            playerMaster5,
 
-            NPC_MASTER_2,
-            NPC_MASTER_3,
-            NPC_MASTER_4,
-            NPC_MASTER_5,
+            NPCMaster2,
+            NPCMaster3,
+            NPCMaster4,
+            NPCMaster5,
 
-            SkillType_end
+            skillTypeEnd = 100
         };
-        //////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-        //////////////////////////////////
 
         static inline double GetToolModifier(ToolType tool)
         {
             switch (tool)
             {
-            case ToolType::NO_TOOL:       return 0.0;
-            case ToolType::OLD_TOOL:      return 0.2;
-            case ToolType::NORMAL_TOOL:   return 0.5;
-            case ToolType::IMPROVED_TOOL: return 0.8;
+            case ToolType::noTool:   return 0.0;
+            case ToolType::old:      return 0.2;
+            case ToolType::normal:   return 0.5;
+            case ToolType::improved: return 0.8;
             }
             return -1.0;
         }
@@ -84,107 +65,101 @@ namespace GunStats
         {
             switch (tool)
             {
-            case ToolType::NO_TOOL:       return "without_tool";
-            case ToolType::OLD_TOOL:      return "Old_tool";
-            case ToolType::NORMAL_TOOL:   return "Common_tool";
-            case ToolType::IMPROVED_TOOL: return "Improved_tool";
+            case ToolType::noTool:   return "without_tool";
+            case ToolType::old:      return "Old_tool";
+            case ToolType::normal:   return "Common_tool";
+            case ToolType::improved: return "Improved_tool";
             }
             return "No_Name_Tool";
         }
-
-        //////////////////////////////////
 
         static inline  double GetKitModifier(KitType kit)
         {
             switch (kit)
             {
-            case KitType::NO_KIT:      return 0.0;
-            case KitType::REPAIR_KIT:  return 1.0;
-            case KitType::DETAIL_KIT:  return 4.0;
+            case KitType::noKit:   return 0.0;
+            case KitType::repair:  return 1.0;
+            case KitType::detail:  return 4.0;
             }
             return -1.0;
         }
+
         static inline  string GetKitName(KitType kit)
         {
             switch (kit)
             {
-            case KitType::NO_KIT:      return "Without_set_parts";
-            case KitType::REPAIR_KIT:  return "Repair_kit";
-            case KitType::DETAIL_KIT:  return "Detail";
+            case KitType::noKit:   return "Without_set_parts";
+            case KitType::repair:  return "Repair_kit";
+            case KitType::detail:  return "Detail";
             }
             return "No_Name_Kit";
         }
-        //////////////////////////////////
+
         static inline  double GetSkillModifier(SkillType skill)
         {
             switch (skill) 
             {
-            case SkillType::PLAYER_NO_SKILL:  return 0.0;
+            case SkillType::playerNoSkill:  return 0.0;
             
-            case SkillType::PLAYER_MASTER_1:  return 0.2;
-            case SkillType::PLAYER_MASTER_2:  return 0.4;
-            case SkillType::PLAYER_MASTER_3:  return 0.6;
-            case SkillType::PLAYER_MASTER_4:  return 0.8;
-            case SkillType::PLAYER_MASTER_5:  return 1.0;
+            case SkillType::playerMaster1:  return 0.2;
+            case SkillType::playerMaster2:  return 0.4;
+            case SkillType::playerMaster3:  return 0.6;
+            case SkillType::playerMaster4:  return 0.8;
+            case SkillType::playerMaster5:  return 1.0;
             
-            case SkillType::NPC_MASTER_2:     return 0.5;
-            case SkillType::NPC_MASTER_3:     return 1.0;
-            case SkillType::NPC_MASTER_4:     return 1.5;
-            case SkillType::NPC_MASTER_5:     return 2.0;
+            case SkillType::NPCMaster2:     return 0.5;
+            case SkillType::NPCMaster3:     return 1.0;
+            case SkillType::NPCMaster4:     return 1.5;
+            case SkillType::NPCMaster5:     return 2.0;
             }
             return -1.0;
         }
+
         static inline string GetSkillName(SkillType skill)
         {
             switch (skill)
             {
-            case SkillType::PLAYER_NO_SKILL:  return "without_skill";
+            case SkillType::playerNoSkill:  return "without_skill";
 
-            case SkillType::PLAYER_MASTER_1:  return "Player_master_1";
-            case SkillType::PLAYER_MASTER_2:  return "Player_master_2";
-            case SkillType::PLAYER_MASTER_3:  return "Player_master_3";
-            case SkillType::PLAYER_MASTER_4:  return "Player_master_4";
-            case SkillType::PLAYER_MASTER_5:  return "Player_master_5";
+            case SkillType::playerMaster1:  return "Player_master_1";
+            case SkillType::playerMaster2:  return "Player_master_2";
+            case SkillType::playerMaster3:  return "Player_master_3";
+            case SkillType::playerMaster4:  return "Player_master_4";
+            case SkillType::playerMaster5:  return "Player_master_5";
 
-            case SkillType::NPC_MASTER_2:     return "NPC_master_2";
-            case SkillType::NPC_MASTER_3:     return "NPC_master_3";
-            case SkillType::NPC_MASTER_4:     return "NPC_master_4";
-            case SkillType::NPC_MASTER_5:     return "NPC_master_5";
+            case SkillType::NPCMaster2:     return "NPC_master_2";
+            case SkillType::NPCMaster3:     return "NPC_master_3";
+            case SkillType::NPCMaster4:     return "NPC_master_4";
+            case SkillType::NPCMaster5:     return "NPC_master_5";
             }
             return "No_Name_Skill";
         }
-        //////////////////////////////////
-
-
-
     };
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     
-    inline Modifiers::ToolType  operator++(Modifiers::ToolType& Other, int)
+    inline Modifiers::ToolType  operator++(Modifiers::ToolType& other, int)
     {
-        if (Other < Modifiers::ToolType::ToolType_end)
+        if (other < Modifiers::ToolType::toolTypeEnd)
         {
-            Other = static_cast<Modifiers::ToolType>(static_cast<int>(Other) + 1);
+            other = static_cast<Modifiers::ToolType>(static_cast<int>(other) + 1);
         }
-        return Other;
+        return other;
     }
-    inline Modifiers::KitType   operator++(Modifiers::KitType& Other, int)
+
+    inline Modifiers::KitType   operator++(Modifiers::KitType& other, int)
     {
-        if (Other < Modifiers::KitType::KitType_end)
+        if (other < Modifiers::KitType::kitTypeEnd)
         {
-            Other = static_cast<Modifiers::KitType>(static_cast<int>(Other) + 1);
+            other = static_cast<Modifiers::KitType>(static_cast<int>(other) + 1);
         }
-        return Other;
+        return other;
     }
-    inline Modifiers::SkillType operator++(Modifiers::SkillType& Other, int)
+    inline Modifiers::SkillType operator++(Modifiers::SkillType& other, int)
     {
-        if (Other < Modifiers::SkillType::SkillType_end)
+        if (other < Modifiers::SkillType::skillTypeEnd)
         {
-            Other = static_cast<Modifiers::SkillType>(static_cast<int>(Other) + 1);
+            other = static_cast<Modifiers::SkillType>(static_cast<int>(other) + 1);
         }
-        return Other;
+        return other;
     }
 
 
@@ -192,7 +167,7 @@ namespace GunStats
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    inline  constexpr size_t COUNT_CHARACTERISTIC = 7;
+    inline  constexpr size_t countCharacteristic = 7;
 
     /// <summary>
     /// <para> Колличество единиц для характеристики | обычный index</para>
@@ -204,7 +179,7 @@ namespace GunStats
     /// <para> 5 - кол-во юнитов отказ сост  </para> 
     /// <para> 6 - кол-во юнитов отказ грязи </para>
     /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> GET_COUNT_UNITS_FOR_CHARACTERISTIC =
+    inline constexpr array<int, countCharacteristic> CountUnitsForCharacteristic =
     {
         60, 
         48, 
@@ -222,51 +197,42 @@ namespace GunStats
     /// <summary>
     /// кучность
     /// </summary>
-    inline  constexpr int INDEX_ACCURACY = 0;
+    inline  constexpr int indexAccuracy = 0;
 
     /// <summary>
     /// темп стрельбы
     /// </summary>
-    inline  constexpr int INDEX_RATE_OF_FIRE = 1;
-
+    inline  constexpr int IndexRateOfFire = 1;
 
     /// <summary>
     /// отдача оружия
     /// </summary>
-    inline  constexpr int INDEX_KICKBACK = 2;
+    inline  constexpr int indexKickback = 2;
 
     /// <summary>
     /// качание оружия
     /// </summary>
-    inline  constexpr int INDEX_SWAY = 3;
+    inline  constexpr int indexSway = 3;
 
     /// <summary>
     /// пробитие
     /// </summary>
-    inline  constexpr int INDEX_PENETRATION = 4;
+    inline  constexpr int indexPenetration = 4;
 
     /// <summary>
     /// отказ из-за состояния оружия
     /// </summary>
-    inline  constexpr int INDEX_MALFUNCTION_CONDITION = 5;
+    inline  constexpr int indexMalfunctionCondition = 5;
 
     /// <summary>
     /// отказ из-за грязи
     /// </summary>
-    inline  constexpr int INDEX_MALFUNCTION_DIRT = 6;
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    inline  constexpr int indexMalfunctionDirt = 6;
 
     /// <summary>
     /// получаем название характеристики по индексу GunStats
     /// </summary>
-    inline constexpr array<string_view, COUNT_CHARACTERISTIC> MapCharacteristicName_GunStat
+    inline constexpr array<string_view, countCharacteristic> mapCharacteristicNameGunStat
     {
         "ACCURACY",
         "RATE_OF_FIRE",
@@ -280,7 +246,7 @@ namespace GunStats
     /// <summary>
     /// получаем название характеристики по индексу 
     /// </summary>
-    inline constexpr array<string_view, COUNT_CHARACTERISTIC> MapCharacteristicName_Index
+    inline constexpr array<string_view, countCharacteristic> mapCharacteristicNameIndex
     {
         "ACCURACY",
         "RATE_OF_FIRE",
@@ -294,29 +260,29 @@ namespace GunStats
     /// <summary>
     /// Перевод из index в index_GunStat
     /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> Trans_INDEX_to_INDEXGUNSTAT
+    inline constexpr array<int, countCharacteristic> transIndexToIndexGunStat
     {
-        GunStats::INDEX_ACCURACY,               // 0
-        GunStats::INDEX_RATE_OF_FIRE,           // 1
-        GunStats::INDEX_PENETRATION,            // 2
-        GunStats::INDEX_KICKBACK,               // 3
-        GunStats::INDEX_SWAY,                   // 4
-        GunStats::INDEX_MALFUNCTION_CONDITION,  // 5
-        GunStats::INDEX_MALFUNCTION_DIRT        // 6
+        GunStats::indexAccuracy,               // 0
+        GunStats::IndexRateOfFire,           // 1
+        GunStats::indexPenetration,            // 2
+        GunStats::indexKickback,               // 3
+        GunStats::indexSway,                   // 4
+        GunStats::indexMalfunctionCondition,  // 5
+        GunStats::indexMalfunctionDirt        // 6
     };
     
     /// <summary>
     /// Перевод из  index_GunStat index
     /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> Trans_INDEXGUNSTAT_to_INDEX
+    inline constexpr array<int, countCharacteristic> transIndexGunStatToIndex
     {
-        0, // 0 INDEX_ACCURACY
-        1, // 1 INDEX_RATE_OF_FIRE
-        3, // 2 INDEX_KICKBACK
-        4, // 3 INDEX_SWAY
-        2, // 4 INDEX_PENETRATION
-        5, // 5 INDEX_MALFUNCTION_CONDITION
-        6  // 6 INDEX_MALFUNCTION_DIRT 
+        0, // 0 indexAccuracy
+        1, // 1 IndexRateOfFire
+        3, // 2 indexKickback
+        4, // 3 indexSway
+        2, // 4 indexPenetration
+        5, // 5 indexMalfunctionCondition
+        6  // 6 indexMalfunctionDirt 
     };
 
 
@@ -384,7 +350,7 @@ struct Method
     /// <summary>
     /// шанс улучшения для этого параметра
     /// </summary>
-    double ChanceUpgrade;
+    double chanceUpgrade;
 
     /// <summary>
     /// модификаторы, которыми получился шанс

@@ -15233,7 +15233,7 @@ class json_pointer
     @param[in] value             the value to consider
     @param[in,out] result        the result object to insert values to
 
-    @note Empty objects or arrays are flattened to `null`.
+    @note empty objects or arrays are flattened to `null`.
     */
     template<typename BasicJsonType>
     static void flatten(const string_t& reference_string,

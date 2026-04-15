@@ -13,22 +13,22 @@ class CharacteristicGun
 		/// <summary>
 		///  текущий индекс ОТНОСИТЕЛЬНО МАКСИМАЛЬНОГО РАЗМЕРА
 		/// </summary>
-		int    RealPosition;
+		int    m_realPosition;
 
 		/// <summary>
 		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
 		/// </summary>
-		double ValueCharacteristic;
+		double m_valueCharacteristic;
 
 		/// <summary>
 		/// текуший РЕАЛЬНЫЙ шанс НА УЛУЧШЕНИЕ
 		/// </summary>
-		double CurrentChance;
+		double m_currentChance;
 
 		/// <summary>
 		/// текущий ВИЗУАЛЬНЫЙ процент
 		/// </summary>
-		double VisualPercentStat;
+		double m_visualPercentStat;
 	};
 
 	struct DecreaseStatST
@@ -36,18 +36,17 @@ class CharacteristicGun
 		/// <summary>
 		///  что уменьшать?
 		/// </summary>
-		int  PositionLower;
+		int  m_positionLower;
 
 		/// <summary>
 		///  насколько уменьшать?
 		/// </summary>
-		int  HowMany;
+		int  m_howMany;
 
 		/// <summary>
 		/// индекс текущей статы от которого начнем уменьшать
 		/// </summary>
-		int PositionStartLower;
-
+		int m_positionStartLower;
 	};
 
 	/// <summary>
@@ -61,8 +60,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<vector<AllStat>> FulAllStat;
-
+	vector<vector<AllStat>> m_fulAllStat;
 
 	/// <summary>
 	/// <para>0 - кучность </para>
@@ -73,7 +71,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<vector<DecreaseStatST>> FullDecreaseStat;
+	vector<vector<DecreaseStatST>> m_fullDecreaseStat;
 
 	/// <summary>
 	/// текущая позиция статов</para>
@@ -85,7 +83,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<int> CurrentStatPosition;
+	vector<int> m_currentStatPosition;
 
 	/// <summary>
 	/// максимальная позиция статов</para>
@@ -97,7 +95,7 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<int> MaxStatPosition;
+	vector<int> m_maxStatPosition;
 
 	/// <summary>
 	/// начальная позиция статов</para>
@@ -109,33 +107,33 @@ class CharacteristicGun
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-	vector<int> DefaultStatPosition;
+	vector<int> m_defaultStatPosition;
 
 	/// <summary>
 	/// запись всех апгрейдов
 	/// </summary>
-	vector<vector<int>> UpgradeHistory;
+	vector<vector<int>> m_upgradeHistory;
 
-	unsigned int CountOption;
+	unsigned int m_countOption;
 
-	bool Empty;
+	bool empty;
 
-	bool upStat(int stat_No);
+	bool upStat(int statNo);
 
 
 public:
 
 	CharacteristicGun(const CharacteristicGun& other);
 
-	CharacteristicGun(vector<int> MaxStatPosition);
+	CharacteristicGun(vector<int> maxStatPosition);
 
 	bool is_Empty()  const;
 
-	bool load(path PathToInfo, wstring namegun);
+	bool load(path pathToInfo, wstring namegun);
 
 	void clear();
 
-	bool upgradeStat(int CharacteristicGun_in_NAMESTAT);
+	bool upgradeStat(int CharacteristicGunInNamestat);
 
 	/// <summary>
 	/// получить шанс услучшения ДЛЯ УЛУЧШЕНИЯ НА СЛЕД ПОЗИЦИЮ характеристики
@@ -151,7 +149,6 @@ public:
 	/// <returns></returns>
 	vector<int> getDecreaseForCurrentStat(size_t stat) const;
 
-
 	/// <summary>
 	/// Сделать шаг назад для статы, с учетом уменьшеных значений
 	/// </summary>
@@ -159,14 +156,12 @@ public:
 	/// <returns></returns>
 	bool stepBack();
 
-
 	/// <summary>
 	/// получить визуальное отображение процента прибавки
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
 	double getVisualPercentUpgradeCharacteristic(size_t stat) const;
-
 
 	/// <summary>
 	/// вернуть начальные характеристики
@@ -180,13 +175,11 @@ public:
 	/// <returns></returns>
 	vector<int> getDefaultPosition() const;
 
-
 	/// <summary>
 	/// получить максимально возможные позиции
 	/// </summary>
 	/// <returns></returns>
 	vector<int> getMaxPositionCharacteristic() const;
-
 
 	/// <summary>
 	/// получить максимальный визуальный процент для статы
@@ -195,13 +188,11 @@ public:
 	/// <returns></returns>
 	double getMaxStatVisualPercent(size_t stat) const;
 
-
 	/// <summary>
 	/// получить вектор отображаемых процентов для текущей статы
 	/// </summary>
 	/// <returns></returns>
 	vector<double> getFullCurrentVisualStat() const;
-
 
 	/// <summary>
 	/// получить текущую позицию
@@ -209,11 +200,8 @@ public:
 	/// <returns></returns>
 	vector<int> getCurrentPosition() const;
 
-
 	/// <summary>
 	/// 
 	/// </summary>
 	double getValueCharacteristic(size_t stat) const;
-	
-
 };

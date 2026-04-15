@@ -1,3 +1,2 @@
-[2025-07-12 01:47:33] Start!
-[2025-07-12 01:47:38] Main -> Graph setting is finished: 0
-[2025-07-12 01:47:45] Main -> Graph setting is finished: 1
+[2026-04-15 21:21:00] Start!
+[2026-04-15 21:21:01] LangManager -> Key not found: gun

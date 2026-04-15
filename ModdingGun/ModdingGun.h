@@ -1,23 +1,12 @@
 ﻿#pragma once
 
-
 #include "Core.h"
-
 #include "CharacteristicGun.h"
-
 #include "GunStats.h"
-
 #include "ThreadAssemble.h"
-
 #include "DrawGraph.h"
-
 #include "LangManager.h"
-
 #include "GulText.h"
-
-
-
-///////////////////////////////////////////////////////////////////////////////////
 
 /// <summary>
 /// основные элементы главного окна отображения модов
@@ -27,45 +16,33 @@ struct GeneralStat
     /// <summary>
     /// имя характеристики \ первое
     /// </summary>
-    GUI_TextAndRectangle    TextCharacteristicName;
+    GUITextAndRectangle    m_textCharacteristicName;
 
     /// <summary>
     /// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
     /// </summary>
-    GUI_TextAndRectangle    TextVisualCharacteristic;
+    GUITextAndRectangle    m_textVisualCharacteristic;
 
     /// <summary>
     /// визуальное отображения процента апгрейда
     /// </summary>
-    GUI_TextAndRectangle    TextCharacteristicVisualPercent;
-
-
-
-
+    GUITextAndRectangle    m_textCharacteristicVisualPercent;
 
     /// <summary>
     /// Общий "прямоугольник" в котором распалагаютися все юниты
     /// </summary>
-    RectangleShape         ShapeCharacteristic;
+    RectangleShape         m_shapeCharacteristic;
 
     /// <summary>
     /// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
     /// </summary>
-    vector<RectangleShape> ShaheUnitsInCharacteristic;
-
-
-
-
+    vector<RectangleShape> m_shaheUnitsInCharacteristic;
 
     /// <summary>
     /// кнопка для выбора
     /// </summary>
-    GUI_TextAndRectangle    MarkButtonCharacteristic;
+    GUITextAndRectangle    m_markButtonCharacteristic;
 };
-///////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 /// <summary>
 /// перемешаем местами элементы из вектора характеристик CharacteristicGun и Обратно
@@ -80,36 +57,23 @@ void moveElement(vector<T>& vec, size_t from, size_t to);
 /// <summary>/// 
 /// функция для изменения цветов юнитов характеристик
 /// </summary>/// 
-/// <param name="GeneralModOption"></param>
-/// <param name="CurrentCharacteristicGun"></param>
-/// <param name="InitialPosition"></param>
-/// <param name="ModPosition"></param>
-void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& CurrentCharacteristicGun, vector<int> InitialPosition, vector<int> ModPosition);
+/// <param name="generalModOption"></param>
+/// <param name="currentCharacteristicGun"></param>
+/// <param name="initialPosition"></param>
+/// <param name="modPosition"></param>
+void editShaheUnits(vector<GeneralStat>& generalModOption, CharacteristicGun& currentCharacteristicGun, vector<int> initialPosition, vector<int> modPosition);
 
+bool setChahceUpgrade(const CharacteristicGun& currentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUITextAndRectangle& GUIChance, size_t it);
 
+unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers);
+unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers, string nameGun);
 
-bool Set_Chahce_upgrade(const CharacteristicGun& CurrentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUI_TextAndRectangle& GUI_Chance, size_t it);
-
-
-unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers);
-unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers, string NameGun);
-
-
-
-
-bool Set_Price_Tool(const path& PathToPriceModifiers_JS, GunStats::Modifiers::ToolType Tool, unsigned Price);
-bool Set_Price_Kit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitType Kit, string nameGun, unsigned Price);
-
-
-
-
-
+bool setPriceTool(const path& pathToPriceModifiersJS, GunStats::Modifiers::ToolType tool, unsigned price);
+bool setsPriceKit(const path& pathToPriceModifiersJS, GunStats::Modifiers::KitType kit, string nameGun, unsigned price);
 
 /// <summary>
 /// получаем инфу о кол-вах модификаторов из CountModifiers
 /// </summary>
-/// <param name="MODIFIERS"></param>
+/// <param name="Modifiers"></param>
 /// <returns></returns>
-vector<pair<string,unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
-
-
+vector<pair<string,unsigned long long>> getInfoForModifiers(const CountModifiers& Modifiers);
