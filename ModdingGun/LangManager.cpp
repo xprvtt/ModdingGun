@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-LangManager& LangManager::Instance()
+LangManager& LangManager::instance()
 {
 	static LangManager LANGUAGE;
 	return LANGUAGE;
@@ -13,24 +13,24 @@ LangManager& LangManager::Instance()
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-bool LangManager::loadLangInFolder(path PathToLanguage_json)
+bool LangManager::loadLangInFolder(path PathToLanguageJson)
 {
-	if (PathToLanguage_json.empty())
+	if (PathToLanguageJson.empty())
 	{
-		OutputLog("PathToLanguage_json emty");
+		OUTPUT_LOG("PathToLanguageJson emty");
 		return false;
 	}
 
-	PathToAllLanguage = SearchFile(PathToLanguage_json, ".json");
-	CountLan = PathToAllLanguage.size();
+	m_pathToAllLanguage = SearchFile(PathToLanguageJson, ".json");
+	m_countLang = m_pathToAllLanguage.size();
 
-	if (CountLan == 0)
+	if (m_countLang == 0)
 	{
-		OutputLog("LangManager -> json not exist in path: " + WstringToString(PathToLanguage));
+		OUTPUT_LOG("LangManager -> json not exist in path: " + WstringToString(m_pathToLanguage));
 		return false;
 	}
 
-	this->PathToLanguage = PathToLanguage_json;
+	this->m_pathToLanguage = PathToLanguageJson;
 	empty = false;
 	return true;
 }
@@ -46,30 +46,30 @@ bool LangManager::loadLangInFolder(path PathToLanguage_json)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
-size_t LangManager::getCountlang()
+size_t LangManager::getCountlang() const
 {
-    return CountLan;
+    return m_countLang;
 }
 
-size_t LangManager::getCurrent_it_lang()
+size_t LangManager::getCurrentItLang() const
 {
-	return it_lang;
+	return m_itLang;
 }
 
 unordered_map<size_t, wstring> LangManager::getLoadedLanguages()
 {
-	if (CountLan == 0)
+	if (m_countLang == 0)
 	{
-		OutputLog("LangManager -> json not loaded");
+		OUTPUT_LOG("LangManager -> json not loaded");
 		return unordered_map<size_t, wstring>();
 	}
 
 
 	unordered_map<size_t, wstring> Result;
 
-	for (size_t i = 0; i < PathToAllLanguage.size(); i++)
+	for (size_t i = 0; i < m_pathToAllLanguage.size(); i++)
 	{
-		Result.emplace(i, PathToAllLanguage[i].stem());
+		Result.emplace(i, m_pathToAllLanguage[i].stem());
 	}
 
 
@@ -86,32 +86,32 @@ unordered_map<size_t, wstring> LangManager::getLoadedLanguages()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-bool LangManager::setLanguage(size_t it_lang)
+bool LangManager::setLanguage(size_t m_itLang)
 {
-	if (CountLan == 0)
+	if (m_countLang == 0)
 	{
-		OutputLog("LangManager -> json not loaded");
+		OUTPUT_LOG("LangManager -> json not loaded");
 		return false;
 	}
 
-	ifstream JSON_File_lang(PathToAllLanguage[it_lang]);
+	ifstream JSON_File_lang(m_pathToAllLanguage[m_itLang]);
 	if (!JSON_File_lang)
 	{
-		OutputLog("LangManager -> json failed to open");
+		OUTPUT_LOG("LangManager -> json failed to open");
 		return false;
 	}
 
-	Map_Translate.clear();
+	m_mTranslate.clear();
 
 	nlohmann::json JSON_LANG;
 	JSON_File_lang >> JSON_LANG;
 	
 	for (const auto& [json_key, translate] : JSON_LANG.items())
 	{
-		Map_Translate.emplace(json_key, StringToWString(translate.get<string>()));
+		m_mTranslate.emplace(json_key, StringToWString(translate.get<string>()));
 	}
 
-	this->it_lang = it_lang;
+	this->m_itLang = m_itLang;
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -123,22 +123,22 @@ bool LangManager::setLanguage(size_t it_lang)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-wstring LangManager::GetTranslate(const string& key)
+wstring LangManager::getTranslate(const string& key)
 {
 	if (key.empty())
 	{
 		return wstring();
 	}
 
-	auto it_map = Map_Translate.find(key);
+	auto it_map = m_mTranslate.find(key);
 
-	if (it_map != Map_Translate.end())
+	if (it_map != m_mTranslate.end())
 	{
 		return it_map->second;
 	}
 	else
 	{
-		OutputLog("LangManager -> Key not found: " + key);
+		OUTPUT_LOG("LangManager -> Key not found: " + key);
 		wstring Error = L"[" + StringToWString(key) + L"]";
 		return Error;
 	}

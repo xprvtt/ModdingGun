@@ -1,13 +1,13 @@
 ﻿#include "Core.h"
 
-vector<path> SearchFile(path SearchInPath, string Extension)
+vector<path> SearchFile(path searchInPath, string extension)
 {
 	vector<path> result;
 	try
 	{
-		for (const auto& entry : directory_iterator(SearchInPath))
+		for (const auto& entry : directory_iterator(searchInPath))
 		{
-			if (Extension == "")
+			if (extension == "")
 			{
 				if (entry.is_directory())
 				{
@@ -16,16 +16,16 @@ vector<path> SearchFile(path SearchInPath, string Extension)
 			}
 			else
 			{
-				if (entry.is_regular_file() && entry.path().extension() == Extension)
+				if (entry.is_regular_file() && entry.path().extension() == extension)
 				{
 					result.push_back(entry.path());
 				}
 			}
 		}
 	}
-	catch (const filesystem_error& error)
+	catch ([[maybe_unused]]const filesystem_error& error)
 	{
-		OutputLog("SearchFile -> Error");
+		OUTPUT_LOG("SearchFile -> Error");
 		return vector<path>();
 	}
 	return result;

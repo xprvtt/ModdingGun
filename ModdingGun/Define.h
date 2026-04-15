@@ -3,16 +3,16 @@
 #include "Core.h"
 
 // используем 1 поток?
-#define OneThread false
+#define USING_ONE_THREAD false
 
 #define DEBUG
 
 #ifdef  DEBUG
-#define OutputLog(StringMessage) OutputMessage(StringMessage)
-#define DebugCode(d_code) d_code
+#define OUTPUT_LOG(__StringMessage__) OutputMessage(__StringMessage__)
+#define DEBUG_CODE(__DebugCode__) __DebugCode__
 
 #elif
-#define OutputLog(StringMessage)
-#define DebugCode(d_code)
+#define OUTPUT_LOG(__StringMessage__)
+#define DEBUG_CODE(__DebugCode__)
 
 #endif

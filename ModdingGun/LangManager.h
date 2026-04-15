@@ -1,18 +1,18 @@
 ﻿#pragma once
 
 #include "Core.h"
-#define LANG_TRANSLATE(String_Key) LangManager::Instance().GetTranslate(String_Key)
-#define LANG_SETTING LangManager::Instance()
+#define LANG_TRANSLATE(_STRING_KEY_) LangManager::instance().getTranslate(_STRING_KEY_)
+#define LANG_SETTING LangManager::instance()
 
 class LangManager {
 
-	path PathToLanguage;
-	vector<path> PathToAllLanguage;
+	path m_pathToLanguage;
+	vector<path> m_pathToAllLanguage;
 
-	size_t CountLan = 0;
-	size_t it_lang = 0;
+	size_t m_countLang = 0;
+	size_t m_itLang = 0;
 
-	map<string, wstring> Map_Translate;
+	map<string, wstring> m_mTranslate;
 
 	bool empty = true;
 
@@ -20,24 +20,17 @@ class LangManager {
 
 public:
 
-	static LangManager& Instance();
+	static LangManager& instance();
 
-	size_t getCountlang();
-	size_t getCurrent_it_lang();
+	size_t getCountlang() const;
+	size_t getCurrentItLang() const;
 	unordered_map<size_t, wstring> getLoadedLanguages();
 
-
 	bool loadLangInFolder(path PathToLanguage_json);
+	bool setLanguage(size_t m_itLang);
 
-	bool setLanguage(size_t it_lang);
-
-
-	wstring GetTranslate(const string& key);
-
-
+	wstring getTranslate(const string& key);
 };
-
-
 
 //    vector<tuple<RectangleShape, shared_ptr<Texture>, wstring, int, Text>> VectorGun;
 

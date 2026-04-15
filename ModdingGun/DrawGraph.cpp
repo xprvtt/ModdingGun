@@ -3,242 +3,158 @@
 #include "ThreadAssemble.h"
 
 
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
 CurvePack GetCurveFrequrency
 (
-    RectangleShape MainRectangleCurve,
-    const map<CountModifiers, float>& FreqModifiers,
-
-    Color ColorCurve,
+    RectangleShape mainRectangleCurve,
+    const map<CountModifiers, float>& freqModifiers,
+    Color colorCurve,
     string name
 )
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    float kx = 0.2f;
-    float ky = 0.1f;
+    float kX = 0.2f;
+    float kY = 0.1f;
 
-    float XposGeneral = MainRectangleCurve.getPosition().x;
-    float YposGeneral = MainRectangleCurve.getPosition().y;
+    float xPosGeneral = mainRectangleCurve.getPosition().x;
+    float yPosGeneral = mainRectangleCurve.getPosition().y;
 
+    float xSizeRecText = mainRectangleCurve.getSize().x * kX;
+    float ySizeRecText = mainRectangleCurve.getSize().y * kY;
 
-    float XsizeRecText = MainRectangleCurve.getSize().x * kx;
-    float YsizeRecText = MainRectangleCurve.getSize().y * ky;
+    float yPrecenSizeCell = 0.9f;
 
-    float Y_PrecenSizeCell = 0.9f;
+    int characterSize = static_cast<int>(14 * yPrecenSizeCell);
+    int yPositionInfoText = 0;
 
-    int CharacterSize = 14 * Y_PrecenSizeCell;
-    int YpositionInfoText = 0;
-    ////////////////////////////////////////////////////////////////////////////////
+    RectangleShape r0InfoLeftTop = mainRectangleCurve;
+    r0InfoLeftTop.setPosition(Vector2f(xPosGeneral - xSizeRecText, yPosGeneral- ySizeRecText * (1 + yPositionInfoText)));
+    r0InfoLeftTop.setSize(Vector2f(xSizeRecText + mainRectangleCurve.getSize().x, ySizeRecText * yPrecenSizeCell));
 
+    RectangleShape r1LeftTop = mainRectangleCurve;
+    r1LeftTop.setPosition(Vector2f(xPosGeneral - xSizeRecText, mainRectangleCurve.getPosition().y));
+    r1LeftTop.setSize(Vector2f(xSizeRecText, ySizeRecText * yPrecenSizeCell));
 
+    RectangleShape r1LeftDown = mainRectangleCurve;
+    r1LeftDown.setPosition(Vector2f(xPosGeneral - xSizeRecText, yPosGeneral+ mainRectangleCurve.getSize().y - ySizeRecText));
+    r1LeftDown.setSize(Vector2f(xSizeRecText, ySizeRecText * yPrecenSizeCell));
 
+    RectangleShape r2LeftDown = mainRectangleCurve;
+    r2LeftDown.setPosition(Vector2f(xPosGeneral - xSizeRecText, yPosGeneral+ mainRectangleCurve.getSize().y));
+    r2LeftDown.setSize(Vector2f(xSizeRecText, ySizeRecText * yPrecenSizeCell));
 
+    RectangleShape r2RightDown = mainRectangleCurve; 
+    r2RightDown.setPosition(Vector2f(xPosGeneral + mainRectangleCurve.getSize().x, yPosGeneral+ mainRectangleCurve.getSize().y));
+    r2RightDown.setSize(Vector2f(xSizeRecText, ySizeRecText * yPrecenSizeCell));
 
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    RectangleShape r0_Info_LeftTop = MainRectangleCurve;
-    r0_Info_LeftTop.setPosition(Vector2f(XposGeneral - XsizeRecText, YposGeneral- YsizeRecText * (1 + YpositionInfoText)));
-    r0_Info_LeftTop.setSize(Vector2f(XsizeRecText + MainRectangleCurve.getSize().x, YsizeRecText * Y_PrecenSizeCell));
-
-    RectangleShape r1_LeftTop = MainRectangleCurve;
-    r1_LeftTop.setPosition(Vector2f(XposGeneral - XsizeRecText, MainRectangleCurve.getPosition().y));
-    r1_LeftTop.setSize(Vector2f(XsizeRecText, YsizeRecText * Y_PrecenSizeCell));
-
-    RectangleShape r1_LeftDown = MainRectangleCurve;
-    r1_LeftDown.setPosition(Vector2f(XposGeneral - XsizeRecText, YposGeneral+ MainRectangleCurve.getSize().y - YsizeRecText));
-    r1_LeftDown.setSize(Vector2f(XsizeRecText, YsizeRecText * Y_PrecenSizeCell));
-
-    RectangleShape r2_LeftDown = MainRectangleCurve;
-    r2_LeftDown.setPosition(Vector2f(XposGeneral - XsizeRecText, YposGeneral+ MainRectangleCurve.getSize().y));
-    r2_LeftDown.setSize(Vector2f(XsizeRecText, YsizeRecText * Y_PrecenSizeCell));
-
-    RectangleShape r2_RightDown = MainRectangleCurve; 
-    r2_RightDown.setPosition(Vector2f(XposGeneral + MainRectangleCurve.getSize().x, YposGeneral+ MainRectangleCurve.getSize().y));
-    r2_RightDown.setSize(Vector2f(XsizeRecText, YsizeRecText * Y_PrecenSizeCell));
-
-
-    vector< GUI_TextAndRectangle> VGUITextCurve =
+    vector< GUITextAndRectangle> m_vGUITextCurve =
     {
-        {{name}, r0_Info_LeftTop ,false, false},
-        {{"Often"}, r1_LeftTop      ,false, false},
-        {{"Rarely"}, r1_LeftDown     ,false, false},
-        {{"CountMin"}, r2_LeftDown     ,false, false},
-        {{"CountMax"}, r2_RightDown    ,false, false},
+        {{name}, r0InfoLeftTop ,false, false},
+        {{"Often"}, r1LeftTop      ,false, false},
+        {{"Rarely"}, r1LeftDown     ,false, false},
+        {{"CountMin"}, r2LeftDown     ,false, false},
+        {{"CountMax"}, r2RightDown    ,false, false},
     };
-    VGUITextCurve[0].setColorText(ColorCurve);
 
-    ////////////////////////////////////////////////////////////////////////////////
+    m_vGUITextCurve[0].setColorText(colorCurve);
 
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
-
-    if (FreqModifiers.empty())
+    if (freqModifiers.empty())
     {
-        OutputLog("GetCurveForModifiers -> FreqModifiers empty");
-        VGUITextCurve[0].setKeyString_and_TextWstring({ "Empty" });
+        OUTPUT_LOG("GetCurveForModifiers -> freqModifiers empty");
+        m_vGUITextCurve[0].setKeyString_and_TextWstring({ "empty" });
 
-        return { MainRectangleCurve, VGUITextCurve, VertexArray() };
+        return { mainRectangleCurve, m_vGUITextCurve, VertexArray() };
     }
-    //////////////////////////////////////////////////////////////////////////////////
 
-
-    return { MainRectangleCurve, VGUITextCurve,  CurveFun(MainRectangleCurve, ColorCurve, FreqModifiers)};
+    return { mainRectangleCurve, m_vGUITextCurve,  CurveFun(mainRectangleCurve, colorCurve, freqModifiers)};
 }
 
-
-VertexArray CurveFun(RectangleShape MainRectangleCurve, Color ColorCurve, const map<CountModifiers, float>& FreqModifiers)
+VertexArray CurveFun(RectangleShape mainRectangleCurve, Color ColorCurve, const map<CountModifiers, float>& FreqModifiers)
 {
 
-    //////////////////////////////////////////////////////////////////////////////////
-    float Xsize = MainRectangleCurve.getSize().x;
-    float Ysize = MainRectangleCurve.getSize().y;
-    float Xpos = MainRectangleCurve.getPosition().x;;
-    float Ypos = MainRectangleCurve.getPosition().y;
+    float xSize = mainRectangleCurve.getSize().x;
+    float ySize = mainRectangleCurve.getSize().y;
+    float xPos = mainRectangleCurve.getPosition().x;;
+    float yPos = mainRectangleCurve.getPosition().y;
 
     VertexArray curve(PrimitiveType::LineStrip, FreqModifiers.size());
-    //////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
     // 1. Найдём максимальную частоту
-    float min_freq = FLT_MAX;
-    float max_freq = -FLT_MAX;
+    float minFreq = FLT_MAX;
+    float maxFreq = -FLT_MAX;
 
     for (const auto& [_, freq] : FreqModifiers)
     {
-        min_freq = min(min_freq, freq);
-        max_freq = max(max_freq, freq);
+        minFreq = min(minFreq, freq);
+        maxFreq = max(maxFreq, freq);
     }
-    //////////////////////////////////////////////////////////////////////////////////
-    
 
-
-    //////////////////////////////////////////////////////////////////////////////////
     // 2. Генерируем график
     int i = 0;
-    float dx = Xsize / max(1.0f, static_cast<float>(FreqModifiers.size() - 1));
+    float dx = xSize / max(1.0f, static_cast<float>(FreqModifiers.size() - 1));
 
     for (auto& [_, freq_count] : FreqModifiers)
     {
-        float x = Xpos + dx * i;
+        float x = xPos + dx * i;
 
         // Нормализуем: 1 -> нижняя граница, max_freq -> верхняя граница
-        float range = max(0.0001f, max_freq - min_freq); // защита от деления на 0
-        float t = (freq_count - min_freq) / range;
-        float y = Ypos + Ysize * (1.f - t);
+        float range = max(0.0001f, maxFreq - minFreq); // защита от деления на 0
+        float t = (freq_count - minFreq) / range;
+        float y = yPos + ySize * (1.f - t);
 
         curve[i].position = Vector2f(x, y);
         curve[i].color = ColorCurve;
 
         i++;
     }
-    //////////////////////////////////////////////////////////////////////////////////
 
     return curve;
 }
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-
-map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& OtherVectorCountModifiers)
+map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& otherVectorCountModifiers)
 {
     map<CountModifiers, float> result;
 
-    if (OtherVectorCountModifiers.empty())
+    if (otherVectorCountModifiers.empty())
     {
-        OutputLog("GetFreqCountModifiers -> empty");
+        OUTPUT_LOG("GetFreqCountModifiers -> empty");
     }
 
-    for (size_t i = 0; i < OtherVectorCountModifiers.size(); i++)
+    for (size_t i = 0; i < otherVectorCountModifiers.size(); i++)
     {
-        result[OtherVectorCountModifiers[i]]++;
+        result[otherVectorCountModifiers[i]]++;
     }
     return result;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-map<CountModifiers, float> GetBinedFreqModifiers(const map<CountModifiers, float>& OtherMap, float PercentBin)
+map<CountModifiers, float> GetBinedFreqModifiers(const map<CountModifiers, float>& otherMap, float percentBin)
 {
-    if (OtherMap.empty())
+    if (otherMap.empty())
     {
         return {};
     }
 
     // Если указано 100%, биннинг не нужен
-    if (PercentBin >= 1.0f)
+    if (percentBin >= 1.0f)
     {
-        return OtherMap;
+        return otherMap;
     }
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
+    
     // Определение количества корзин
-    int CountBascet = max(1, static_cast<int>(OtherMap.size() * PercentBin));
-
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
+    int countBascet = max(1, static_cast<int>(otherMap.size() * percentBin));
+    
     // Сбор и сортировка всех частот с привязкой к CountModifiers
-
-    vector<pair<CountModifiers, float>> sortedFreqs(OtherMap.begin(), OtherMap.end());
+    vector<pair<CountModifiers, float>> sortedFreqs(otherMap.begin(), otherMap.end());
 
     sort(sortedFreqs.begin(), sortedFreqs.end(),
         [](const auto& a, const auto& b)
         {
             return a.second < b.second;
         });
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
+    
     // Распределение по корзинам по квантилям
-
     map<int, vector<pair<CountModifiers, float>>> bins;
 
     int total = static_cast<int>(sortedFreqs.size());
-    int itemsPerBin = total / CountBascet;
+    int itemsPerBin = total / countBascet;
 
     int currentBin = 0;
     int countInCurrent = 0;
@@ -248,22 +164,15 @@ map<CountModifiers, float> GetBinedFreqModifiers(const map<CountModifiers, float
         bins[currentBin].push_back({ mod, freq });
         countInCurrent++;
 
-        if (countInCurrent >= itemsPerBin && currentBin + 1 < CountBascet)
+        if (countInCurrent >= itemsPerBin && currentBin + 1 < countBascet)
         {
             currentBin++;
             countInCurrent = 0;
         }
     }
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
+    
+    
     // Формирование результата на основе среднего значения в корзине
-
     map<CountModifiers, float> result;
 
     for (const auto& [binIdx, items] : bins)
@@ -285,65 +194,29 @@ map<CountModifiers, float> GetBinedFreqModifiers(const map<CountModifiers, float
 
         result[representative] = averageFreq;
     }
-    //////////////////////////////////////////////////////////////////////////////////
 
     return result;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-
-map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, float>& OtherMap, float smoothnessPercent)
+map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, float>& otherMap, float smoothnessPercent)
 {
-
-    //////////////////////////////////////////////////////////////////////////////////
     map<CountModifiers, float> result;
 
-    if (OtherMap.empty())
+    if (otherMap.empty())
     {
-        OutputLog("GetFreqCountModifiers -> empty");
+        OUTPUT_LOG("GetFreqCountModifiers -> empty");
         return result;
     }
 
     if (smoothnessPercent == 0)
     {
-        return OtherMap;
+        return otherMap;
     }
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////
-    int totalSize = static_cast<int>(OtherMap.size());
+    
+    int totalSize = static_cast<int>(otherMap.size());
     float radius = max(0, smoothnessPercent * totalSize);
 
-    vector<pair<CountModifiers, float>> items(OtherMap.begin(), OtherMap.end());
+    vector<pair<CountModifiers, float>> items(otherMap.begin(), otherMap.end());
 
     for (int i = 0; i < totalSize; ++i)
     {
@@ -358,10 +231,6 @@ map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, floa
 
         result[items[i].first] = sum / count;
     }
-    //////////////////////////////////////////////////////////////////////////////////
-
-
-
 
     return result;
 }
@@ -391,23 +260,3 @@ CountModifiers GetPercentile(const map<CountModifiers, float>& freqMap, float pe
     // если не нашли — вернём последний ключ
     return freqMap.rbegin()->first;
 }
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

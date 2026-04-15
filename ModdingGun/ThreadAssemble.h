@@ -9,229 +9,186 @@
 /// </summary>
 struct CountModifiers
 {
-    map<GunStats::Modifiers::ToolType,  unsigned int > CountTool;
-    map<GunStats::Modifiers::KitType,   unsigned int > CountKit;
-    map<GunStats::Modifiers::SkillType, unsigned int > CountSkill;
+    map<GunStats::Modifiers::ToolType,  unsigned int > m_countTool;
+    map<GunStats::Modifiers::KitType,   unsigned int > m_countKit;
+    map<GunStats::Modifiers::SkillType, unsigned int > m_countSkill;
 
-    unsigned long long AllPrice;
+    unsigned long long m_allPrice;
 
     CountModifiers()
     {
-        auto tool  = GunStats::Modifiers::ToolType::ToolType_begin;
-        auto kit   = GunStats::Modifiers::KitType::KitType_begin;
-        auto skill = GunStats::Modifiers::SkillType::SkillType_begin;
+        auto tool  = GunStats::Modifiers::ToolType::toolTypeBegin;
+        auto kit   = GunStats::Modifiers::KitType::kitTypeBegin;
+        auto skill = GunStats::Modifiers::SkillType::skillTypeBegin;
 
-        this->AllPrice = 0;
+        m_allPrice = 0;
 
-        for (tool++; tool < GunStats::Modifiers::ToolType::ToolType_end; tool++)
+        for (tool++; tool < GunStats::Modifiers::ToolType::toolTypeEnd; tool++)
         {
-            this->CountTool[tool] = 0;
+            m_countTool[tool] = 0;
         }
-        for (kit++; kit < GunStats::Modifiers::KitType::KitType_end; kit++)
+        for (kit++; kit < GunStats::Modifiers::KitType::kitTypeEnd; kit++)
         {
-            this->CountKit[kit] = 0;
+            m_countKit[kit] = 0;
         }
-        for (skill++; skill < GunStats::Modifiers::SkillType::SkillType_end; skill++)
+        for (skill++; skill < GunStats::Modifiers::SkillType::skillTypeEnd; skill++)
         {
-            this->CountSkill[skill] = 0;
+            m_countSkill[skill] = 0;
         }
     }
 
 
     bool operator==(const CountModifiers& other) const
     {
-
-
-        auto tool = GunStats::Modifiers::ToolType::ToolType_begin;
-        for (tool++; tool < GunStats::Modifiers::ToolType::ToolType_end; tool++)
+        auto tool = GunStats::Modifiers::ToolType::toolTypeBegin;
+        for (tool++; tool < GunStats::Modifiers::ToolType::toolTypeEnd; tool++)
         {
             try
             {
-                auto This = this->CountTool.at(tool);
-                auto Other = other.CountTool.at(tool);
+                auto thisCountTool = this->m_countTool.at(tool);
+                auto otherCountTool = other.m_countTool.at(tool);
 
-                if (This != Other)
+                if (thisCountTool != otherCountTool)
                 {
                     return false;
                 }
             }
             catch (const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator== -> Key Tool not found");
+                OUTPUT_LOG("CountModifiers -> operator== -> Key Tool not found");
                 exit(-10);
             }
         }
 
-
-        auto kit = GunStats::Modifiers::KitType::KitType_begin;
-        for (kit++; kit < GunStats::Modifiers::KitType::KitType_end; kit++)
+        auto kit = GunStats::Modifiers::KitType::kitTypeBegin;
+        for (kit++; kit < GunStats::Modifiers::KitType::kitTypeEnd; kit++)
         {
 
             try
             {
-                auto This = this->CountKit.at(kit);
-                auto Other = other.CountKit.at(kit);
+                auto thisCountKit = this->m_countKit.at(kit);
+                auto otherCountKit = other.m_countKit.at(kit);
 
-                if (This != Other)
+                if (thisCountKit != otherCountKit)
                 {
                     return false;
                 }
             }
             catch (const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator< -> Key Kit not found");
+                OUTPUT_LOG("CountModifiers -> operator< -> Key Kit not found");
                 exit(-10);
 
             }
         }
-
         
-        auto skill = GunStats::Modifiers::SkillType::SkillType_begin;
-        for (skill++; skill < GunStats::Modifiers::SkillType::SkillType_end; skill++)
+        auto skill = GunStats::Modifiers::SkillType::skillTypeBegin;
+        for (skill++; skill < GunStats::Modifiers::SkillType::skillTypeEnd; skill++)
         {
             try
             {
-                auto This  = this->CountSkill.at(skill);
-                auto Other = other.CountSkill.at(skill);
+                auto thisCountSkill  = this->m_countSkill.at(skill);
+                auto otherCountSkill = other.m_countSkill.at(skill);
 
-                if (This != Other)
+                if (thisCountSkill != otherCountSkill)
                 {
                     return false;
                 }                
             }
             catch(const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator< -> Key Skill not found");
+                OUTPUT_LOG("CountModifiers -> operator< -> Key Skill not found");
                 exit(-10);
             }
-        }
-        
-        // осталось сравнить цену
+        } 
 
-        return this->AllPrice == other.AllPrice;
+        return this->m_allPrice == other.m_allPrice;
     };
-
-
-
-    
+            
     bool operator<(const CountModifiers& other) const 
     {
+        unsigned countToolThis = 0;
+        unsigned countToolOther = 0;
 
-        unsigned CountToolThis = 0;
-        unsigned CountToolOther = 0;
-
-        auto tool  = GunStats::Modifiers::ToolType:: ToolType_begin;
-        for (tool++; tool < GunStats::Modifiers::ToolType::ToolType_end; tool++)
+        auto tool  = GunStats::Modifiers::ToolType:: toolTypeBegin;
+        for (tool++; tool < GunStats::Modifiers::ToolType::toolTypeEnd; tool++)
         {
             try
             {
-                auto This = this->CountTool.at(tool);
-                auto Other = other.CountTool.at(tool);
+                auto thisCT = this->m_countTool.at(tool);
+                auto otherCT = other.m_countTool.at(tool);
 
-                CountToolThis += This;
-                CountToolOther += Other;
+                countToolThis += thisCT;
+                countToolOther += otherCT;
 
             }
             catch(const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator< -> Key Tool not found");
+                OUTPUT_LOG("CountModifiers -> operator< -> Key Tool not found");
                 exit(-11);
             }
         }
 
+        unsigned countKitThis = 0;
+        unsigned countKitOther = 0;
 
-
-        unsigned CountKitThis = 0;
-        unsigned CountKitOther = 0;
-
-        auto kit = GunStats::Modifiers::KitType::KitType_begin;
-        for (kit++; kit < GunStats::Modifiers::KitType::KitType_end; kit++)
+        auto kit = GunStats::Modifiers::KitType::kitTypeBegin;
+        for (kit++; kit < GunStats::Modifiers::KitType::kitTypeEnd; kit++)
         {
             try
             {
-                auto This = this->CountKit.at(kit);
-                auto Other = other.CountKit.at(kit);
+                auto thisCK = this->m_countKit.at(kit);
+                auto otherCK = other.m_countKit.at(kit);
 
-                CountKitThis += This;
-                CountKitOther += Other;
+                countKitThis += thisCK;
+                countKitOther += otherCK;
                 
             }
             catch (const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator< -> Key Kit not found");
+                OUTPUT_LOG("CountModifiers -> operator< -> Key Kit not found");
                 exit(-11);
             }
         }
 
-           
+        unsigned countSkillThis = 0;
+        unsigned countSkillOther = 0;
 
-
-
-        unsigned CountSkillThis = 0;
-        unsigned CountSkillOther = 0;
-
-        auto skill = GunStats::Modifiers::SkillType::SkillType_begin;
-        for (skill++; skill < GunStats::Modifiers::SkillType::SkillType_end; skill++)
+        auto skill = GunStats::Modifiers::SkillType::skillTypeBegin;
+        for (skill++; skill < GunStats::Modifiers::SkillType::skillTypeEnd; skill++)
         {
             try
             {
-                auto This = this->CountSkill.at(skill);
-                auto Other = other.CountSkill.at(skill);
+                auto thisCS = this->m_countSkill.at(skill);
+                auto otherCS = other.m_countSkill.at(skill);
 
-                CountSkillThis += This;
-                CountSkillOther += Other;
+                countSkillThis += thisCS;
+                countSkillOther += otherCS;
             }
             catch (const std::out_of_range&)
             {
-                OutputLog("CountModifiers -> operator< -> Key Skill not found");
+                OUTPUT_LOG("CountModifiers -> operator< -> Key Skill not found");
                 exit(-11);
             }
         }
-        
-        
-
-
-
-        return tie(CountKitThis , CountToolThis, CountSkillThis, this->AllPrice) < tie(CountKitOther, CountToolOther, CountSkillOther, other.AllPrice);
+        return tie(countKitThis , countToolThis, countSkillThis, this->m_allPrice) < tie(countKitOther, countToolOther, countSkillOther, other.m_allPrice);
     }
-
-
 };
-
-
 
 extern mutex mtx;
 extern int   threadCount;
 
-
-
-
-
 /// <summary>
 /// вектор всех сгенерированных попыток
 /// </summary>
-extern vector<unsigned int> All_Random_Attempt_Used;
+extern vector<unsigned int> allRandomAttemptUsed;
 
 /// <summary>
 /// <para> размер вектора = кол-ву сборок </para> 
 /// <para> содержит CountModifiers -> все использованные модификаторы для получения указанного мода </para> 
 /// <para> (то есть модификаторы потребующиеся для прохода по такому методу)</para> 
 /// </summary>
-extern vector<CountModifiers> ALL_modifiers;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+extern vector<CountModifiers> allModifiers;
 
 /// <summary>
 /// проводим одну сборку мода, по методу
@@ -241,12 +198,9 @@ extern vector<CountModifiers> ALL_modifiers;
 /// <returns></returns>
 int RunSingleAssembly(int it_index, vector<Method> method_MOD);
 
-
-
 /// <summary>
 /// 
 /// </summary>
 /// <param name="other_Average_RANDOM_GEN"></param>
 /// <param name="Current_modifiers_count"></param>
 void add_results(const vector<unsigned int>& other_Average_RANDOM_GEN, CountModifiers Current_modifiers_count);
-
