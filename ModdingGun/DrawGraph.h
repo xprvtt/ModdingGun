@@ -9,7 +9,7 @@
 struct CurvePack
 {
     RectangleShape m_mainRectangleCurve;
-    vector<GUITextAndRectangle> m_vGUITextCurve;
+    vector<GUIModdingGun> m_vGUITextCurve;
     VertexArray    m_curve;
 };
 
@@ -22,7 +22,7 @@ struct CurvePack
 /// <param name="colorCurve"></param>
 /// <param name="name"></param>
 /// <returns></returns>
-CurvePack GetCurveFrequrency
+CurvePack getCurveFrequrency
 (
     RectangleShape rectangleOther,
     const map<CountModifiers, float>& freqModifiers,
@@ -31,16 +31,16 @@ CurvePack GetCurveFrequrency
 
 );
 
-VertexArray CurveFun(RectangleShape mainRectangleCurve, Color colorCurve, const map<CountModifiers, float>& freqModifiers);
+VertexArray curveFun(RectangleShape mainRectangleCurve, Color colorCurve, const map<CountModifiers, float>& freqModifiers);
 
 /// <summary>
 /// получаем частоту экземпляров
 /// </summary>
 /// <param name="otherVectorCountModifiers"></param>
 /// <returns></returns>
-map<CountModifiers, float> GetFreqModifiers(const vector<CountModifiers>& otherVectorCountModifiers);
+map<CountModifiers, float> getFreqModifiers(const vector<CountModifiers>& otherVectorCountModifiers);
 
-map<CountModifiers,float> GetBinedFreqModifiers(const map<CountModifiers, float>& otherMap, float percentBin);
+map<CountModifiers,float> getBinedFreqModifiers(const map<CountModifiers, float>& otherMap, float percentBin);
 
 /// <summary>
 /// получаем сглаженный график по частоте/// </summary>
@@ -49,7 +49,7 @@ map<CountModifiers,float> GetBinedFreqModifiers(const map<CountModifiers, float>
 /// <param name="original_min"></param>
 /// <param name="original_max"></param>
 /// <returns></returns>
-map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, float>& otherMap, float smoothnessPercent);
+map<CountModifiers, float> getSmoothFreqModifiers(const map<CountModifiers, float>& otherMap, float smoothnessPercent);
 
 /// <summary>
 /// получаем значение которое не привысим с шансом 
@@ -57,4 +57,4 @@ map<CountModifiers, float> GetSmoothFreqModifiers(const map<CountModifiers, floa
 /// <param name="freqMap"></param>
 /// <param name="p"> перцентиль 0.0 - 100.0</param>
 /// <returns></returns>
-CountModifiers GetPercentile(const map<CountModifiers, float>& freqMap, float percentile);
+CountModifiers getPercentile(const map<CountModifiers, float>& freqMap, float percentile);

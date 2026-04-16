@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-string GetCurrentTimeMG()
+string getCurrentTimeMG()
 {
     time_t seconds = time(NULL);
     tm timeinfo;

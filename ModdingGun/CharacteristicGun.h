@@ -8,119 +8,6 @@
 
 class CharacteristicGun
 {
-	struct AllStat
-	{
-		/// <summary>
-		///  текущий индекс ОТНОСИТЕЛЬНО МАКСИМАЛЬНОГО РАЗМЕРА
-		/// </summary>
-		int    m_realPosition;
-
-		/// <summary>
-		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
-		/// </summary>
-		double m_valueCharacteristic;
-
-		/// <summary>
-		/// текуший РЕАЛЬНЫЙ шанс НА УЛУЧШЕНИЕ
-		/// </summary>
-		double m_currentChance;
-
-		/// <summary>
-		/// текущий ВИЗУАЛЬНЫЙ процент
-		/// </summary>
-		double m_visualPercentStat;
-	};
-
-	struct DecreaseStatST
-	{
-		/// <summary>
-		///  что уменьшать?
-		/// </summary>
-		int  m_positionLower;
-
-		/// <summary>
-		///  насколько уменьшать?
-		/// </summary>
-		int  m_howMany;
-
-		/// <summary>
-		/// индекс текущей статы от которого начнем уменьшать
-		/// </summary>
-		int m_positionStartLower;
-	};
-
-	/// <summary>
-	/// <para>v1 - характеристика</para>
-	/// <para>v2 - позиция</para>	/// 
-	/// <para>0 - кучность вектор возможных стат</para> 
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<vector<AllStat>> m_fulAllStat;
-
-	/// <summary>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<vector<DecreaseStatST>> m_fullDecreaseStat;
-
-	/// <summary>
-	/// текущая позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_currentStatPosition;
-
-	/// <summary>
-	/// максимальная позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_maxStatPosition;
-
-	/// <summary>
-	/// начальная позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_defaultStatPosition;
-
-	/// <summary>
-	/// запись всех апгрейдов
-	/// </summary>
-	vector<vector<int>> m_upgradeHistory;
-
-	unsigned int m_countOption;
-
-	bool empty;
-
-	bool upStat(int statNo);
-
-
 public:
 
 	CharacteristicGun(const CharacteristicGun& other);
@@ -200,8 +87,123 @@ public:
 	/// <returns></returns>
 	vector<int> getCurrentPosition() const;
 
-	/// <summary>
-	/// 
-	/// </summary>
 	double getValueCharacteristic(size_t stat) const;
+
+private:
+
+	struct AllStat
+	{
+		/// <summary>
+		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
+		/// </summary>
+		double m_valueCharacteristic;
+
+		/// <summary>
+		/// текуший РЕАЛЬНЫЙ шанс НА УЛУЧШЕНИЕ
+		/// </summary>
+		double m_currentChance;
+
+		/// <summary>
+		/// текущий ВИЗУАЛЬНЫЙ процент
+		/// </summary>
+		double m_visualPercentStat;
+
+		/// <summary>
+		///  текущий индекс ОТНОСИТЕЛЬНО МАКСИМАЛЬНОГО РАЗМЕРА
+		/// </summary>
+		int m_realPosition;
+
+		explicit AllStat(double valueCharacteristic, double currentChance, double visualPercentStat, int realPosition) : m_valueCharacteristic(valueCharacteristic), m_currentChance(currentChance), m_visualPercentStat(visualPercentStat), m_realPosition(realPosition) {}
+	};
+
+	struct DecreaseStatST
+	{
+		/// <summary>
+		///  что уменьшать?
+		/// </summary>
+		int  m_positionLower;
+
+		/// <summary>
+		///  насколько уменьшать?
+		/// </summary>
+		int  m_howMany;
+
+		/// <summary>
+		/// индекс текущей статы от которого начнем уменьшать
+		/// </summary>
+		int m_positionStartLower;
+
+		explicit DecreaseStatST(int pos, int howMany, int start) : m_positionLower(pos), m_howMany(howMany), m_positionStartLower(start) {}
+	};
+
+	/// <summary>
+	/// <para>v1 - характеристика</para>
+	/// <para>v2 - позиция</para>	/// 
+	/// <para>0 - кучность вектор возможных стат</para> 
+	/// <para>1 - темп</para>
+	/// <para>2 - отдача</para>
+	/// <para>3 - качание</para>
+	/// <para>4 - пробитие</para>
+	/// <para>5 - отказ грязи</para>
+	/// <para>6 - отказ состояния</para>
+	/// </summary>
+	vector<vector<AllStat>> m_fulAllStat;
+
+	/// <summary>
+	/// <para>0 - кучность </para>
+	/// <para>1 - темп</para>
+	/// <para>2 - отдача</para>
+	/// <para>3 - качание</para>
+	/// <para>4 - пробитие</para>
+	/// <para>5 - отказ грязи</para>
+	/// <para>6 - отказ состояния</para>
+	/// </summary>
+	vector<vector<DecreaseStatST>> m_fullDecreaseStat;
+
+	/// <summary>
+	/// текущая позиция статов</para>
+	/// <para>0 - кучность </para>
+	/// <para>1 - темп</para>
+	/// <para>2 - отдача</para>
+	/// <para>3 - качание</para>
+	/// <para>4 - пробитие</para>
+	/// <para>5 - отказ грязи</para>
+	/// <para>6 - отказ состояния</para>
+	/// </summary>
+	vector<int> m_currentStatPosition;
+
+	/// <summary>
+	/// максимальная позиция статов</para>
+	/// <para>0 - кучность </para>
+	/// <para>1 - темп</para>
+	/// <para>2 - отдача</para>
+	/// <para>3 - качание</para>
+	/// <para>4 - пробитие</para>
+	/// <para>5 - отказ грязи</para>
+	/// <para>6 - отказ состояния</para>
+	/// </summary>
+	vector<int> m_maxStatPosition;
+
+	/// <summary>
+	/// начальная позиция статов</para>
+	/// <para>0 - кучность </para>
+	/// <para>1 - темп</para>
+	/// <para>2 - отдача</para>
+	/// <para>3 - качание</para>
+	/// <para>4 - пробитие</para>
+	/// <para>5 - отказ грязи</para>
+	/// <para>6 - отказ состояния</para>
+	/// </summary>
+	vector<int> m_defaultStatPosition;
+
+	/// <summary>
+	/// запись всех апгрейдов
+	/// </summary>
+	vector<vector<int>> m_upgradeHistory;
+
+	unsigned int m_countOption;
+
+	bool empty;
+
+	bool upStat(int statNo);
 };

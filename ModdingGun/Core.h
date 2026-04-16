@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #define _CRT_SECURE_NO_WARNINGS
+#define _CRTDBG_MAP_ALLOC
 
 #include "iostream"
 
@@ -46,7 +47,7 @@ using namespace filesystem;
 /// </summary>
 /// <param name="PathToFont">путь до шрифта</param>
 /// <returns></returns>
-Font LoadFont(path PathToFont);
+Font loadFont(path pathToFont);
 
 /// <summary>
 /// поиск файлов в директории
@@ -54,29 +55,26 @@ Font LoadFont(path PathToFont);
 /// <param name="SearchInPath">путь</param>
 /// <param name="Extension">расширение файла(ов) / если не указано ищет всё </param>
 /// <returns>вектор</returns>
-vector<path> SearchFile(path SearchInPath, string Extension);
+vector<path> searchFile(path searchInPath, string extension);
 
 /// <summary>
 /// Функция выводит сообщение в файл Log/log.txt
 /// </summary>
 /// <param name="message">Сообщение которое необходимо вывести</param>
 /// <returns>true если выведен</returns>
-bool OutputMessage(string message);
+bool outputMessage(string message);
 
 /// <summary>
 /// Функция возвращает строку веремени 
 /// </summary>
 /// <returns>дата и время</returns>
-string GetCurrentTimeMG();
+string getCurrentTimeMG();
 
+double getRandomDouble(double range);
 
+double getChance(int position, const vector<pair<int, double>>& chancePoints);
 
+double calculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
 
-double GetRandomDouble(double range);
-
-double GetChance(int position, const vector<pair<int, double>>& chancePoints);
-
-double CalculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
-
-wstring StringToWString(const string& str);
-string  WstringToString(const wstring& wstr);
+wstring stringToWString(const string& str);
+string  wstringToString(const wstring& wstr);

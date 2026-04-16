@@ -29,7 +29,7 @@ const Font ThemeGui::currentFont = []
 
         ///////////////////////////////////////////////////////////////////////////////////
         /// обнаруживаем все шрифты в папке 
-        vector<path> searchFont = SearchFile(fontFolder, ".ttf");
+        vector<path> searchFont = searchFile(fontFolder, ".ttf");
 
         /// если шрифтов не найдено выходим
         if (searchFont.empty())
@@ -44,7 +44,7 @@ const Font ThemeGui::currentFont = []
 
         ///////////////////////////////////////////////////////////////////////////////////
 
-        return LoadFont(searchFont[0]);
+        return loadFont(searchFont[0]);
 
     }();
 

@@ -1,8 +1,7 @@
 ﻿#include "LangManager.h"
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-------------------------------------------------------------------------------------------------------------------
 
 LangManager& LangManager::instance()
 {
@@ -10,8 +9,7 @@ LangManager& LangManager::instance()
 	return LANGUAGE;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-------------------------------------------------------------------------------------------------------------------
 
 bool LangManager::loadLangInFolder(path PathToLanguageJson)
 {
@@ -21,12 +19,12 @@ bool LangManager::loadLangInFolder(path PathToLanguageJson)
 		return false;
 	}
 
-	m_pathToAllLanguage = SearchFile(PathToLanguageJson, ".json");
+	m_pathToAllLanguage = searchFile(PathToLanguageJson, ".json");
 	m_countLang = m_pathToAllLanguage.size();
 
 	if (m_countLang == 0)
 	{
-		OUTPUT_LOG("LangManager -> json not exist in path: " + WstringToString(m_pathToLanguage));
+		OUTPUT_LOG("LangManager -> json not exist in path: " + wstringToString(m_pathToLanguage));
 		return false;
 	}
 
@@ -35,17 +33,7 @@ bool LangManager::loadLangInFolder(path PathToLanguageJson)
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------------------------------------------
 size_t LangManager::getCountlang() const
 {
     return m_countLang;
@@ -75,18 +63,10 @@ unordered_map<size_t, wstring> LangManager::getLoadedLanguages()
 
 	return Result;
 }
-///////////////////////////////////////////////////////////////////////////////////////
 
+//-------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool LangManager::setLanguage(size_t m_itLang)
+bool LangManager::setLanguage(size_t itLang)
 {
 	if (m_countLang == 0)
 	{
@@ -94,8 +74,8 @@ bool LangManager::setLanguage(size_t m_itLang)
 		return false;
 	}
 
-	ifstream JSON_File_lang(m_pathToAllLanguage[m_itLang]);
-	if (!JSON_File_lang)
+	ifstream JsFileLang(m_pathToAllLanguage[itLang]);
+	if (!JsFileLang)
 	{
 		OUTPUT_LOG("LangManager -> json failed to open");
 		return false;
@@ -103,25 +83,19 @@ bool LangManager::setLanguage(size_t m_itLang)
 
 	m_mTranslate.clear();
 
-	nlohmann::json JSON_LANG;
-	JSON_File_lang >> JSON_LANG;
+	nlohmann::json JsLang;
+	JsFileLang >> JsLang;
 	
-	for (const auto& [json_key, translate] : JSON_LANG.items())
+	for (const auto& [jsonKey, translate] : JsLang.items())
 	{
-		m_mTranslate.emplace(json_key, StringToWString(translate.get<string>()));
+		m_mTranslate.emplace(jsonKey, stringToWString(translate.get<string>()));
 	}
 
-	this->m_itLang = m_itLang;
+	m_itLang = itLang;
     return false;
 }
-///////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------------------------------------------
 
 wstring LangManager::getTranslate(const string& key)
 {
@@ -130,20 +104,17 @@ wstring LangManager::getTranslate(const string& key)
 		return wstring();
 	}
 
-	auto it_map = m_mTranslate.find(key);
-
-	if (it_map != m_mTranslate.end())
+	auto it = m_mTranslate.find(key);
+	if (it != m_mTranslate.end())
 	{
-		return it_map->second;
+		return it->second;
 	}
 	else
 	{
 		OUTPUT_LOG("LangManager -> Key not found: " + key);
-		wstring Error = L"[" + StringToWString(key) + L"]";
-		return Error;
+		wstring error = L"[" + stringToWString(key) + L"]";
+		return error;
 	}
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-------------------------------------------------------------------------------------------------------------------

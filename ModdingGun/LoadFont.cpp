@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-Font LoadFont(path PathToFont)
+Font loadFont(path PathToFont)
 {
     Font font;
     if (!font.openFromFile(PathToFont))

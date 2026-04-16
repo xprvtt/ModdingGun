@@ -2,12 +2,12 @@
 
 mutex mtx;
 
-
 int threadCount = USING_ONE_THREAD ? 1 : thread::hardware_concurrency();
 
 vector<CountModifiers> allModifiers;
 vector<unsigned int>   allRandomAttemptUsed;
 
+//-------------------------------------------------------------------------------------------------------------------
 
 int RunSingleAssembly(
     // -1 = debug
@@ -48,7 +48,7 @@ int RunSingleAssembly(
 
         while (true)
         {
-            succsessRandom = GetRandomDouble(100.0);
+            succsessRandom = getRandomDouble(100.0);
             averageRandomTemp.push_back(static_cast<unsigned int>(round(succsessRandom * 100))); /// 0 ~ 10'000 точность не важна
 
             currentUsedModifiers.m_allPrice += methodMod[it].Price.PriceTool + methodMod[it].Price.PriceKit + methodMod[it].Price.PriceSkill;
@@ -124,6 +124,7 @@ int RunSingleAssembly(
     return 0;
 }
 
+//-------------------------------------------------------------------------------------------------------------------
 
 void add_results(  const vector<unsigned int>& otherAverageRandomGen, CountModifiers currentModifiersCount )
 {

@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-vector<path> SearchFile(path searchInPath, string extension)
+vector<path> searchFile(path searchInPath, string extension)
 {
 	vector<path> result;
 	try
@@ -23,7 +23,7 @@ vector<path> SearchFile(path searchInPath, string extension)
 			}
 		}
 	}
-	catch ([[maybe_unused]]const filesystem_error& error)
+	catch ([[maybe_unused]] const filesystem_error& error)
 	{
 		OUTPUT_LOG("SearchFile -> Error");
 		return vector<path>();

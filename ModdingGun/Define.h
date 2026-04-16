@@ -8,11 +8,9 @@
 #define DEBUG
 
 #ifdef  DEBUG
-#define OUTPUT_LOG(__StringMessage__) OutputMessage(__StringMessage__)
-#define DEBUG_CODE(__DebugCode__) __DebugCode__
-
+	#define OUTPUT_LOG(__StringMessage__) outputMessage(__StringMessage__)
+	#define DEBUG_CODE(__DebugCode__) __DebugCode__
 #elif
-#define OUTPUT_LOG(__StringMessage__)
-#define DEBUG_CODE(__DebugCode__)
-
+	#define OUTPUT_LOG(__StringMessage__)
+	#define DEBUG_CODE(__DebugCode__)
 #endif

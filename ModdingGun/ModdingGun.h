@@ -16,17 +16,22 @@ struct GeneralStat
     /// <summary>
     /// имя характеристики \ первое
     /// </summary>
-    GUITextAndRectangle    m_textCharacteristicName;
+    GUIModdingGun    m_textCharacteristicName;
 
     /// <summary>
     /// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
     /// </summary>
-    GUITextAndRectangle    m_textVisualCharacteristic;
+    GUIModdingGun    m_textVisualCharacteristic;
 
     /// <summary>
     /// визуальное отображения процента апгрейда
     /// </summary>
-    GUITextAndRectangle    m_textCharacteristicVisualPercent;
+    GUIModdingGun    m_textCharacteristicVisualPercent;
+
+    /// <summary>
+    /// кнопка для выбора
+    /// </summary>
+    GUIModdingGun    m_markButtonCharacteristic;
 
     /// <summary>
     /// Общий "прямоугольник" в котором распалагаютися все юниты
@@ -37,11 +42,6 @@ struct GeneralStat
     /// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
     /// </summary>
     vector<RectangleShape> m_shaheUnitsInCharacteristic;
-
-    /// <summary>
-    /// кнопка для выбора
-    /// </summary>
-    GUITextAndRectangle    m_markButtonCharacteristic;
 };
 
 /// <summary>
@@ -63,7 +63,7 @@ void moveElement(vector<T>& vec, size_t from, size_t to);
 /// <param name="modPosition"></param>
 void editShaheUnits(vector<GeneralStat>& generalModOption, CharacteristicGun& currentCharacteristicGun, vector<int> initialPosition, vector<int> modPosition);
 
-bool setChahceUpgrade(const CharacteristicGun& currentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUITextAndRectangle& GUIChance, size_t it);
+bool setChahceUpgrade(const CharacteristicGun& currentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUIModdingGun& GUIChance, size_t it);
 
 unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers);
 unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers, string nameGun);

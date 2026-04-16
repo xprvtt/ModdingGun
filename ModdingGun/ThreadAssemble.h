@@ -3,6 +3,22 @@
 #include "Core.h"
 #include "GunStats.h"
 
+struct CountModifiers;
+
+extern mutex mtx;
+extern int   threadCount;
+
+/// <summary>
+/// вектор всех сгенерированных попыток
+/// </summary>
+extern vector<unsigned int> allRandomAttemptUsed;
+
+/// <summary>
+/// <para> размер вектора = кол-ву сборок </para> 
+/// <para> содержит CountModifiers -> все использованные модификаторы для получения указанного мода </para> 
+/// <para> (то есть модификаторы потребующиеся для прохода по такому методу)</para> 
+/// </summary>
+extern vector<CountModifiers> allModifiers;
 
 /// <summary>
 /// содержит колличество всех модификаторов
@@ -174,21 +190,6 @@ struct CountModifiers
         return tie(countKitThis , countToolThis, countSkillThis, this->m_allPrice) < tie(countKitOther, countToolOther, countSkillOther, other.m_allPrice);
     }
 };
-
-extern mutex mtx;
-extern int   threadCount;
-
-/// <summary>
-/// вектор всех сгенерированных попыток
-/// </summary>
-extern vector<unsigned int> allRandomAttemptUsed;
-
-/// <summary>
-/// <para> размер вектора = кол-ву сборок </para> 
-/// <para> содержит CountModifiers -> все использованные модификаторы для получения указанного мода </para> 
-/// <para> (то есть модификаторы потребующиеся для прохода по такому методу)</para> 
-/// </summary>
-extern vector<CountModifiers> allModifiers;
 
 /// <summary>
 /// проводим одну сборку мода, по методу
