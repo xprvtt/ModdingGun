@@ -1,1 +1,19 @@
-[2026-04-17 18:54:05] Start!
+[2026-04-17 20:18:26] Start!
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Tool\#0 without_tool.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Tool\#1 Improved_tool.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Tool\#2 Common_tool.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Tool\#3 Old_tool.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Kit\#0 Without_set_parts.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Kit\#1 Detail.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Kit\#2 Repair_kit.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#0 without_skill.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#1 NPC_master_2.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#2 NPC_master_3.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#3 NPC_master_4.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#4 NPC_master_5.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#5 Player_master_1.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#6 Player_master_2.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#7 Player_master_3.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#8 Player_master_4.png
+[2026-04-17 20:18:27] ошибка загрузки loadTexturesAndShapes -> Assets/Skill\#9 Player_master_5.png
+[2026-04-17 20:18:27] modifiersIcon.m_toolRectangleGUI.empty() || modifiersIcon.m_kitRectangleGUI.empty() || modifiersIcon.m_skillRectangleGUI.empty()

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -29,8 +29,8 @@
 // SFML version
 ////////////////////////////////////////////////////////////
 #define SFML_VERSION_MAJOR      3
-#define SFML_VERSION_MINOR      1
-#define SFML_VERSION_PATCH      0
+#define SFML_VERSION_MINOR      0
+#define SFML_VERSION_PATCH      2
 #define SFML_VERSION_IS_RELEASE true
 
 
@@ -150,8 +150,8 @@
 
 #else // Linux, FreeBSD, macOS
 
-#define SFML_API_EXPORT [[gnu::visibility("default")]]
-#define SFML_API_IMPORT [[gnu::visibility("default")]]
+#define SFML_API_EXPORT __attribute__((__visibility__("default")))
+#define SFML_API_IMPORT __attribute__((__visibility__("default")))
 
 #endif
 

@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "2.8.3")
    message(FATAL_ERROR "CMake >= 2.8.3 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.8.3...3.26)
+cmake_policy(VERSION 2.8.3...3.23)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -62,7 +62,7 @@ set_target_properties(SFML::Network PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "SFML_STATIC"
   INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "SFML::System;\$<LINK_ONLY:Crypt32>;\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:Dnsapi>;\$<LINK_ONLY:libssh2::libssh2_static>;\$<LINK_ONLY:MbedTLS::mbedtls>;\$<LINK_ONLY:MbedTLS::mbedcrypto>;\$<LINK_ONLY:MbedTLS::mbedx509>"
+  INTERFACE_LINK_LIBRARIES "SFML::System;\$<LINK_ONLY:ws2_32>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -104,7 +104,7 @@ unset(_cmake_import_check_targets)
 # Make sure the targets which have been exported in some other
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "SFML::System" "libssh2::libssh2_static" "MbedTLS::mbedtls" "MbedTLS::mbedcrypto" "MbedTLS::mbedx509" )
+foreach(_target "SFML::System" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -61,22 +61,6 @@ public:
     /// This function completely overwrites the previous position.
     /// See the move function to apply an offset based on the previous position instead.
     /// The default position of a transformable object is (0, 0).
-    ///
-    /// Note that `sf::Text` may appear offset when positioned.
-    /// This is because its local bounds are influenced by font metrics (e.g. tallest characters)
-    /// to consistently align with the text's baseline. As such the `getGlobalBounds()`
-    /// position may not match the position you set.
-    ///
-    /// To account for this offset, the local bounds need to be considered.
-    /// Either by including it in the position calculation:
-    /// \code
-    /// text.setPosition(position - text.getLocalBounds().position);
-    /// \endcode
-    /// Or by adjusting the text's origin:
-    /// \code
-    /// text.setOrigin(text.getLocalBounds().position);
-    /// text.setPosition(position);
-    /// \endcode
     ///
     /// \param position New position
     ///

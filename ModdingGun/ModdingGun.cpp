@@ -28,9 +28,24 @@ int main()
 	Vector2i positionMouseMainWindow = {};
 	Vector2f postionMouseGlobal = {};
 
-	shared_ptr<Texture> ptrTextureEmpty = std::make_shared<Texture>(L"Assets/Standart/Empty.png");
-	shared_ptr<Texture> ptrTextureRedMark = std::make_shared<Texture>(L"Assets/Standart/MarkX.png");
-	shared_ptr<Texture> ptrTextureGreenMark = std::make_shared<Texture>(L"Assets/Standart/MarkV.png");
+
+	const path pathEmptyTexture = L"Assets/Standart/Empty.png";
+	const path pathRedmarkTexture = L"Assets/Standart/MarkX.png";
+	const path pathGreenmarkTexture = L"Assets/Standart/MarkV.png";
+
+	Texture emptyTexture;
+	Texture redmarkTexture;
+	Texture greenmarkTexture;
+
+	if (emptyTexture.loadFromFile(pathEmptyTexture) || redmarkTexture.loadFromFile(pathRedmarkTexture) || greenmarkTexture.loadFromFile(pathGreenmarkTexture))
+	{
+		OUTPUT_LOG("не обнаружено стандартных текстур по пути: " + std::filesystem::current_path().string());
+		exit(-1);
+	}
+
+	shared_ptr<Texture> ptrTextureEmpty = std::make_shared<Texture>(emptyTexture);
+	shared_ptr<Texture> ptrTextureRedMark = std::make_shared<Texture>(redmarkTexture);
+	shared_ptr<Texture> ptrTextureGreenMark = std::make_shared<Texture>(greenmarkTexture);
 
 	const path languageFolder = L"Lang/";
 	const path statGunFolder = L"Assets/Gun";
@@ -116,35 +131,39 @@ int main()
 	vector<shared_ptr<Texture>> kitTextures;
 	vector<shared_ptr<Texture>> toolTextures;
 	vector<shared_ptr<Texture>> skillTextures;
+	RectangleModifiers modifiersIcon;
+
 
 	vector<path> toolpath = searchFile(imagesToolFolder, ".png");
 	vector<path> kitpath = searchFile(imagesKitFolder, ".png");
 	vector<path> skillpath = searchFile(imagesSkillFolder, ".png");
 
-	RectangleModifiers modifiersIcon;
 
-	auto LoadTexturesAndShapes = [&](const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes)
+	if (toolpath.empty() || kitpath.empty() || skillpath.empty())
+	{
+		OUTPUT_LOG("toolpath.empty() || kitpath.empty() || skillpath.empty()");
+		exit(-1);
+	}
+
+	auto loadTexturesAndShapes = [&](const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes)
 		{
-			float i = 0;
-			float j = 0;
-
-			float sizeCell = defaultSizeCell * 0.55f;
+			float i = 0, j = 0, sizeCell = defaultSizeCell * 0.55f;
 
 			for (const auto& patht : paths)
 			{
-				auto tex = make_shared<Texture>();
-
-				if (!tex->loadFromFile(patht))
-				{
+				Texture tex;
+				if (!tex.loadFromFile(patht)) 
+				{ 
+					OUTPUT_LOG("ошибка загрузки loadTexturesAndShapes -> " + patht.string());
 					continue;
 				}
 
-				textures.push_back(tex);
+				textures.push_back(std::make_shared<Texture>(tex));
 
 				RectangleShape rectangleCurrentType;
 				rectangleCurrentType.setSize(Vector2f(sizeCell, sizeCell));
 				rectangleCurrentType.setPosition(Vector2f(defaultSizeCell * 2.25f + sizeCell * i, Ypos + j * sizeCell));
-				rectangleCurrentType.setTexture(tex.get());
+				rectangleCurrentType.setTexture(&tex);
 
 				string nameModifiersOne = patht.stem().string();
 				nameModifiersOne.erase(0, 3);
@@ -160,9 +179,15 @@ int main()
 		};
 
 	// Загружаем всё:
-	LoadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, modifiersIcon.m_toolRectangleGUI);
-	LoadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, modifiersIcon.m_kitRectangleGUI);
-	LoadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, modifiersIcon.m_skillRectangleGUI);
+	loadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, modifiersIcon.m_toolRectangleGUI);
+	loadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, modifiersIcon.m_kitRectangleGUI);
+	loadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, modifiersIcon.m_skillRectangleGUI);
+
+	if (modifiersIcon.m_toolRectangleGUI.empty() || modifiersIcon.m_kitRectangleGUI.empty() || modifiersIcon.m_skillRectangleGUI.empty())
+	{
+		OUTPUT_LOG("modifiersIcon.m_toolRectangleGUI.empty() || modifiersIcon.m_kitRectangleGUI.empty() || modifiersIcon.m_skillRectangleGUI.empty()");
+		exit(-1);
+	}
 
 	/// стоимость
 	vector<GUITextAndRectangle> arrToolPrice;
@@ -185,7 +210,8 @@ int main()
 		const float xOffset = defaultSizeCell * 0.02f;
 
 		// tool 
-		rectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, modifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getPosition().y + modifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getSize().y + yOffset));
+		auto recShape = modifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle();
+		rectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, recShape.getPosition().y + recShape.getSize().y + yOffset));
 
 		float xPosRAP = rectangleAllPrice.getPosition().x;
 		for (const auto& [fl, ws] : allocation)
@@ -2598,27 +2624,27 @@ void editShaheUnits(std::vector<GeneralStat>& generalModOption, CharacteristicGu
 
 		for (size_t it2 = 0; it2 < units.size(); it2++)
 		{
-			
+
 			if (current[it1] > it2 && it2 < defaultPosition[it1]) //отрисовали  текущие 
 			{
 				units[it2].setFillColor(Color(14, 88, 28));
-			}			
+			}
 			else if (initialPosition[it1] > it2 && it2 < current[it1]) //отрисовали  начальные мод статы 
 			{
 				units[it2].setFillColor(Color(13, 38, 13));
-			}			
+			}
 			else if (it2 < modPosition[it1]) //отрисовали  мод статы
 			{
 				units[it2].setFillColor(Color::Green);
-			}			
+			}
 			else if (it2 < defaultPosition[it1]) // отрисовали  недостающие до дефолт статов
 			{
 				units[it2].setFillColor(Color(128, 128, 128));
-			}			
+			}
 			else if (it2 < maxPosition[it1]) //отрисовали возможные до макс
 			{
 				units[it2].setFillColor(Color(66, 66, 66));
-			}			
+			}
 			else // отрисовали невозможные
 			{
 				units[it2].setFillColor(Color(30, 30, 30));
@@ -2695,7 +2721,7 @@ void moveElement(vector<T>& vec, size_t from, size_t to)
 unsigned getPrice(const path& pathToPriceModifiers, const SelectModifiers& currentModifiers)
 {
 	int result = -1;
-	
+
 	ifstream inJsonFilePrice(pathToPriceModifiers);
 	if (!inJsonFilePrice)
 	{

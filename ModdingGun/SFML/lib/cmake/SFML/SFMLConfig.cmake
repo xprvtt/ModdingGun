@@ -190,5 +190,5 @@ else()
 endif()
 
 if(SFML_FOUND AND NOT SFML_FIND_QUIETLY)
-    message(STATUS "Found SFML 3.1.0 in ${CMAKE_CURRENT_LIST_DIR}")
+    message(STATUS "Found SFML 3.0.2 in ${CMAKE_CURRENT_LIST_DIR}")
 endif()
