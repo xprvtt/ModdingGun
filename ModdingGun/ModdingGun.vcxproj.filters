@@ -33,9 +33,6 @@
     <Filter Include="Файлы заголовков\other_h">
       <UniqueIdentifier>{8eadfcb9-cd1f-4f9e-a981-198755ee0d48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Core\Core_h">
-      <UniqueIdentifier>{1e8413cc-31a7-488a-a9f9-929736435293}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Main\class\Language">
       <UniqueIdentifier>{35fa4754-69d6-459d-9203-ddc5540dad38}</UniqueIdentifier>
     </Filter>
@@ -109,9 +106,6 @@
     <ClInclude Include="Define.h">
       <Filter>Файлы заголовков\other_h</Filter>
     </ClInclude>
-    <ClInclude Include="Core.h">
-      <Filter>Исходные файлы\Core\Core_h</Filter>
-    </ClInclude>
     <ClInclude Include="ThreadAssemble.h">
       <Filter>Исходные файлы\Main\MainRe\Other\Thread</Filter>
     </ClInclude>
@@ -129,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="ThemeGui.h">
       <Filter>Исходные файлы\Main\class\GuiText</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Файлы заголовков\other_h</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

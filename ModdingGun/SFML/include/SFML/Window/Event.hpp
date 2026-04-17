@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
+<<<<<<< HEAD
+// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+=======
 // Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
+>>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -57,6 +61,10 @@ public:
 
     ////////////////////////////////////////////////////////////
     /// \brief Resized event subtype
+    ///
+    /// Resize events are sent when a window is resized, or when
+    /// the orientation is changed on a mobile platform even if
+    /// a resizable window was not requested
     ///
     ////////////////////////////////////////////////////////////
     struct Resized
@@ -326,6 +334,17 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename TEventSubtype>
+    [[nodiscard]] TEventSubtype* getIf();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Attempt to get specified event subtype
+    ///
+    /// \tparam `TEventSubtype` Type of the desired event subtype
+    ///
+    /// \return Address of current event subtype, otherwise `nullptr`
+    ///
+    ////////////////////////////////////////////////////////////
+    template <typename TEventSubtype>
     [[nodiscard]] const TEventSubtype* getIf() const;
 
     ////////////////////////////////////////////////////////////
@@ -337,6 +356,20 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Visitor>
+<<<<<<< HEAD
+    decltype(auto) visit(Visitor&& visitor);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Apply a visitor to the event
+    ///
+    /// \param visitor The visitor to apply
+    ///
+    /// \return The result of applying the visitor to the event
+    ///
+    ////////////////////////////////////////////////////////////
+    template <typename Visitor>
+=======
+>>>>>>> main
     decltype(auto) visit(Visitor&& visitor) const;
 
 private:

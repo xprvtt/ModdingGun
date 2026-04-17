@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
+<<<<<<< HEAD
+// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+=======
 // Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
+>>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -40,9 +44,11 @@
 #include <SFML/System/Sleep.hpp>
 #include <SFML/System/String.hpp>
 #include <SFML/System/Time.hpp>
+#include <SFML/System/TimeoutWithPredicate.hpp>
 #include <SFML/System/Utf.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
+#include <SFML/System/Version.hpp>
 
 
 ////////////////////////////////////////////////////////////

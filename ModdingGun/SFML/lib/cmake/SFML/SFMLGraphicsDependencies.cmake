@@ -9,9 +9,27 @@ set(SFML_BUILT_USING_SYSTEM_DEPS OFF)
 set(FIND_SFML_DEPENDENCIES_NOTFOUND)
 
 if(SFML_BUILT_USING_SYSTEM_DEPS)
+<<<<<<< HEAD
     find_dependency(Freetype)
+    find_dependency(HarfBuzz)
 else()
-    find_dependency(Freetype CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/../../../")
+    set(Freetype_DIR "${CMAKE_CURRENT_LIST_DIR}/../freetype")
+    find_dependency(Freetype CONFIG REQUIRED NO_DEFAULT_PATH)
+    set(harfbuzz_DIR "${CMAKE_CURRENT_LIST_DIR}/../harfbuzz")
+    find_dependency(harfbuzz CONFIG REQUIRED NO_DEFAULT_PATH)
+
+    # because we broke the link in CMakeLists.txt we have to link FreeType back up to HarfBuzz here
+    # so CMake can solve the circular dependency by adjusting the linker command line
+    set_target_properties(freetype PROPERTIES INTERFACE_LINK_LIBRARIES "harfbuzz::harfbuzz")
+=======
+    find_dependency(MbedTLS)
+    find_dependency(Libssh2)
+else()
+    set(MbedTLS_DIR "${CMAKE_CURRENT_LIST_DIR}/../MbedTLS")
+    find_dependency(MbedTLS CONFIG REQUIRED NO_DEFAULT_PATH)
+    set(libssh2_DIR "${CMAKE_CURRENT_LIST_DIR}/../libssh2")
+    find_dependency(libssh2 CONFIG REQUIRED NO_DEFAULT_PATH)
+>>>>>>> main
 endif()
 
 if(FIND_SFML_DEPENDENCIES_NOTFOUND)

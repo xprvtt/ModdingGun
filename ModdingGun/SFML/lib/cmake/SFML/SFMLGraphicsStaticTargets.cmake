@@ -7,7 +7,11 @@ if(CMAKE_VERSION VERSION_LESS "2.8.3")
    message(FATAL_ERROR "CMake >= 2.8.3 required")
 endif()
 cmake_policy(PUSH)
+<<<<<<< HEAD
+cmake_policy(VERSION 2.8.3...3.26)
+=======
 cmake_policy(VERSION 2.8.3...3.23)
+>>>>>>> main
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -62,7 +66,7 @@ set_target_properties(SFML::Graphics PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "SFML_STATIC"
   INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "SFML::Window;\$<LINK_ONLY:freetype>"
+  INTERFACE_LINK_LIBRARIES "SFML::Window;\$<LINK_ONLY:freetype>;\$<LINK_ONLY:harfbuzz::harfbuzz>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -104,7 +108,7 @@ unset(_cmake_import_check_targets)
 # Make sure the targets which have been exported in some other
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "SFML::Window" "freetype" )
+foreach(_target "SFML::Window" "freetype" "harfbuzz::harfbuzz" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()

@@ -1,9 +1,25 @@
 ﻿#include "ThreadAssemble.h"
 
+//-----------------------------------------------------------------------------------------------------------------------
+
 mutex mtx;
 
 int threadCount = USING_ONE_THREAD ? 1 : thread::hardware_concurrency();
 
+<<<<<<< HEAD
+vector<CountModifiers> resultMainModifiers;
+
+vector<unsigned int>   resultRandomAttemptUsed;
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+int RunSingleAssembly(int currentNoThread, const std::vector<Method>& methodMod)
+{
+    if (methodMod.empty())
+    {
+        if (currentNoThread == -1)
+            OUTPUT_LOG("RunSingleAssembly -> Empty vector methodMod");
+=======
 vector<CountModifiers> allModifiers;
 vector<unsigned int>   allRandomAttemptUsed;
 
@@ -21,10 +37,60 @@ int RunSingleAssembly(
         {
             OUTPUT_LOG("RunSingleAssembly -> empty vector methodMod");
         }
+>>>>>>> main
         return -1;
     }
 
+    std::vector<unsigned int> averageRandomTemp;
+    CountModifiers currentUsedModifiers;
 
+<<<<<<< HEAD
+    for (const auto& method : methodMod)
+    {
+        double chanceUpgrade = method.m_chanceUpgrade;
+
+        if (chanceUpgrade <= 0.0)
+        {
+            if (currentNoThread == -1)
+                OUTPUT_LOG("RunSingleAssembly -> chanceUpgrade <= 0");
+            return -2;
+        }
+
+        double successRandom;
+
+        while (true)
+        {
+            successRandom = getRandomDouble(100.0);
+            averageRandomTemp.push_back(
+                static_cast<unsigned int>(std::round(successRandom * 100))
+            );
+
+            currentUsedModifiers.m_allPrice +=
+                method.m_price.m_priceTool +
+                method.m_price.m_priceKit +
+                method.m_price.m_priceSkill;
+
+            auto tool = method.m_modifiersThisChance.m_tool;
+            auto kit = method.m_modifiersThisChance.m_kit;
+            auto skill = method.m_modifiersThisChance.m_skill;
+
+            if (currentNoThread != -1)
+            {
+                currentUsedModifiers.m_countTool[tool]++;
+                currentUsedModifiers.m_countKit[kit]++;
+                currentUsedModifiers.m_countSkill[skill]++;
+            }
+            else
+            {
+                // проверки существования ключей убрал бы полностью (см. ниже)
+                currentUsedModifiers.m_countTool[tool]++;
+                currentUsedModifiers.m_countKit[kit]++;
+                currentUsedModifiers.m_countSkill[skill]++;
+            }
+
+            if (tool == GunStats::Modifiers::ToolType::noTool &&
+                kit == GunStats::Modifiers::KitType::noKit)
+=======
     vector<unsigned int> averageRandomTemp;
     CountModifiers currentUsedModifiers;
 
@@ -114,9 +180,25 @@ int RunSingleAssembly(
             }
             
             if (succsessRandom <= chanceUpgrade)
+>>>>>>> main
             {
-                break;
+                return -6;
             }
+<<<<<<< HEAD
+
+            if (successRandom <= chanceUpgrade)
+                break;
+        }
+    }
+
+    addResultsThread(averageRandomTemp, currentUsedModifiers);
+    return 0;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+void addResultsThread(const vector<unsigned int>& otherAverageRandomGen, CountModifiers currentModifiersCount)
+=======
         }
     }
 
@@ -127,9 +209,18 @@ int RunSingleAssembly(
 //-------------------------------------------------------------------------------------------------------------------
 
 void add_results(  const vector<unsigned int>& otherAverageRandomGen, CountModifiers currentModifiersCount )
+>>>>>>> main
 {
-    lock_guard<mutex> lock(mtx);
+	lock_guard<mutex> lock(mtx);
 
+<<<<<<< HEAD
+	resultRandomAttemptUsed.insert(resultRandomAttemptUsed.end(), otherAverageRandomGen.begin(), otherAverageRandomGen.end());
+	resultMainModifiers.push_back(currentModifiersCount);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
+=======
     allRandomAttemptUsed.insert(allRandomAttemptUsed.end(), otherAverageRandomGen.begin(), otherAverageRandomGen.end());
     allModifiers.push_back(currentModifiersCount);
 }
+>>>>>>> main

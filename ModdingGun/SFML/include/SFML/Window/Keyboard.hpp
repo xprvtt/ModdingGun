@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
+<<<<<<< HEAD
+// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+=======
 // Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
+>>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -159,7 +163,7 @@ enum class Key
 ///
 ////////////////////////////////////////////////////////////
 // NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr unsigned int KeyCount{static_cast<unsigned int>(Key::Pause) + 1};
+inline constexpr unsigned int KeyCount{static_cast<unsigned int>(Key::Pause) + 1};
 
 ////////////////////////////////////////////////////////////
 /// \brief Scancodes
@@ -333,7 +337,7 @@ using Scancode = Scan;
 ///
 ////////////////////////////////////////////////////////////
 // NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr unsigned int ScancodeCount{static_cast<unsigned int>(Scan::LaunchMediaSelect) + 1};
+inline constexpr unsigned int ScancodeCount{static_cast<unsigned int>(Scan::LaunchMediaSelect) + 1};
 
 ////////////////////////////////////////////////////////////
 /// \brief Check if a key is pressed

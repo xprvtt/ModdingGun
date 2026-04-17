@@ -2,9 +2,9 @@
 
 wstring stringToWString(const string& str)
 {
-    if (str.empty()) return L"";
+    if (str.empty()) { return L""; }
 
-    int size_needed = MultiByteToWideChar(
+    int sizeNeeded = MultiByteToWideChar(
         CP_UTF8,            // Кодировка исходной строки (UTF-8)
         0,
         str.c_str(),
@@ -13,7 +13,7 @@ wstring stringToWString(const string& str)
         0
     );
 
-    wstring wstrTo(size_needed, 0);
+    wstring wstrTo(sizeNeeded, 0);
 
     MultiByteToWideChar(
         CP_UTF8,
@@ -21,7 +21,7 @@ wstring stringToWString(const string& str)
         str.c_str(),
         (int)str.size(),
         &wstrTo[0],
-        size_needed
+        sizeNeeded
     );
 
     return wstrTo;

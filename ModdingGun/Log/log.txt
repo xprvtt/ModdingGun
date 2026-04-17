@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+[2026-04-17 17:18:02] Start!
+[2026-04-17 17:18:08] Main -> Graph setting is finished: 0
+=======
 [2026-04-16 14:53:25] Start!
 [2026-04-16 14:53:26] LangManager -> Key not found: gun
 [2026-04-16 14:53:29] ????? ?? ??????? "CharacteristicGun::getValueCharacteristic": 7 && 7 to 0
@@ -1269,3 +1273,4 @@
 [2026-04-16 14:55:29] ????? ?? ??????? "CharacteristicGun::getValueCharacteristic": 7 && 7 to 3
 [2026-04-16 14:55:29] ????? ?? ??????? "CharacteristicGun::getValueCharacteristic": 7 && 7 to 5
 [2026-04-16 14:55:29] ????? ?? ??????? "CharacteristicGun::getValueCharacteristic": 7 && 7 to 6
+>>>>>>> main

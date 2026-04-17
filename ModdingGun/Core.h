@@ -17,10 +17,8 @@
 #include "filesystem"
 #include "fstream"
 
-
 #include <random>
 #include "ctime"
-
 
 #include <mutex>
 #include <thread>
@@ -32,11 +30,9 @@
 #include <SFML\Graphics.hpp>
 #include "json.hpp"
 
-#include "Define.h"
-
-
 #pragma comment(lib, "User32.lib")
 
+#include "Define.h"
 
 using namespace sf;
 using namespace std;
@@ -45,7 +41,7 @@ using namespace filesystem;
 /// <summary>
 /// Функция Загружает шрифт по пути
 /// </summary>
-/// <param name="PathToFont">путь до шрифта</param>
+/// <param name="pathToFont">путь до шрифта</param>
 /// <returns></returns>
 Font loadFont(path pathToFont);
 
@@ -77,4 +73,8 @@ double getChance(int position, const vector<pair<int, double>>& chancePoints);
 double calculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
 
 wstring stringToWString(const string& str);
+<<<<<<< HEAD
+
+=======
+>>>>>>> main
 string  wstringToString(const wstring& wstr);
