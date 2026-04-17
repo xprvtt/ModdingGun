@@ -1,5 +1,11 @@
 ﻿#include "ModdingGun.h"
 
+/*
+* NOTE: ошибка чтения -> void loadTexturesAndShapes(const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes, float defaultSizeCell)
+* textures \ shapes остаются пустыми 
+* проблема не в передаваемом пути
+*/
+
 int main()
 {
 	// создаем вывод в логи
