@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
+<<<<<<< HEAD
 // Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+=======
+// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
+>>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -29,13 +33,19 @@
 ////////////////////////////////////////////////////////////
 #include <SFML/Audio/Export.hpp>
 
+<<<<<<< HEAD
 #include <functional>
+=======
+>>>>>>> main
 #include <optional>
 #include <string>
 #include <vector>
 
+<<<<<<< HEAD
 #include <cstdint>
 
+=======
+>>>>>>> main
 
 namespace sf::PlaybackDevice
 {
@@ -74,6 +84,7 @@ namespace sf::PlaybackDevice
 /// \brief Get the name of the default audio playback device
 ///
 /// This function returns the name of the default audio
+<<<<<<< HEAD
 /// playback device. If none is available, `std::nullopt`
 /// is returned.
 ///
@@ -82,6 +93,11 @@ namespace sf::PlaybackDevice
 /// change e.g. when a USB audio device is plugged into or
 /// unplugged from the system.
 ///
+=======
+/// playback device. If none is available, an empty string
+/// is returned.
+///
+>>>>>>> main
 /// \return The name of the default audio playback device
 ///
 ////////////////////////////////////////////////////////////
@@ -102,12 +118,17 @@ namespace sf::PlaybackDevice
 ///
 /// \return `true`, if it was able to set the requested device
 ///
+<<<<<<< HEAD
 /// \see `getAvailableDevices`, `getDefaultDevice`, `setDeviceToDefault`, `setDeviceToNull`
+=======
+/// \see `getAvailableDevices`, `getDefaultDevice`
+>>>>>>> main
 ///
 ////////////////////////////////////////////////////////////
 [[nodiscard]] SFML_AUDIO_API bool setDevice(const std::string& name);
 
 ////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 /// \brief Set the audio playback device to the default
 ///
 /// This function sets the audio playback device to the
@@ -170,6 +191,8 @@ namespace sf::PlaybackDevice
 [[nodiscard]] SFML_AUDIO_API bool setDeviceToNull();
 
 ////////////////////////////////////////////////////////////
+=======
+>>>>>>> main
 /// \brief Get the name of the current audio playback device
 ///
 /// \return The name of the current audio playback device or `std::nullopt` if there is none
@@ -177,6 +200,7 @@ namespace sf::PlaybackDevice
 ////////////////////////////////////////////////////////////
 [[nodiscard]] SFML_AUDIO_API std::optional<std::string> getDevice();
 
+<<<<<<< HEAD
 ////////////////////////////////////////////////////////////
 /// \brief Get the sample rate of the current audio playback device
 ///
@@ -236,4 +260,6 @@ using NotificationCallback = std::function<void(Notification notification)>;
 ////////////////////////////////////////////////////////////
 SFML_AUDIO_API void setNotificationCallback(NotificationCallback callback);
 
+=======
+>>>>>>> main
 } // namespace sf::PlaybackDevice

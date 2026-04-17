@@ -7,7 +7,11 @@ if(CMAKE_VERSION VERSION_LESS "2.8.3")
    message(FATAL_ERROR "CMake >= 2.8.3 required")
 endif()
 cmake_policy(PUSH)
+<<<<<<< HEAD
 cmake_policy(VERSION 2.8.3...3.26)
+=======
+cmake_policy(VERSION 2.8.3...3.23)
+>>>>>>> main
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------

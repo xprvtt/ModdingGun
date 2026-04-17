@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
+<<<<<<< HEAD
 // Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
+=======
+// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
+>>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -31,6 +35,7 @@
 
 #include <SFML/Network/Socket.hpp>
 
+<<<<<<< HEAD
 #include <SFML/System/String.hpp>
 #include <SFML/System/Time.hpp>
 
@@ -38,6 +43,11 @@
 #include <optional>
 #include <string>
 #include <string_view>
+=======
+#include <SFML/System/Time.hpp>
+
+#include <optional>
+>>>>>>> main
 #include <vector>
 
 #include <cstddef>
@@ -58,6 +68,7 @@ class SFML_NETWORK_API TcpSocket : public Socket
 {
 public:
     ////////////////////////////////////////////////////////////
+<<<<<<< HEAD
     /// \brief TLS status codes that may be returned by TLS setup
     ///
     ////////////////////////////////////////////////////////////
@@ -70,12 +81,15 @@ public:
     };
 
     ////////////////////////////////////////////////////////////
+=======
+>>>>>>> main
     /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
     TcpSocket();
 
     ////////////////////////////////////////////////////////////
+<<<<<<< HEAD
     /// \brief Destructor
     ///
     ////////////////////////////////////////////////////////////
@@ -106,6 +120,8 @@ public:
     TcpSocket& operator=(TcpSocket&&) noexcept;
 
     ////////////////////////////////////////////////////////////
+=======
+>>>>>>> main
     /// \brief Get the port to which the socket is bound locally
     ///
     /// If the socket is not connected, this function returns 0.
@@ -175,6 +191,7 @@ public:
     void disconnect();
 
     ////////////////////////////////////////////////////////////
+<<<<<<< HEAD
     /// \brief Set up transport layer security as a client
     ///
     /// Once the TCP connection is connected, transport layer
@@ -508,6 +525,8 @@ public:
     [[nodiscard]] std::optional<std::string> getCurrentCiphersuiteName() const;
 
     ////////////////////////////////////////////////////////////
+=======
+>>>>>>> main
     /// \brief Send raw data to the remote peer
     ///
     /// To be able to handle partial sends over non-blocking
@@ -610,8 +629,11 @@ private:
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
+<<<<<<< HEAD
     struct Impl;
     std::unique_ptr<Impl>  m_impl;              //!< Implementation details
+=======
+>>>>>>> main
     PendingPacket          m_pendingPacket;     //!< Temporary data of the packet currently being received
     std::vector<std::byte> m_blockToSendBuffer; //!< Buffer used to prepare data being sent from the socket
 };

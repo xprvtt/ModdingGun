@@ -11,12 +11,17 @@
 /// <para> v4 - цвет нажатой кнопки OutlineRectangle </para> 
 /// 
 /// </summary>
+<<<<<<< HEAD
 const map< string_view, array<Color, 5>> ThemeGui::allTheme =
+=======
+const map<string_view, array<Color, 5>> ThemeGui::allTheme =
+>>>>>>> main
 {
 	{ "Dark",   {Color(210,210,210),  Color(40, 40, 40), Color(10,10, 10),  Color(118, 255, 97),  Color(40, 40, 40) } },
 	{ "White",  {Color::Black,  Color::Black, Color::White,  Color(118, 255, 97),  Color(40, 40, 40) } }
 };
 
+<<<<<<< HEAD
 const unsigned int ThemeGui::characterSizeGUI = 14;
 
 const float ThemeGui::outlineThicknessSizeGUI = -2;
@@ -43,4 +48,35 @@ const Font ThemeGui::currentFontGUI = []
 		return loadFont(searchFont[0]);
 
 	}();
+=======
+const unsigned int ThemeGui::characterSize = 14;
+
+const float ThemeGui::outlineThicknessSize = -2;
+
+const Font ThemeGui::currentFont = []
+    {
+
+        path fontFolder = L"Font/";
+
+        ///////////////////////////////////////////////////////////////////////////////////
+        /// обнаруживаем все шрифты в папке 
+        vector<path> searchFont = searchFile(fontFolder, ".ttf");
+
+        /// если шрифтов не найдено выходим
+        if (searchFont.empty())
+        {
+            OUTPUT_LOG("Theme -> Font not found, exit");
+            exit(-1);
+        }
+
+        // используем первый в списке шрифт
+        OUTPUT_LOG("Theme -> Font Loaded");
+        OUTPUT_LOG("Theme -> Font: " + searchFont[0].string());
+
+        ///////////////////////////////////////////////////////////////////////////////////
+
+        return loadFont(searchFont[0]);
+
+    }();
+>>>>>>> main
 
