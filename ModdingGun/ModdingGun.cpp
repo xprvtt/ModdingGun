@@ -28,9 +28,9 @@ int main()
 	Vector2i positionMouseMainWindow = {};
 	Vector2f postionMouseGlobal = {};
 
-	shared_ptr<Texture> TexturePoint_Empty = make_shared<Texture>(L"Assets/Standart/Empty.png");
-	shared_ptr<Texture> TexturePoint_RedMark = make_shared<Texture>(L"Assets/Standart/MarkX.png");
-	shared_ptr<Texture> TexturePoint_GreenMark = make_shared<Texture>(L"Assets/Standart/MarkV.png");
+	shared_ptr<Texture> ptrTextureEmpty = std::make_shared<Texture>(L"Assets/Standart/Empty.png");
+	shared_ptr<Texture> ptrTextureRedMark = std::make_shared<Texture>(L"Assets/Standart/MarkX.png");
+	shared_ptr<Texture> ptrTextureGreenMark = std::make_shared<Texture>(L"Assets/Standart/MarkV.png");
 
 	const path languageFolder = L"Lang/";
 	const path statGunFolder = L"Assets/Gun";
@@ -277,7 +277,7 @@ int main()
 	// по умолчанию старый инструмент
 	for (size_t it = 0; it < modifiersIcon.m_toolRectangleGUI.size(); it++)
 	{
-		auto name = *modifiersIcon.m_toolRectangleGUI[it].getKeyStringTextWstring().begin();
+		auto name = modifiersIcon.m_toolRectangleGUI[it].getKeyStringTextWstring().front();
 
 		if (holds_alternative<string>(name))
 		{
@@ -294,7 +294,7 @@ int main()
 	// по умолчанию без набора
 	for (size_t it = 0; it < modifiersIcon.m_kitRectangleGUI.size(); it++)
 	{
-		auto name = *modifiersIcon.m_kitRectangleGUI[it].getKeyStringTextWstring().begin();
+		auto name = modifiersIcon.m_kitRectangleGUI[it].getKeyStringTextWstring().front();
 
 		if (holds_alternative<string>(name))
 		{
@@ -365,7 +365,7 @@ int main()
 			RectangleShape shapeSelectedGun;
 			shapeSelectedGun.setSize(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
 			shapeSelectedGun.setPosition(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
-			//shapeSelectedGun.setTexture(TexturePoint_Empty.get(), true);
+			//shapeSelectedGun.setTexture(ptrTextureEmpty.get(), true);
 
 			return GUITextAndRectangle({ "Gun" }, shapeSelectedGun, false, false);
 		}();
@@ -426,7 +426,7 @@ int main()
 
 	float ySizeAll = defaultSizeCell * 0.39f;
 
-	vector<GeneralStat> generalModOption = [defaultSizeCell, TexturePoint_GreenMark, TexturePoint_RedMark, &shaheGeneralMod, ySizeAll]()
+	vector<GeneralStat> generalModOption = [defaultSizeCell, ptrTextureGreenMark, ptrTextureRedMark, &shaheGeneralMod, ySizeAll]()
 		{
 			vector<GeneralStat> result;
 
@@ -518,7 +518,7 @@ int main()
 				rectangleTemp.setSize(Vector2f(sizeCellButton, sizeCellButton));
 
 				GUITextAndRectangle buttonCharacteristic({}, rectangleTemp, true, false);
-				buttonCharacteristic.setTextureButton(TexturePoint_GreenMark, TexturePoint_RedMark);
+				buttonCharacteristic.setTextureButton(ptrTextureGreenMark, ptrTextureRedMark);
 
 				if (it == 0) { buttonCharacteristic.setAsPressedButton(); }
 
@@ -550,7 +550,7 @@ int main()
 		{
 			float xSize = defaultSizeCell * 3;
 
-			auto shapeGMC = textGeneralModChance.getRectangle();
+			auto& shapeGMC = textGeneralModChance.getRectangle();
 
 			RectangleShape tempRec;
 			tempRec.setSize(Vector2f(xSize, ySizeAll));
@@ -1453,7 +1453,7 @@ int main()
 					{
 						if (GUIKitPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && GUIKitPrice.isButton())
 						{
-							auto vvstr = *GUIKitPrice.getKeyStringTextWstring().begin();
+							auto vvstr = GUIKitPrice.getKeyStringTextWstring().front();
 							if (holds_alternative<wstring>(vvstr))
 							{
 								if (get<wstring>(vvstr) == L"--")
