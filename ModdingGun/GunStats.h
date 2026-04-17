@@ -309,7 +309,6 @@ struct PriceModifiers
 	unsigned m_priceSkill = 0;
 };
 
-
 /// содержит 
 /// int Parametr - параметр который был улучшен
 /// double Chance - шанс улучшения этго параметра

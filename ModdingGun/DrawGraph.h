@@ -27,7 +27,6 @@ struct CurvePack
 /// <returns></returns>
 CurvePack getCurveFrequrency(RectangleShape rectangleOther, const map<CountModifiers, float>& freqModifiers, Color colorCurve, string name);
 
-
 VertexArray curveFun(RectangleShape mainRectangleCurve, Color colorCurve, const map<CountModifiers, float>& freqModifiers);
 
 /// <summary>
@@ -36,7 +35,6 @@ VertexArray curveFun(RectangleShape mainRectangleCurve, Color colorCurve, const 
 /// <param name="OtherVectorCountModifiers"></param>
 /// <returns></returns>
 map<CountModifiers, float> getFreqModifiers(const vector<CountModifiers>& otherVectorCountModifiers);
-
 
 map<CountModifiers, float> getBinedFreqModifiers(const map<CountModifiers, float>& otherMap, float percentBin);
 
