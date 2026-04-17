@@ -28,24 +28,29 @@ int main()
 	Vector2i positionMouseMainWindow = {};
 	Vector2f postionMouseGlobal = {};
 
+	shared_ptr<Texture> ptrTextureEmpty;
+	shared_ptr<Texture> ptrTextureRedMark;
+	shared_ptr<Texture> ptrTextureGreenMark;
 
-	const path pathEmptyTexture = L"Assets/Standart/Empty.png";
-	const path pathRedmarkTexture = L"Assets/Standart/MarkX.png";
-	const path pathGreenmarkTexture = L"Assets/Standart/MarkV.png";
-
-	Texture emptyTexture;
-	Texture redmarkTexture;
-	Texture greenmarkTexture;
-
-	if (emptyTexture.loadFromFile(pathEmptyTexture) || redmarkTexture.loadFromFile(pathRedmarkTexture) || greenmarkTexture.loadFromFile(pathGreenmarkTexture))
 	{
-		OUTPUT_LOG("не обнаружено стандартных текстур по пути: " + std::filesystem::current_path().string());
-		exit(-1);
-	}
+		Texture emptyTexture;
+		Texture redmarkTexture;
+		Texture greenmarkTexture;
 
-	shared_ptr<Texture> ptrTextureEmpty = std::make_shared<Texture>(emptyTexture);
-	shared_ptr<Texture> ptrTextureRedMark = std::make_shared<Texture>(redmarkTexture);
-	shared_ptr<Texture> ptrTextureGreenMark = std::make_shared<Texture>(greenmarkTexture);
+		const path pathEmptyTexture = L"Assets/Standart/Empty.png";
+		const path pathRedmarkTexture = L"Assets/Standart/MarkX.png";
+		const path pathGreenmarkTexture = L"Assets/Standart/MarkV.png";
+
+		if (emptyTexture.loadFromFile(pathEmptyTexture) || redmarkTexture.loadFromFile(pathRedmarkTexture) || greenmarkTexture.loadFromFile(pathGreenmarkTexture))
+		{
+			OUTPUT_LOG("не обнаружено стандартных текстур по пути: " + std::filesystem::current_path().string());
+			exit(-1);
+		}
+
+		ptrTextureEmpty = std::make_shared<Texture>(move(emptyTexture));
+		ptrTextureRedMark = std::make_shared<Texture>(move(redmarkTexture));
+		ptrTextureGreenMark = std::make_shared<Texture>(move(greenmarkTexture));
+	}
 
 	const path languageFolder = L"Lang/";
 	const path statGunFolder = L"Assets/Gun";
@@ -131,13 +136,12 @@ int main()
 	vector<shared_ptr<Texture>> kitTextures;
 	vector<shared_ptr<Texture>> toolTextures;
 	vector<shared_ptr<Texture>> skillTextures;
-	RectangleModifiers modifiersIcon;
 
+	RectangleModifiers modifiersIcon;
 
 	vector<path> toolpath = searchFile(imagesToolFolder, ".png");
 	vector<path> kitpath = searchFile(imagesKitFolder, ".png");
 	vector<path> skillpath = searchFile(imagesSkillFolder, ".png");
-
 
 	if (toolpath.empty() || kitpath.empty() || skillpath.empty())
 	{
@@ -145,43 +149,10 @@ int main()
 		exit(-1);
 	}
 
-	auto loadTexturesAndShapes = [&](const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes)
-		{
-			float i = 0, j = 0, sizeCell = defaultSizeCell * 0.55f;
-
-			for (const auto& patht : paths)
-			{
-				Texture tex;
-				if (!tex.loadFromFile(patht)) 
-				{ 
-					OUTPUT_LOG("ошибка загрузки loadTexturesAndShapes -> " + patht.string());
-					continue;
-				}
-
-				textures.push_back(std::make_shared<Texture>(tex));
-
-				RectangleShape rectangleCurrentType;
-				rectangleCurrentType.setSize(Vector2f(sizeCell, sizeCell));
-				rectangleCurrentType.setPosition(Vector2f(defaultSizeCell * 2.25f + sizeCell * i, Ypos + j * sizeCell));
-				rectangleCurrentType.setTexture(&tex);
-
-				string nameModifiersOne = patht.stem().string();
-				nameModifiersOne.erase(0, 3);
-
-				shapes.push_back(GUITextAndRectangle({ nameModifiersOne }, rectangleCurrentType, true, true));
-
-				if (++i > 4)
-				{
-					j = 1.f;
-					i = 0.f;
-				}
-			}
-		};
-
 	// Загружаем всё:
-	loadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, modifiersIcon.m_toolRectangleGUI);
-	loadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, modifiersIcon.m_kitRectangleGUI);
-	loadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, modifiersIcon.m_skillRectangleGUI);
+	loadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, modifiersIcon.m_toolRectangleGUI, defaultSizeCell);
+	loadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, modifiersIcon.m_kitRectangleGUI, defaultSizeCell);
+	loadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, modifiersIcon.m_skillRectangleGUI, defaultSizeCell);
 
 	if (modifiersIcon.m_toolRectangleGUI.empty() || modifiersIcon.m_kitRectangleGUI.empty() || modifiersIcon.m_skillRectangleGUI.empty())
 	{
@@ -1770,29 +1741,29 @@ int main()
 		{
 			if (modifiersIcon.m_skillRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 			{
-				string STip = skillpath[i].stem().string().erase(0, 3);
-				wstring Tip = LANG_TRANSLATE(STip);
+				string sTip = skillpath[i].stem().string().erase(0, 3);
+				wstring tip = LANG_TRANSLATE(sTip);
 
-				RectangleShape ShapeSkillTooltip;
-				ShapeSkillTooltip.setOutlineColor(Color::Black);
-				ShapeSkillTooltip.setOutlineThickness(-2);
-				ShapeSkillTooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
-				ShapeSkillTooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), defaultSizeCell / 3.f));
+				RectangleShape shapeSkillTooltip;
+				shapeSkillTooltip.setOutlineColor(Color::Black);
+				shapeSkillTooltip.setOutlineThickness(-2);
+				shapeSkillTooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
+				shapeSkillTooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * tip.size()), defaultSizeCell / 3.f));
 
-				Text TextSkillTooltip(ThemeGui::currentFontGUI);
-				TextSkillTooltip.setString(Tip);
-				TextSkillTooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
-				TextSkillTooltip.setFillColor(Color::Black);
+				Text textSkillTooltip(ThemeGui::currentFontGUI);
+				textSkillTooltip.setString(tip);
+				textSkillTooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
+				textSkillTooltip.setFillColor(Color::Black);
 
-				auto rectPos = ShapeSkillTooltip.getPosition();
-				auto rectSize = ShapeSkillTooltip.getSize();
-				auto textBounds = TextSkillTooltip.getLocalBounds();
+				auto rectPos = shapeSkillTooltip.getPosition();
+				auto rectSize = shapeSkillTooltip.getSize();
+				auto textBounds = textSkillTooltip.getLocalBounds();
 
-				TextSkillTooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-				TextSkillTooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
+				textSkillTooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+				textSkillTooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
 
-				mainWindow.draw(ShapeSkillTooltip);
-				mainWindow.draw(TextSkillTooltip);
+				mainWindow.draw(shapeSkillTooltip);
+				mainWindow.draw(textSkillTooltip);
 			}
 		}
 
@@ -1937,7 +1908,6 @@ int main()
 								auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].m_percentSmooth); // насколько сильно (%)
 
 								arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers = SmoothedFreqMap;
-
 								arrDiagramPack[iterGraf].m_currentCurvePack.m_curve = curveFun(arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve, arrDiagramPack[iterGraf].m_colorCurve, arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers);
 							}
 						}
@@ -2856,5 +2826,40 @@ bool setPriceKit(const path& pathToPriceModifiersJson, GunStats::Modifiers::KitT
 	}
 	return true;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+void loadTexturesAndShapes(const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes, float defaultSizeCell)
+{
+	float i = 0, j = 0, sizeCell = defaultSizeCell * 0.55f;
+
+	for (const auto& path : paths)
+	{
+		Texture tex;
+		if (!tex.loadFromFile(path))
+		{
+			OUTPUT_LOG("ошибка загрузки loadTexturesAndShapes -> " + path.string());
+			continue;
+		}
+
+		textures.push_back(std::make_shared<Texture>(tex));
+
+		RectangleShape rectangleCurrentType;
+		rectangleCurrentType.setSize(Vector2f(sizeCell, sizeCell));
+		rectangleCurrentType.setPosition(Vector2f(defaultSizeCell * 2.25f + sizeCell * i, Ypos + j * sizeCell));
+		rectangleCurrentType.setTexture(&tex);
+
+		string nameModifiersOne = path.stem().string();
+		nameModifiersOne.erase(0, 3);
+
+		shapes.push_back(GUITextAndRectangle({ nameModifiersOne }, rectangleCurrentType, true, true));
+
+		if (++i > 4)
+		{
+			j = 1.f;
+			i = 0.f;
+		}
+	}
+};
 
 //-----------------------------------------------------------------------------------------------------------------------

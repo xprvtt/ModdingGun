@@ -1,4 +1,4 @@
-﻿
+
 #include "Core.h"
 
 bool outputMessage(string message)
@@ -9,7 +9,7 @@ bool outputMessage(string message)
 	if (out.is_open())
 	{
 		out << getCurrentTimeMG();
-		out << message << endl;
+		out << message << "\n";
 
 		out.close();
 		return true;
