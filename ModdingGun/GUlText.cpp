@@ -262,14 +262,14 @@ const RectangleShape& GUITextAndRectangle::getRectangle()
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-bool GUITextAndRectangle::isButton()
+bool GUITextAndRectangle::isButton() const
 {
 	return m_isButton;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-bool GUITextAndRectangle::isPressed()
+bool GUITextAndRectangle::isPressed() const
 {
 	return m_isPressed;
 }

@@ -23,7 +23,7 @@ vector<path> searchFile(path searchInPath, string extension)
 			}
 		}
 	}
-	catch ([[maube_unused]] const filesystem_error& error)
+	catch ([[maybe_unused]] const filesystem_error& error)
 	{
 		OUTPUT_LOG("SearchFile -> Error");
 		return vector<path>();

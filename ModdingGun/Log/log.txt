@@ -1,1 +1,2 @@
-[2026-04-17 15:50:57] Start!
+[2026-04-17 17:18:02] Start!
+[2026-04-17 17:18:08] Main -> Graph setting is finished: 0

@@ -102,26 +102,26 @@ struct Weapon
 
 struct AllPackGraf
 {
-	vector< GUITextAndRectangle> GUIPercentBinBt;
-	vector< GUITextAndRectangle> GUIPercentSmoothBt;
-	float PercentBin;
-	float PercentSmooth;
+	vector< GUITextAndRectangle> m_GUIPercentBinBt{};
+	vector< GUITextAndRectangle> m_GUIPercentSmoothBt{};
+	float m_percentBin = 0.f;
+	float m_percentSmooth = 0.f;
 
-	map<CountModifiers, float> CurrentSmoothFreqModifiers;
-	map<CountModifiers, float> CurrentSourceFreqModifiers;
-	Color       ColorCurve;
-	CurvePack   CurrentCurvePack;
+	map<CountModifiers, float> m_currentSmoothFreqModifiers{};
+	map<CountModifiers, float> m_currentSourceFreqModifiers{};
+	Color       m_colorCurve = Color::Black;
+	CurvePack   m_currentCurvePack;
 
-	vector<GUITextAndRectangle>     GUIPercentile50;
-	shared_ptr<GUITextAndRectangle> GUIInitialMod;
-	shared_ptr<GUITextAndRectangle> GUIEndMod;
+	vector<GUITextAndRectangle>     m_GUIPercentile50{};
+	shared_ptr<GUITextAndRectangle> m_GUIInitialMod;
+	shared_ptr<GUITextAndRectangle> m_GUIEndMod;
 
-	shared_ptr<GUITextAndRectangle> GUIMethod;
-	vector<GUITextAndRectangle>     GUIMethodModifiers;
-	shared_ptr<GUITextAndRectangle> GUIButtonTop;
-	shared_ptr<GUITextAndRectangle> GUIButtonDown;
+	shared_ptr<GUITextAndRectangle> m_GUIMethod;
+	vector<GUITextAndRectangle>     m_GUIMethodModifiers{};
+	shared_ptr<GUITextAndRectangle> m_GUIButtonTop;
+	shared_ptr<GUITextAndRectangle> m_GUIButtonDown;
 
-	size_t InitialIndexMethod;
+	size_t m_initialIndexMethod = 0;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------

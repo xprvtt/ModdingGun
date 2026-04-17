@@ -40,7 +40,7 @@ const Font ThemeGui::currentFontGUI = []
 		OUTPUT_LOG("Theme -> Font Loaded");
 		OUTPUT_LOG("Theme -> Font: " + searchFont[0].string());
 
-		return LoadFont(searchFont[0]);
+		return loadFont(searchFont[0]);
 
 	}();
 

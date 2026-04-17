@@ -80,13 +80,13 @@ public:
 	/// <returns></returns>
 	const RectangleShape& getRectangle();
 
-	bool isButton();
+	bool isButton() const;
 
 	/// <summary>
 	/// кнопка сейчас нажата?
 	/// </summary>
 	/// <returns></returns>
-	bool isPressed();
+	bool isPressed() const;
 
 
 	/// <summary>

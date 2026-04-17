@@ -311,7 +311,7 @@ int main()
 	// игрок мастер 5
 	for (size_t it = 0; it < modifiersIcon.m_skillRectangleGUI.size(); it++)
 	{
-		auto name = *modifiersIcon.m_skillRectangleGUI[it].getKeyStringTextWstring().begin();
+		auto name = modifiersIcon.m_skillRectangleGUI[it].getKeyStringTextWstring().front();
 		if (holds_alternative<string>(name))
 		{
 			string sName = get<string>(name);
@@ -337,7 +337,7 @@ int main()
 	unsigned int itVectorGun = 0;
 	int countGunInList = 22;
 
-	for (const auto currentGun : searchTextureGun)
+	for (const auto& currentGun : searchTextureGun)
 	{
 		shared_ptr<Texture> ptrTextureWeapon;
 		string nameWeapon = wstringToString(currentGun.stem());
@@ -539,7 +539,7 @@ int main()
 			RectangleShape RectangleGeneralModChance;
 			RectangleGeneralModChance.setSize({ Xsize , ySizeAll });
 
-			auto TempRectangle = shaheGeneralMod.getRectangle();
+			auto& TempRectangle = shaheGeneralMod.getRectangle();
 			RectangleGeneralModChance.setPosition(TempRectangle.getPosition() + Vector2f(0, TempRectangle.getSize().y - (defaultSizeCell * yDownOffset)));
 
 			return GUITextAndRectangle({ "Chahce_upgrade" , string(GunStats::characteristicNameInGunStat[0]) ,  L" 0.0%" }, RectangleGeneralModChance, false, false);
@@ -564,7 +564,7 @@ int main()
 		{
 			float Xsize = defaultSizeCell * 1.8f;
 
-			auto Rec = shapeGeneralModApplyStatInitial.getRectangle();
+			auto& Rec = shapeGeneralModApplyStatInitial.getRectangle();
 
 			RectangleShape tempRec;
 			tempRec.setSize(Vector2f(Xsize, ySizeAll));
@@ -579,7 +579,7 @@ int main()
 
 			float Xsize = defaultSizeCell * 1.8f;
 
-			auto Rec = buttonGeneralModApplyStat.getRectangle();
+			auto& Rec = buttonGeneralModApplyStat.getRectangle();
 
 			RectangleShape TempRec;
 			TempRec.setSize(Vector2f(Xsize, ySizeAll));
@@ -595,7 +595,7 @@ int main()
 
 			float Xsize = defaultSizeCell * 1.6f;
 
-			auto Rec = shapeGeneralModReset.getRectangle();
+			auto& Rec = shapeGeneralModReset.getRectangle();
 
 			RectangleShape TempRec;
 			TempRec.setSize(Vector2f(Xsize, ySizeAll));
@@ -1408,7 +1408,7 @@ int main()
 					{
 						if (CurrentToolPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && CurrentToolPrice.isButton())
 						{
-							auto vvstr = *CurrentToolPrice.getKeyStringTextWstring().begin();
+							auto vvstr = CurrentToolPrice.getKeyStringTextWstring().front();
 							if (holds_alternative<wstring>(vvstr))
 							{
 								if (get<wstring>(vvstr) == L"--")
@@ -1515,7 +1515,7 @@ int main()
 						stlStr = L"";
 						if (vectorGun.size() - (itVectorGun + countGunInList) > 0)
 						{
-							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + "+";
+							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + L"+";
 						}
 						downScrollToolTip.setKeyStringTextWstring({ stlStr });
 
@@ -1534,7 +1534,7 @@ int main()
 						stlStr = L"";
 						if (vectorGun.size() - (itVectorGun + countGunInList) > 0)
 						{
-							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + "+";
+							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + L"+";
 						}
 						downScrollToolTip.setKeyStringTextWstring({ stlStr });
 
@@ -1797,52 +1797,52 @@ int main()
 						if (mouseButtonPressed->button == Mouse::Button::Left)
 						{
 							// если прокрутка доступна
-							if (arrDiagramPack[iterGraf].GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].GUIButtonDown.get() != nullptr)
+							if (arrDiagramPack[iterGraf].m_GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].m_GUIButtonDown.get() != nullptr)
 							{
-								auto size = arrDiagramPack[iterGraf].GUIMethodModifiers.size();
+								auto size = arrDiagramPack[iterGraf].m_GUIMethodModifiers.size();
 
 								// кнопка прокрутки верхняя
-								if (arrDiagramPack[iterGraf].GUIButtonTop.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
+								if (arrDiagramPack[iterGraf].m_GUIButtonTop.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
 								{
 									// но не более размера 
-									if (arrDiagramPack[iterGraf].InitialIndexMethod > 0)
+									if (arrDiagramPack[iterGraf].m_initialIndexMethod > 0)
 									{
-										arrDiagramPack[iterGraf].InitialIndexMethod--;
+										arrDiagramPack[iterGraf].m_initialIndexMethod--;
 									}
 								}
 
 								//кнопка прокрутки вниз
-								else if (arrDiagramPack[iterGraf].GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
+								else if (arrDiagramPack[iterGraf].m_GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
 								{
 									// но не более размера 
-									if (arrDiagramPack[iterGraf].InitialIndexMethod < size)
+									if (arrDiagramPack[iterGraf].m_initialIndexMethod < size)
 									{
-										arrDiagramPack[iterGraf].InitialIndexMethod++;
+										arrDiagramPack[iterGraf].m_initialIndexMethod++;
 									}
 								}
 
 								// корректировка 
-								auto sizeRec = arrDiagramPack[iterGraf].GUIMethodModifiers.begin()->getRectangle().getSize();
+								auto sizeRec = arrDiagramPack[iterGraf].m_GUIMethodModifiers.begin()->getRectangle().getSize();
 								auto xSizeWindow = arrWindowsDiagram[iterGraf].getSize().x;
 
-								for (size_t i = arrDiagramPack[iterGraf].InitialIndexMethod; i < MethodList || i < size; i++)
+								for (size_t i = arrDiagramPack[iterGraf].m_initialIndexMethod; i < MethodList || i < size; i++)
 								{
-									arrDiagramPack[iterGraf].GUIMethodModifiers[i].setPositionRectangle(Vector2f(xSizeWindow - sizeRec.x, sizeRec.y * (i - arrDiagramPack[iterGraf].InitialIndexMethod)));
+									arrDiagramPack[iterGraf].m_GUIMethodModifiers[i].setPositionRectangle(Vector2f(xSizeWindow - sizeRec.x, sizeRec.y * (i - arrDiagramPack[iterGraf].m_initialIndexMethod)));
 								}
 							}
 
 							bool needRefresh = false;
 							float sizeValBN = 0.010f;
 							float sizeValSM = 0.005f;
-							for (auto& GUIBinBt : arrDiagramPack[iterGraf].GUIPercentBinBt)
+							for (auto& GUIBinBt : arrDiagramPack[iterGraf].m_GUIPercentBinBt)
 							{
-								auto vbt = *GUIBinBt.getKeyStringTextWstring().begin();
+								auto vbt = GUIBinBt.getKeyStringTextWstring().front();
 								if (GUIBinBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
 								{
 									GUIBinBt.setAsReleasedButton();
-									if (arrDiagramPack[iterGraf].PercentBin - sizeValBN >= 0.f)
+									if (arrDiagramPack[iterGraf].m_percentBin - sizeValBN >= 0.f)
 									{
-										arrDiagramPack[iterGraf].PercentBin -= sizeValBN;
+										arrDiagramPack[iterGraf].m_percentBin -= sizeValBN;
 										needRefresh = true;
 									}
 									break;
@@ -1850,25 +1850,25 @@ int main()
 								else if (GUIBinBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
 								{
 									GUIBinBt.setAsReleasedButton();
-									if (arrDiagramPack[iterGraf].PercentBin + sizeValBN <= 1.f)
+									if (arrDiagramPack[iterGraf].m_percentBin + sizeValBN <= 1.f)
 									{
-										arrDiagramPack[iterGraf].PercentBin += sizeValBN;
+										arrDiagramPack[iterGraf].m_percentBin += sizeValBN;
 										needRefresh = true;
 									}
 									break;
 								}
 
 							}
-							for (auto& GUISmoothBt : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
+							for (auto& GUISmoothBt : arrDiagramPack[iterGraf].m_GUIPercentSmoothBt)
 							{
-								auto vbt = *GUISmoothBt.getKeyStringTextWstring().begin();
+								auto vbt = GUISmoothBt.getKeyStringTextWstring().front();
 								if (GUISmoothBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
 								{
 									GUISmoothBt.setAsReleasedButton();
 
-									if (arrDiagramPack[iterGraf].PercentSmooth - sizeValSM >= 0.f)
+									if (arrDiagramPack[iterGraf].m_percentSmooth - sizeValSM >= 0.f)
 									{
-										arrDiagramPack[iterGraf].PercentSmooth -= sizeValSM;
+										arrDiagramPack[iterGraf].m_percentSmooth -= sizeValSM;
 										needRefresh = true;
 									}
 									break;
@@ -1877,9 +1877,9 @@ int main()
 								{
 									GUISmoothBt.setAsReleasedButton();
 
-									if (arrDiagramPack[iterGraf].PercentSmooth + sizeValSM <= 1.f)
+									if (arrDiagramPack[iterGraf].m_percentSmooth + sizeValSM <= 1.f)
 									{
-										arrDiagramPack[iterGraf].PercentSmooth += sizeValSM;
+										arrDiagramPack[iterGraf].m_percentSmooth += sizeValSM;
 										needRefresh = true;
 									}
 									break;
@@ -1887,32 +1887,32 @@ int main()
 							}
 							if (needRefresh)
 							{
-								for (auto& GUISmoothBt : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
+								for (auto& GUISmoothBt : arrDiagramPack[iterGraf].m_GUIPercentSmoothBt)
 								{
-									auto vbt = *GUISmoothBt.getKeyStringTextWstring().begin();
+									auto vbt = GUISmoothBt.getKeyStringTextWstring().front();
 									if (holds_alternative<wstring>(vbt) && !GUISmoothBt.isButton())
 									{
-										GUISmoothBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].PercentSmooth) });
+										GUISmoothBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].m_percentSmooth) });
 										break;
 
 									}
 								}
-								for (auto& GUIBinBt : arrDiagramPack[iterGraf].GUIPercentBinBt)
+								for (auto& GUIBinBt : arrDiagramPack[iterGraf].m_GUIPercentBinBt)
 								{
-									auto vbt = *GUIBinBt.getKeyStringTextWstring().begin();
+									auto vbt = GUIBinBt.getKeyStringTextWstring().front();
 									if (holds_alternative<wstring>(vbt) && !GUIBinBt.isButton())
 									{
-										GUIBinBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].PercentBin) });
+										GUIBinBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].m_percentBin) });
 										break;
 									}
 								}
 
-								auto BinnedFreqMap = getBinedFreqModifiers(arrDiagramPack[iterGraf].CurrentSourceFreqModifiers, arrDiagramPack[iterGraf].PercentBin); // сколько % оставим? (%)
-								auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].PercentSmooth); // насколько сильно (%)
+								auto BinnedFreqMap = getBinedFreqModifiers(arrDiagramPack[iterGraf].m_currentSourceFreqModifiers, arrDiagramPack[iterGraf].m_percentBin); // сколько % оставим? (%)
+								auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].m_percentSmooth); // насколько сильно (%)
 
-								arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
+								arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers = SmoothedFreqMap;
 
-								arrDiagramPack[iterGraf].CurrentCurvePack.m_curve = curveFun(arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve, arrDiagramPack[iterGraf].ColorCurve, arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers);
+								arrDiagramPack[iterGraf].m_currentCurvePack.m_curve = curveFun(arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve, arrDiagramPack[iterGraf].m_colorCurve, arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers);
 							}
 						}
 					}
@@ -1937,12 +1937,12 @@ int main()
 						}
 
 						// стандартный вид
-						arrDiagramPack[iterGraf].PercentBin = 1.0f;
-						arrDiagramPack[iterGraf].PercentSmooth = 0.05f;
+						arrDiagramPack[iterGraf].m_percentBin = 1.0f;
+						arrDiagramPack[iterGraf].m_percentSmooth = 0.05f;
 
 						// на сколько делим цену ? 
 						float priceValueDegree = 1'000'000; // до KK
-						arrDiagramPack[iterGraf].ColorCurve = Color::Red;
+						arrDiagramPack[iterGraf].m_colorCurve = Color::Red;
 
 						// Получаем позицию главного окна
 						Vector2i mainPos = arrWindowsDiagram[iterGraf].getPosition();
@@ -1970,11 +1970,11 @@ int main()
 
 						//"сырые" частоты
 						auto SourceFreqMap = getFreqModifiers(resultMainModifiers);
-						auto BinnedFreqMap = getBinedFreqModifiers(SourceFreqMap, arrDiagramPack[iterGraf].PercentBin); // сколько % оставим? (%)
-						auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].PercentSmooth); // насколько сильно (%)
+						auto BinnedFreqMap = getBinedFreqModifiers(SourceFreqMap, arrDiagramPack[iterGraf].m_percentBin); // сколько % оставим? (%)
+						auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].m_percentSmooth); // насколько сильно (%)
 
-						arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
-						arrDiagramPack[iterGraf].CurrentSourceFreqModifiers = SourceFreqMap;
+						arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers = SmoothedFreqMap;
+						arrDiagramPack[iterGraf].m_currentSourceFreqModifiers = SourceFreqMap;
 
 						string nameCurve;
 						switch (errorNum)
@@ -1992,7 +1992,7 @@ int main()
 							break;
 						}
 
-						arrDiagramPack[iterGraf].CurrentCurvePack = getCurveFrequrency(RectangleForCurve, arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers, arrDiagramPack[iterGraf].ColorCurve, nameCurve);
+						arrDiagramPack[iterGraf].m_currentCurvePack = getCurveFrequrency(RectangleForCurve, arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers, arrDiagramPack[iterGraf].m_colorCurve, nameCurve);
 
 						// оформление 50-ого перцентиля
 
@@ -2002,7 +2002,7 @@ int main()
 						xSizePack = defaultSizeCell * 3.5f;
 						ySizePack = defaultSizeCell * 0.3f;
 
-						auto infoPercentile50 = GetInfoForModifiers(getPercentile(arrDiagramPack[iterGraf].CurrentSourceFreqModifiers, 50.0));
+						auto infoPercentile50 = GetInfoForModifiers(getPercentile(arrDiagramPack[iterGraf].m_currentSourceFreqModifiers, 50.0));
 						{
 							vector<variant<string, wstring>> vResultWS = { "Percentile_50" };
 
@@ -2014,12 +2014,12 @@ int main()
 									return GUITextAndRectangle(vResultWS, rectangleTemp, false, false);
 
 								}();
-							arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiName);
+							arrDiagramPack[iterGraf].m_GUIPercentile50.push_back(percentileGuiName);
 
 							for (const auto& infoItem : infoPercentile50)
 							{
-								xPosPack = arrDiagramPack[iterGraf].GUIPercentile50.begin()->getRectangle().getPosition().x;
-								yPosPack = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getRectangle().getPosition().y + ySizePack;
+								xPosPack = arrDiagramPack[iterGraf].m_GUIPercentile50.begin()->getRectangle().getPosition().x;
+								yPosPack = arrDiagramPack[iterGraf].m_GUIPercentile50.rbegin()->getRectangle().getPosition().y + ySizePack;
 
 								vResultWS = { infoItem.first };
 
@@ -2032,7 +2032,7 @@ int main()
 
 									}();
 
-								arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiInfo);
+								arrDiagramPack[iterGraf].m_GUIPercentile50.push_back(percentileGuiInfo);
 
 								percentileGuiInfo.setPositionRectangle(percentileGuiInfo.getPositionRectangle() + Vector2f(percentileGuiInfo.getRectangle().getSize().x, 0));
 
@@ -2050,19 +2050,19 @@ int main()
 								}
 
 								percentileGuiInfo.setKeyStringTextWstring(nameVal);
-								arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiInfo);
+								arrDiagramPack[iterGraf].m_GUIPercentile50.push_back(percentileGuiInfo);
 							}
 						}
 
 						// оформление начального и конечного мода
 						//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-						auto size = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getRectangle().getSize();
+						auto size = arrDiagramPack[iterGraf].m_GUIPercentile50.rbegin()->getRectangle().getSize();
 						xSizePack = size.x * 2.3f;
 						ySizePack = size.y;
 
-						xPosPack = arrDiagramPack[iterGraf].GUIPercentile50.begin()->getPositionRectangle().x;
-						yPosPack = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getPositionRectangle().y + size.y;
+						xPosPack = arrDiagramPack[iterGraf].m_GUIPercentile50.begin()->getPositionRectangle().x;
+						yPosPack = arrDiagramPack[iterGraf].m_GUIPercentile50.rbegin()->getPositionRectangle().y + size.y;
 
 						GUITextAndRectangle GUInitialMod = [xSizePack, ySizePack, xPosPack, yPosPack, inititialCharacteristicStat]()
 							{
@@ -2077,7 +2077,7 @@ int main()
 								return GUITextAndRectangle({ "Initial_mod", L"\t\t" ,result }, rectangleTemp, false, false);
 							}();
 
-						arrDiagramPack[iterGraf].GUIInitialMod = make_shared<GUITextAndRectangle>(GUInitialMod);
+						arrDiagramPack[iterGraf].m_GUIInitialMod = make_shared<GUITextAndRectangle>(GUInitialMod);
 
 						yPosPack += ySizePack;
 
@@ -2097,7 +2097,7 @@ int main()
 
 							}();
 
-						arrDiagramPack[iterGraf].GUIEndMod = make_shared<GUITextAndRectangle>(endMod);
+						arrDiagramPack[iterGraf].m_GUIEndMod = make_shared<GUITextAndRectangle>(endMod);
 
 						// оформление метода
 						xSizePack = defaultSizeCell * 8.0f;
@@ -2152,7 +2152,7 @@ int main()
 							resultGuiMethodMod.push_back(GUIMethodMod);
 
 						}
-						arrDiagramPack[iterGraf].GUIMethodModifiers = resultGuiMethodMod;
+						arrDiagramPack[iterGraf].m_GUIMethodModifiers = resultGuiMethodMod;
 
 						// оформление метода
 
@@ -2173,7 +2173,7 @@ int main()
 
 							}();
 
-						arrDiagramPack[iterGraf].GUIMethod = make_shared<GUITextAndRectangle>(GUIMethod);
+						arrDiagramPack[iterGraf].m_GUIMethod = make_shared<GUITextAndRectangle>(GUIMethod);
 
 						// добавляем стрелочки для прокрутки если выходим за указанный предел
 						if (resultGuiMethodMod.size() >= MethodList)
@@ -2195,14 +2195,14 @@ int main()
 									return GUITextAndRectangle({ L"↑" }, rectangleTemp, false, false);
 
 								}();
-							arrDiagramPack[iterGraf].GUIButtonTop = make_shared<GUITextAndRectangle>(buttonTop);
+							arrDiagramPack[iterGraf].m_GUIButtonTop = make_shared<GUITextAndRectangle>(buttonTop);
 
 							// нижняя
 							xSizePack = defaultSizeCell * 0.4f;
 							ySizePack = defaultSizeCell * 0.4f;
 
-							xPosPack = resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().x - xSizePack;
-							yPosPack = resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().y;
+							xPosPack = static_cast<float>(resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().x - xSizePack);
+							yPosPack = static_cast<float>(resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().y);
 
 							GUITextAndRectangle buttonDown = [xSizePack, ySizePack, xPosPack, yPosPack]()
 								{
@@ -2214,10 +2214,10 @@ int main()
 									return GUITextAndRectangle({ L"↓" }, RectangleTemp, false, false);
 
 								}();
-							arrDiagramPack[iterGraf].GUIButtonDown = make_shared<GUITextAndRectangle>(buttonDown);
+							arrDiagramPack[iterGraf].m_GUIButtonDown = make_shared<GUITextAndRectangle>(buttonDown);
 						}
 
-						arrDiagramPack[iterGraf].InitialIndexMethod = 0;
+						arrDiagramPack[iterGraf].m_initialIndexMethod = 0;
 
 						// сглаживание графика
 						vector<pair<wstring, float>> allocationBt =
@@ -2236,19 +2236,19 @@ int main()
 									RectangleShape binBt;
 									binBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
 
-									auto posR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
-									auto SizeR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize();
+									auto posR = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition();
+									auto SizeR = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getSize();
 									if (itbt1 == 1)
 									{
-										posR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getPositionRectangle();
-										SizeR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+										posR = arrDiagramPack[iterGraf].m_GUIPercentBinBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].m_GUIPercentBinBt.rbegin()->getRectangle().getSize();
 										binBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
 
 									}
 									else if (itbt1)
 									{
-										posR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getPositionRectangle();
-										SizeR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+										posR = arrDiagramPack[iterGraf].m_GUIPercentBinBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].m_GUIPercentBinBt.rbegin()->getRectangle().getSize();
 										binBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
 									else
@@ -2258,7 +2258,7 @@ int main()
 
 									if (wstrbt == L"val")
 									{
-										return GUITextAndRectangle({ format(L"{:.1f}", arrDiagramPack[iterGraf].PercentBin) }, binBt, false, false);
+										return GUITextAndRectangle({ format(L"{:.1f}", arrDiagramPack[iterGraf].m_percentBin) }, binBt, false, false);
 									}
 									else if (wstrbt == L"name")
 									{
@@ -2266,7 +2266,7 @@ int main()
 									}
 									return GUITextAndRectangle({ wstrbt }, binBt, true, false);
 								}();
-							arrDiagramPack[iterGraf].GUIPercentBinBt.push_back(GUI_BinBt);
+							arrDiagramPack[iterGraf].m_GUIPercentBinBt.push_back(GUI_BinBt);
 							itbt1++;
 						}
 
@@ -2278,19 +2278,19 @@ int main()
 									RectangleShape smBt;
 									smBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
 
-									auto posR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, defaultSizeCell * 0.35f * 3.f);
-									auto SizeR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize();
+									auto posR = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, defaultSizeCell * 0.35f * 3.f);
+									auto SizeR = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getSize();
 									if (itbt1 == 1)
 									{
-										posR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
-										SizeR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+										posR = arrDiagramPack[iterGraf].m_GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].m_GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
 										smBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
 
 									}
 									else if (itbt1)
 									{
-										posR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
-										SizeR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+										posR = arrDiagramPack[iterGraf].m_GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].m_GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
 										smBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
 									else
@@ -2300,7 +2300,7 @@ int main()
 
 									if (wstrbt == L"val")
 									{
-										return GUITextAndRectangle({ format(L"{:.2f}", arrDiagramPack[iterGraf].PercentSmooth) }, smBt, false, false);
+										return GUITextAndRectangle({ format(L"{:.2f}", arrDiagramPack[iterGraf].m_percentSmooth) }, smBt, false, false);
 									}
 									else if (wstrbt == L"name")
 									{
@@ -2308,7 +2308,7 @@ int main()
 									}
 									return GUITextAndRectangle({ wstrbt }, smBt, true, false);
 								}();
-							arrDiagramPack[iterGraf].GUIPercentSmoothBt.push_back(GUISmoothBt);
+							arrDiagramPack[iterGraf].m_GUIPercentSmoothBt.push_back(GUISmoothBt);
 							itbt1++;
 						}
 						// end
@@ -2319,69 +2319,69 @@ int main()
 					arrWindowsDiagram[iterGraf].clear(Color::White);
 					arrWindowsDiagram[iterGraf].draw(backgroundDiagram);
 
-					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentBinBt)
+					for (auto& GUI : arrDiagramPack[iterGraf].m_GUIPercentBinBt)
 					{
 						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
 						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
 
-					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
+					for (auto& GUI : arrDiagramPack[iterGraf].m_GUIPercentSmoothBt)
 					{
 						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
 						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
 
-					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentile50)
+					for (auto& GUI : arrDiagramPack[iterGraf].m_GUIPercentile50)
 					{
 						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
 						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
 
-					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethod.get()->getRectangle());
-					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethod.get()->getText());
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIMethod.get()->getRectangle());
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIMethod.get()->getText());
 
-					for (size_t it = arrDiagramPack[iterGraf].InitialIndexMethod; it < arrDiagramPack[iterGraf].GUIMethodModifiers.size(); it++)
+					for (size_t it = arrDiagramPack[iterGraf].m_initialIndexMethod; it < arrDiagramPack[iterGraf].m_GUIMethodModifiers.size(); it++)
 					{
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethodModifiers[it].getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethodModifiers[it].getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIMethodModifiers[it].getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIMethodModifiers[it].getText());
 					}
 
-					if (arrDiagramPack[iterGraf].GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].GUIButtonDown.get() != nullptr)
+					if (arrDiagramPack[iterGraf].m_GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].m_GUIButtonDown.get() != nullptr)
 					{
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonTop.get()->getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonTop.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIButtonTop.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIButtonTop.get()->getText());
 
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonDown.get()->getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonDown.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIButtonDown.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIButtonDown.get()->getText());
 					}
 
-					if (arrDiagramPack[iterGraf].GUIInitialMod.get() != nullptr && arrDiagramPack[iterGraf].GUIEndMod.get() != nullptr)
+					if (arrDiagramPack[iterGraf].m_GUIInitialMod.get() != nullptr && arrDiagramPack[iterGraf].m_GUIEndMod.get() != nullptr)
 					{
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIInitialMod.get()->getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIInitialMod.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIInitialMod.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIInitialMod.get()->getText());
 
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIEndMod.get()->getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIEndMod.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIEndMod.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_GUIEndMod.get()->getText());
 					}
 
-					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve);
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve);
 
-					for (size_t it2 = 0; it2 < arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve.size(); it2++)
+					for (size_t it2 = 0; it2 < arrDiagramPack[iterGraf].m_currentCurvePack.m_arrayGUITextCurve.size(); it2++)
 					{
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve[it2].getRectangle());
-						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve[it2].getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_currentCurvePack.m_arrayGUITextCurve[it2].getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_currentCurvePack.m_arrayGUITextCurve[it2].getText());
 					}
-					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_curve);
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].m_currentCurvePack.m_curve);
 
 					/// если мы навелись на кривую ->  выведем инфу о колличестваx на текущей позиции
-					if (arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getGlobalBounds().contains(mouseWorldPosForGraf))
+					if (arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getGlobalBounds().contains(mouseWorldPosForGraf))
 					{
 						// вертикальная линия
-						auto posLineTop = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
-						auto posLineDown = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize().y);
+						auto posLineTop = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition();
+						auto posLineDown = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getSize().y);
 
 						// поправка линии на позицию мышки
-						float PosMouseRelativeRectangleCure = mouseWorldPosForGraf.x - arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
+						float PosMouseRelativeRectangleCure = mouseWorldPosForGraf.x - arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition().x;
 						posLineTop += Vector2f(PosMouseRelativeRectangleCure, 0);
 						posLineDown += Vector2f(PosMouseRelativeRectangleCure, 0);
 
@@ -2397,14 +2397,14 @@ int main()
 						arrWindowsDiagram[iterGraf].draw(verticalLine);
 
 						// перебираем отрезки кривой для вывода информации
-						size_t countSectionCurve = arrDiagramPack[iterGraf].CurrentCurvePack.m_curve.getVertexCount();
+						size_t countSectionCurve = arrDiagramPack[iterGraf].m_currentCurvePack.m_curve.getVertexCount();
 						if (countSectionCurve == 0)
 						{
 							countSectionCurve = 1;
 						}
-						auto lengthCurve = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize().x;
+						auto lengthCurve = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getSize().x;
 
-						auto xPosRectangleDP = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
+						auto xPosRectangleDP = arrDiagramPack[iterGraf].m_currentCurvePack.m_mainRectangleCurve.getPosition().x;
 						auto lengthOneSectionCurve = lengthCurve / countSectionCurve;
 						auto xPosLineDiagram = posLineTop.x; // || posLineDown.x
 
@@ -2425,14 +2425,14 @@ int main()
 							// проверяем позиция x вертикальной линии входит в секцию кривой?
 							if (xPosLineDiagram >= start - epsilon && xPosLineDiagram < end + epsilon)
 							{
-								auto iteratorMap = arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers.begin();
+								auto iteratorMap = arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers.begin();
 								advance(iteratorMap, itMax);
 
 								CountModifiers modifiersM = iteratorMap->first;
 
 								currentFreq = iteratorMap->second;
 
-								if (iteratorMap != arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers.end())
+								if (iteratorMap != arrDiagramPack[iterGraf].m_currentSmoothFreqModifiers.end())
 								{
 									modifiersM = iteratorMap->first;
 									currentFreq = iteratorMap->second;
@@ -2491,11 +2491,11 @@ int main()
 					// возврат к дефолт цвету
 					if (itWindow % 50 == 10)
 					{
-						for (auto& button : arrDiagramPack[iterGraf].GUIPercentBinBt)
+						for (auto& button : arrDiagramPack[iterGraf].m_GUIPercentBinBt)
 						{
 							button.setAsPressedButton();
 						}
-						for (auto& button : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
+						for (auto& button : arrDiagramPack[iterGraf].m_GUIPercentSmoothBt)
 						{
 							button.setAsPressedButton();
 						}
