@@ -25,8 +25,8 @@ int main()
 	float defaultSizeCell = static_cast<float>(lengthWindowMain / countCellOnLength);
 
 	// переменные  мышки
-	Vector2i positionMouseMainWindow;
-	Vector2f postionMouseGlobal;
+	Vector2i positionMouseMainWindow = {};
+	Vector2f postionMouseGlobal = {};
 
 	shared_ptr<Texture> TexturePoint_Empty = make_shared<Texture>(L"Assets/Standart/Empty.png");
 	shared_ptr<Texture> TexturePoint_RedMark = make_shared<Texture>(L"Assets/Standart/MarkX.png");
@@ -67,7 +67,7 @@ int main()
 
 	LANG_SETTING.loadLangInFolder(languageFolder);
 
-	vector<GUITextAndRectangle> vectorLangGUI;
+	vector<GUITextAndRectangle> arrLangGUI;
 	{
 
 		auto lang = LANG_SETTING.getLoadedLanguages();
@@ -82,7 +82,7 @@ int main()
 			bool setAsPressedButton;
 			i == 1 ? setAsPressedButton = false : setAsPressedButton = true;
 
-			vectorLangGUI.emplace_back(GUITextAndRectangle({ lang[i] }, shapeLang, true, setAsPressedButton));
+			arrLangGUI.emplace_back(GUITextAndRectangle({ lang[i] }, shapeLang, true, setAsPressedButton));
 		}
 		LANG_SETTING.setLanguage(1);
 	}
@@ -110,9 +110,9 @@ int main()
 			itTheme++;
 		}
 	}
-	
+
 	//////////////////////// МОДИФИКАТОРЫ ////////////////////////
-	
+
 	vector<shared_ptr<Texture>> kitTextures;
 	vector<shared_ptr<Texture>> toolTextures;
 	vector<shared_ptr<Texture>> skillTextures;
@@ -121,16 +121,14 @@ int main()
 	vector<path> kitpath = searchFile(imagesKitFolder, ".png");
 	vector<path> skillpath = searchFile(imagesSkillFolder, ".png");
 
-
-	RectangleModifiers ModifiersIcon;
-
+	RectangleModifiers modifiersIcon;
 
 	auto LoadTexturesAndShapes = [&](const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes)
 		{
 			float i = 0;
 			float j = 0;
 
-			float Size = defaultSizeCell * 0.55f;
+			float sizeCell = defaultSizeCell * 0.55f;
 
 			for (const auto& patht : paths)
 			{
@@ -143,141 +141,128 @@ int main()
 
 				textures.push_back(tex);
 
-				RectangleShape RectangleCurrentType;
-				RectangleCurrentType.setSize(Vector2f(Size, Size));
-				RectangleCurrentType.setPosition(Vector2f(defaultSizeCell * 2.25f + Size * i, Ypos + j * Size));
-				RectangleCurrentType.setTexture(tex.get());
+				RectangleShape rectangleCurrentType;
+				rectangleCurrentType.setSize(Vector2f(sizeCell, sizeCell));
+				rectangleCurrentType.setPosition(Vector2f(defaultSizeCell * 2.25f + sizeCell * i, Ypos + j * sizeCell));
+				rectangleCurrentType.setTexture(tex.get());
 
-				string NameModifiers = patht.stem().string();
-				NameModifiers.erase(0, 3);
+				string nameModifiersOne = patht.stem().string();
+				nameModifiersOne.erase(0, 3);
 
-				shapes.push_back(GUITextAndRectangle({ NameModifiers }, RectangleCurrentType, true, true));
+				shapes.push_back(GUITextAndRectangle({ nameModifiersOne }, rectangleCurrentType, true, true));
 
-				i++;
-				if (i > 4)
+				if (++i > 4)
 				{
-					j = 1.f; i = 0.f;
+					j = 1.f;
+					i = 0.f;
 				}
 			}
 		};
 
 	// Загружаем всё:
-	LoadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, ModifiersIcon.m_toolRectangleGUI);
-	LoadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, ModifiersIcon.m_kitRectangleGUI);
-	LoadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, ModifiersIcon.m_skillRectangleGUI);
-
-
-
+	LoadTexturesAndShapes(toolpath, defaultSizeCell * 1.5f, toolTextures, modifiersIcon.m_toolRectangleGUI);
+	LoadTexturesAndShapes(kitpath, defaultSizeCell * 3.0f, kitTextures, modifiersIcon.m_kitRectangleGUI);
+	LoadTexturesAndShapes(skillpath, defaultSizeCell * 4.5f, skillTextures, modifiersIcon.m_skillRectangleGUI);
 
 	/// стоимость
-	vector<GUITextAndRectangle> ToolPrice;
-	vector<GUITextAndRectangle> KitPrice;
+	vector<GUITextAndRectangle> arrToolPrice;
+	vector<GUITextAndRectangle> arrKitPrice;
 
-
-	RectangleShape RectangleAllPrice;
-	RectangleAllPrice.setSize(Vector2f(defaultSizeCell * 3.5f, defaultSizeCell * 0.4f));
-
-
-
+	RectangleShape rectangleAllPrice;
+	rectangleAllPrice.setSize(Vector2f(defaultSizeCell * 3.5f, defaultSizeCell * 0.4f));
 	{
-
-		wstring WsPrice = L"price";
-
+		wstring wstrPrice = L"price";
 		const vector<pair<const float, const wstring>> allocation =
 		{
 			{0.13f, L"--"},
 			{0.11f, L"-" },
-			{0.5f, WsPrice},
+			{0.5f, wstrPrice},
 			{0.11f, L"+" },
 			{0.13f, L"++"}
 		};
 
-		const float Yoffset = defaultSizeCell * 0.05f;
-		const float Xoffset = defaultSizeCell * 0.02f;
+		const float yOffset = defaultSizeCell * 0.05f;
+		const float xOffset = defaultSizeCell * 0.02f;
 
-		// Tool 
+		// tool 
+		rectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, modifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getPosition().y + modifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getSize().y + yOffset));
 
-		RectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, ModifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.m_toolRectangleGUI.rbegin()->getRectangle().getSize().y + Yoffset));
-
-		float Xpos = RectangleAllPrice.getPosition().x;
+		float xPosRAP = rectangleAllPrice.getPosition().x;
 		for (const auto& [fl, ws] : allocation)
 		{
-			if (!ToolPrice.empty())
+			if (!arrToolPrice.empty())
 			{
-				Xpos += ToolPrice.rbegin()->getRectangle().getSize().x + Xoffset;
+				xPosRAP += arrToolPrice.rbegin()->getRectangle().getSize().x + xOffset;
 			}
 
+			RectangleShape cellPrice;
+			cellPrice.setPosition(Vector2f(xPosRAP, rectangleAllPrice.getPosition().y));
+			cellPrice.setSize(Vector2f(rectangleAllPrice.getSize().x * fl, rectangleAllPrice.getSize().y));
 
-			RectangleShape CellPrice;
-			CellPrice.setPosition(Vector2f(Xpos, RectangleAllPrice.getPosition().y));
-			CellPrice.setSize(Vector2f(RectangleAllPrice.getSize().x * fl, RectangleAllPrice.getSize().y));
-
-			if (ws == WsPrice)
+			if (ws == wstrPrice)
 			{
-				wstring Str_ValuePrice = L"0";
+				wstring wstrValuePrice = L"0";
 
-				ifstream in_jsonFile_price(filePriceModifiersWeapon);
-				if (!in_jsonFile_price)
+				ifstream inJsonFilePrice(filePriceModifiersWeapon);
+				if (!inJsonFilePrice)
 				{
-					OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(filePriceModifiersWeapon));
+					OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(filePriceModifiersWeapon));
 				}
 				else
 				{
-					nlohmann::json JSON_PRICE;
-					in_jsonFile_price >> JSON_PRICE;
-					in_jsonFile_price.close();
+					nlohmann::json jsonPrice;
+					inJsonFilePrice >> jsonPrice;
+					inJsonFilePrice.close();
 
-					unsigned val_price = 0;
+					unsigned valPrice = 0;
 
-					if (JSON_PRICE.contains("MD_Tool") && JSON_PRICE["MD_Tool"].contains(GunStats::Modifiers::getToolName(currentModifiers.m_tool)))
+					if (jsonPrice.contains("MD_Tool") && jsonPrice["MD_Tool"].contains(GunStats::Modifiers::getToolName(currentModifiers.m_tool)))
 					{
-						val_price = JSON_PRICE["MD_Tool"][GunStats::Modifiers::getToolName(currentModifiers.m_tool)].get<unsigned>();
-						Str_ValuePrice = format(L"{:L}", val_price);
-
+						valPrice = jsonPrice["MD_Tool"][GunStats::Modifiers::getToolName(currentModifiers.m_tool)].get<unsigned>();
+						wstrValuePrice = format(L"{:L}", valPrice);
 					}
 					else
 					{
-						JSON_PRICE["MD_Tool"][GunStats::Modifiers::getToolName(currentModifiers.m_tool)] = 0;
+						jsonPrice["MD_Tool"][GunStats::Modifiers::getToolName(currentModifiers.m_tool)] = 0;
 
-						ofstream in_jsonFile_price(filePriceModifiersWeapon);
-						in_jsonFile_price << JSON_PRICE;
-						in_jsonFile_price.close();
+						ofstream ofJsonFilePrice(filePriceModifiersWeapon);
+						ofJsonFilePrice << jsonPrice;
+						ofJsonFilePrice.close();
 					}
-					currentPrice.m_priceTool = val_price;
+					currentPrice.m_priceTool = valPrice;
 
 				}
-				ToolPrice.push_back(move(GUITextAndRectangle({ Str_ValuePrice, L"₽" }, CellPrice, false, false)));
+				arrToolPrice.push_back(move(GUITextAndRectangle({ wstrValuePrice, L"₽" }, cellPrice, false, false)));
 			}
 			else
 			{
-				ToolPrice.push_back(move(GUITextAndRectangle({ ws }, CellPrice, true, false)));
+				arrToolPrice.push_back(move(GUITextAndRectangle({ ws }, cellPrice, true, false)));
 			}
-
 		}
 
-		// Kit 
-		RectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, ModifiersIcon.m_kitRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.m_kitRectangleGUI.rbegin()->getRectangle().getSize().y + Yoffset));
-		Xpos = RectangleAllPrice.getPosition().x;
+		// kit 
+		rectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, modifiersIcon.m_kitRectangleGUI.rbegin()->getRectangle().getPosition().y + modifiersIcon.m_kitRectangleGUI.rbegin()->getRectangle().getSize().y + yOffset));
+		xPosRAP = rectangleAllPrice.getPosition().x;
 		for (const auto& [fl, ws] : allocation)
 		{
-			if (!KitPrice.empty())
+			if (!arrKitPrice.empty())
 			{
-				Xpos += KitPrice.rbegin()->getRectangle().getSize().x + Xoffset;
+				xPosRAP += arrKitPrice.rbegin()->getRectangle().getSize().x + xOffset;
 			}
 
-			RectangleShape CellPrice;
-			CellPrice.setPosition(Vector2f(Xpos, RectangleAllPrice.getPosition().y));
-			CellPrice.setSize(Vector2f(RectangleAllPrice.getSize().x * fl, RectangleAllPrice.getSize().y));
+			RectangleShape cellPrice;
+			cellPrice.setPosition(Vector2f(xPosRAP, rectangleAllPrice.getPosition().y));
+			cellPrice.setSize(Vector2f(rectangleAllPrice.getSize().x * fl, rectangleAllPrice.getSize().y));
 
 
-			if (ws == WsPrice)
+			if (ws == wstrPrice)
 			{
-				wstring Str_ValuePrice = L"0";
-				KitPrice.push_back(move(GUITextAndRectangle({ Str_ValuePrice, L"₽" }, CellPrice, false, false)));
+				wstring wstrValuePrice = L"0";
+				arrKitPrice.push_back(move(GUITextAndRectangle({ wstrValuePrice, L"₽" }, cellPrice, false, false)));
 			}
 			else
 			{
-				KitPrice.push_back(move(GUITextAndRectangle({ ws }, CellPrice, true, false)));
+				arrKitPrice.push_back(move(GUITextAndRectangle({ ws }, cellPrice, true, false)));
 			}
 			currentPrice.m_priceKit = 0;
 
@@ -285,672 +270,356 @@ int main()
 
 	}
 	// skill
-	RectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, ModifiersIcon.m_skillRectangleGUI.rbegin()->getRectangle().getPosition().y + ModifiersIcon.m_skillRectangleGUI.rbegin()->getRectangle().getSize().y + defaultSizeCell * 0.05f));
-	GUITextAndRectangle SkillPrice({ L"0", L"₽" }, move(RectangleAllPrice), false, false);
-
-
-
+	rectangleAllPrice.setPosition(Vector2f(defaultSizeCell * 2.25f, modifiersIcon.m_skillRectangleGUI.rbegin()->getRectangle().getPosition().y + modifiersIcon.m_skillRectangleGUI.rbegin()->getRectangle().getSize().y + defaultSizeCell * 0.05f));
+	GUITextAndRectangle skillPrice({ L"0", L"₽" }, move(rectangleAllPrice), false, false);
 
 	/// устанавливаем настройки по умолчанию
 	// по умолчанию старый инструмент
-	for (size_t it = 0; it < ModifiersIcon.m_toolRectangleGUI.size(); it++)
+	for (size_t it = 0; it < modifiersIcon.m_toolRectangleGUI.size(); it++)
 	{
-		auto name = *ModifiersIcon.m_toolRectangleGUI[it].getKeyStringTextWstring().begin();
-
+		auto name = *modifiersIcon.m_toolRectangleGUI[it].getKeyStringTextWstring().begin();
 
 		if (holds_alternative<string>(name))
 		{
-			string SName = get<string>(name);
+			string sName = get<string>(name);
 
-			if (SName == GunStats::Modifiers::getToolName(currentModifiers.m_tool))
+			if (sName == GunStats::Modifiers::getToolName(currentModifiers.m_tool))
 			{
-				ModifiersIcon.m_toolRectangleGUI[it].setAsPressedButton();
-
+				modifiersIcon.m_toolRectangleGUI[it].setAsPressedButton();
 				break;
 			}
 		}
 	}
 
 	// по умолчанию без набора
-	for (size_t it = 0; it < ModifiersIcon.m_kitRectangleGUI.size(); it++)
+	for (size_t it = 0; it < modifiersIcon.m_kitRectangleGUI.size(); it++)
 	{
-		auto name = *ModifiersIcon.m_kitRectangleGUI[it].getKeyStringTextWstring().begin();
+		auto name = *modifiersIcon.m_kitRectangleGUI[it].getKeyStringTextWstring().begin();
 
 		if (holds_alternative<string>(name))
 		{
-			string SName = get<string>(name);
+			string sName = get<string>(name);
 
-			if (SName == GunStats::Modifiers::GetKitName(currentModifiers.m_kit))
+			if (sName == GunStats::Modifiers::GetKitName(currentModifiers.m_kit))
 			{
-				ModifiersIcon.m_kitRectangleGUI[it].setAsPressedButton();
+				modifiersIcon.m_kitRectangleGUI[it].setAsPressedButton();
 				break;
 			}
 		}
 	}
 
 	// игрок мастер 5
-	for (size_t it = 0; it < ModifiersIcon.m_skillRectangleGUI.size(); it++)
+	for (size_t it = 0; it < modifiersIcon.m_skillRectangleGUI.size(); it++)
 	{
-		auto name = *ModifiersIcon.m_skillRectangleGUI[it].getKeyStringTextWstring().begin();
-
+		auto name = *modifiersIcon.m_skillRectangleGUI[it].getKeyStringTextWstring().begin();
 		if (holds_alternative<string>(name))
 		{
-			string SName = get<string>(name);
-
-
-			if (SName == GunStats::Modifiers::getSkillName(currentModifiers.m_skill))
+			string sName = get<string>(name);
+			if (sName == GunStats::Modifiers::getSkillName(currentModifiers.m_skill))
 			{
-				ModifiersIcon.m_skillRectangleGUI[it].setAsPressedButton();
+				modifiersIcon.m_skillRectangleGUI[it].setAsPressedButton();
 				break;
 			}
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	//////////////////////// ИКОНКИ ОРУЖИЯ  И ВЫБРАННОГО ОРУЖИЯ ////////////////////////
 
+	vector<Weapon> vectorGun;
 
-
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	struct VectorWeapon
-	{
-		shared_ptr<Texture> WTexture;
-
-		string Str_Name;
-
-		GUITextAndRectangle WeapoGUI;
-	};
-
-	vector<VectorWeapon> VectorGun;
-	/////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	vector<path> SearchTextureGun = searchFile(statGunFolder, ".png");
-	if (SearchTextureGun.empty())
+	vector<path> searchTextureGun = searchFile(statGunFolder, ".png");
+	if (searchTextureGun.empty())
 	{
 		OUTPUT_LOG("main -> Texture Gun not found");
 		return -1;
 	}
-	/////////////////////////////////////////////////////////////////////////////
 
+	unsigned int itVectorGun = 0;
+	int countGunInList = 22;
 
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	unsigned int it_VectorGun = 0;
-	int CountGunList = 22;
-
-
-	for (const auto Gun : SearchTextureGun)
+	for (const auto currentGun : searchTextureGun)
 	{
-		shared_ptr<Texture> PtrTextureWeapon;
+		shared_ptr<Texture> ptrTextureWeapon;
+		string nameWeapon = wstringToString(currentGun.stem());
 
-		string NameWeapon = WstringToString(Gun.stem());
+		RectangleShape rectangleWeaponCurrent;
+		rectangleWeaponCurrent.setSize(Vector2f(defaultSizeCell * 2, defaultSizeCell / 2));
 
-
-		RectangleShape RectangleWeaponCurrent;
-		RectangleWeaponCurrent.setSize(Vector2f(defaultSizeCell * 2, defaultSizeCell / 2));
-
-
-		VectorGun.push_back({ PtrTextureWeapon, NameWeapon, GUITextAndRectangle({NameWeapon}, RectangleWeaponCurrent, false, false) });
+		vectorGun.emplace_back(GUITextAndRectangle({ nameWeapon }, rectangleWeaponCurrent, false, false), nameWeapon, ptrTextureWeapon);
 	}
 
-
 	// для списка
-	GUITextAndRectangle ALLGunShapeScrollGUI = [defaultSizeCell, CountGunList]()
+	GUITextAndRectangle allGunShapeScrollGUI = [defaultSizeCell, countGunInList]()
 		{
-			RectangleShape ALLGunShapeScroll;
-			ALLGunShapeScroll.setSize(Vector2f(defaultSizeCell * 2, defaultSizeCell / 2 * CountGunList));
-			ALLGunShapeScroll.setPosition(Vector2f(0, 0));
+			RectangleShape allGunShapeScroll;
+			allGunShapeScroll.setSize(Vector2f(defaultSizeCell * 2, defaultSizeCell / 2 * countGunInList));
+			allGunShapeScroll.setPosition(Vector2f(0, 0));
 
-			return GUITextAndRectangle({}, ALLGunShapeScroll, false, false);
+			return GUITextAndRectangle({}, allGunShapeScroll, false, false);
 		}();
-
-
 
 
 	// - выбранное оружие
-	GUITextAndRectangle SelectWeaponGUI = [defaultSizeCell]()
+	GUITextAndRectangle selectWeaponGUI = [defaultSizeCell]()
 		{
-			RectangleShape ShapeSelectedGun;
-			ShapeSelectedGun.setSize(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
-			ShapeSelectedGun.setPosition(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
-			//ShapeSelectedGun.setTexture(TexturePoint_Empty.get(), true);
+			RectangleShape shapeSelectedGun;
+			shapeSelectedGun.setSize(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
+			shapeSelectedGun.setPosition(Vector2f(defaultSizeCell * 2.5f, defaultSizeCell * 0.5f));
+			//shapeSelectedGun.setTexture(TexturePoint_Empty.get(), true);
 
-			return GUITextAndRectangle({ "Gun" }, ShapeSelectedGun, false, false);
+			return GUITextAndRectangle({ "Gun" }, shapeSelectedGun, false, false);
 		}();
 
 
-
-	GUITextAndRectangle TopScrollToolTip = [defaultSizeCell, &VectorGun]()
+	GUITextAndRectangle topScrollToolTip = [defaultSizeCell, &vectorGun]()
 		{
-			auto position = VectorGun[0].WeapoGUI.getRectangle().getPosition() + Vector2f(VectorGun[0].WeapoGUI.getRectangle().getSize().x, 0);
-			auto Size = VectorGun[0].WeapoGUI.getRectangle().getSize().y;
+			auto position = vectorGun[0].m_weapoGUI.getRectangle().getPosition() + Vector2f(vectorGun[0].m_weapoGUI.getRectangle().getSize().x, 0);
+			auto size = vectorGun[0].m_weapoGUI.getRectangle().getSize().y;
 
-			RectangleShape ToolTip;
-			ToolTip.setSize(Vector2f(Size, Size));
-			ToolTip.setPosition(position);
+			RectangleShape toolTip;
+			toolTip.setSize(Vector2f(size, size));
+			toolTip.setPosition(position);
 
-			return GUITextAndRectangle({}, ToolTip, false, false);
+			return GUITextAndRectangle({}, toolTip, false, false);
 
 		}();
 
 
-	GUITextAndRectangle DownScrollToolTip = [defaultSizeCell, &VectorGun, CountGunList]()
+	GUITextAndRectangle downScrollToolTip = [defaultSizeCell, &vectorGun, countGunInList]()
 		{
-			auto position = Vector2f(VectorGun[0].WeapoGUI.getRectangle().getPosition().x + VectorGun[0].WeapoGUI.getRectangle().getSize().x, VectorGun[0].WeapoGUI.getRectangle().getSize().y * (CountGunList - 1));
+			auto position = Vector2f(vectorGun[0].m_weapoGUI.getRectangle().getPosition().x + vectorGun[0].m_weapoGUI.getRectangle().getSize().x, vectorGun[0].m_weapoGUI.getRectangle().getSize().y * (countGunInList - 1));
 
-			auto Size = VectorGun[0].WeapoGUI.getRectangle().getSize().y;
+			auto size = vectorGun[0].m_weapoGUI.getRectangle().getSize().y;
 
-			RectangleShape ToolTip;
-			ToolTip.setSize(Vector2f(Size, Size));
-			ToolTip.setPosition(position);
+			RectangleShape toolTip;
+			toolTip.setSize(Vector2f(size, size));
+			toolTip.setPosition(position);
 
-			return GUITextAndRectangle({ to_wstring(VectorGun.size() - CountGunList) + L"+" }, ToolTip, false, false);
+			return GUITextAndRectangle({ to_wstring(vectorGun.size() - countGunInList) + L"+" }, toolTip, false, false);
 
 		}();
 
-	///////////////////////////////////////////////////////////////////////////////////
+	//////////////////////// КНОПКА СБОРКИ ////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	 //////////////////////// КНОПКА СБОРКИ ////////////////////////
-
-	////////////////////////////////////////////////////////////////////////////////////
-
-	GUITextAndRectangle Calculation = [defaultSizeCell, countCellOnHeight]()
+	GUITextAndRectangle calculation = [defaultSizeCell, countCellOnHeight]()
 		{
-			RectangleShape RectangleCalculate;
-			RectangleCalculate.setSize(Vector2f(defaultSizeCell * 2.f, defaultSizeCell / 2.f));
-			RectangleCalculate.setPosition(Vector2f(defaultSizeCell * 13.5f, defaultSizeCell * static_cast<float>(countCellOnHeight + 3)));
+			RectangleShape rectangleCalculate;
+			rectangleCalculate.setSize(Vector2f(defaultSizeCell * 2.f, defaultSizeCell / 2.f));
+			rectangleCalculate.setPosition(Vector2f(defaultSizeCell * 13.5f, defaultSizeCell * static_cast<float>(countCellOnHeight + 3)));
 
 
-			return GUITextAndRectangle({ "Build" }, RectangleCalculate, true, false);
+			return GUITextAndRectangle({ "Build" }, rectangleCalculate, true, false);
 
 		}();
-
-	////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	//////////////////////// ОКНО ПАРАМЕТРОВ МОДА ////////////////////////
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-	GUITextAndRectangle ShaheGeneralMod = [defaultSizeCell]()
+	GUITextAndRectangle shaheGeneralMod = [defaultSizeCell]()
 		{
-			RectangleShape GeneralMod;
-			GeneralMod.setPosition(Vector2f(defaultSizeCell * 6.f, defaultSizeCell * 0.5f));
-			GeneralMod.setSize(Vector2f(defaultSizeCell * 13.8f, defaultSizeCell * 5.15f));
+			RectangleShape generalMod;
+			generalMod.setPosition(Vector2f(defaultSizeCell * 6.f, defaultSizeCell * 0.5f));
+			generalMod.setSize(Vector2f(defaultSizeCell * 13.8f, defaultSizeCell * 5.15f));
 
-			return GUITextAndRectangle({}, GeneralMod, false, false);
+			return GUITextAndRectangle({}, generalMod, false, false);
 
 		}();
-	///////////////////////////////////////////////////////////////////////////////////
 
+	float ySizeAll = defaultSizeCell * 0.39f;
 
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
-	float YsizeAll = defaultSizeCell * 0.39f;
-
-
-	vector<GeneralStat> GeneralModOption = [defaultSizeCell, TexturePoint_GreenMark, TexturePoint_RedMark, &ShaheGeneralMod, YsizeAll]()
+	vector<GeneralStat> generalModOption = [defaultSizeCell, TexturePoint_GreenMark, TexturePoint_RedMark, &shaheGeneralMod, ySizeAll]()
 		{
 			vector<GeneralStat> result;
 
-			float YsizeGeneral = ShaheGeneralMod.getRectangle().getSize().y;
-			float XsizeGeneral = ShaheGeneralMod.getRectangle().getSize().x;
-			float XposGeneral = ShaheGeneralMod.getRectangle().getPosition().x;
-
-
+			float ySizeGeneral = shaheGeneralMod.getRectangle().getSize().y;
+			float xSizeGeneral = shaheGeneralMod.getRectangle().getSize().x;
+			float xPosGeneral = shaheGeneralMod.getRectangle().getPosition().x;
 
 			// отступ сверху || снизу
-			float YOffsetOne = YsizeGeneral * 0.15f;
+			float yOffsetOne = ySizeGeneral * 0.15f;
 
 			// отступ между
-			float YOffsetRelated = YsizeGeneral * 0.03f;
-
+			float yOffsetRelated = ySizeGeneral * 0.03f;
 
 			// позиция начальной не считая YOffsetOne
-			float YposOneCharacteristic = (YsizeGeneral - YOffsetOne * 2.f) / (GunStats::countCharacteristic + 2);
-
+			float yPosOneCharacteristic = (ySizeGeneral - yOffsetOne * 2.f) / (GunStats::countCharacteristic + 2);
 
 			// процентарное соотношение x размера (не учитывая кнопку)            
-			const array<float, 5> PercentSizeCell = { 0.12f, 0.06f, 0.06f, 0.72f, 0.04f }; // sum = ~1  |||  => const 0.04
-
+			const array<float, 5> percentSizeCell = { 0.12f, 0.06f, 0.06f, 0.72f, 0.04f }; // sum = ~1  |||  => const 0.04
 
 			for (size_t it = 0; it < GunStats::countCharacteristic; it++)
 			{
-				RectangleShape RectangleTemp;
-
-
-
-
+				RectangleShape rectangleTemp;
 
 				// имя характеристики 
-				/////////////////////////////////////////////////////////////////////////////////////
-				float XsizeName = XsizeGeneral * PercentSizeCell[0];
+				float XsizeName = xSizeGeneral * percentSizeCell[0];
 
-				RectangleTemp.setPosition({ XposGeneral , YOffsetOne + YposOneCharacteristic * it + YOffsetRelated * it });
-				RectangleTemp.setSize({ XsizeName, YsizeAll });
+				rectangleTemp.setPosition({ xPosGeneral , yOffsetOne + yPosOneCharacteristic * it + yOffsetRelated * it });
+				rectangleTemp.setSize({ XsizeName, ySizeAll });
 
-				GUITextAndRectangle NameCharacteristic({ string(GunStats::indexCharacteristicName[it]) }, RectangleTemp, false, false);
-				/////////////////////////////////////////////////////////////////////////////////////
+				GUITextAndRectangle nameCharacteristic({ string(GunStats::indexCharacteristicName[it]) }, rectangleTemp, false, false);
 
+				/// текущее отображение характеристики \\ темп пробитие ... 
+				float XsizeVisualCharacteristic = xSizeGeneral * percentSizeCell[1];
 
+				rectangleTemp.setPosition(rectangleTemp.getPosition() + Vector2f(XsizeName, 0));
+				rectangleTemp.setSize({ XsizeVisualCharacteristic, ySizeAll });
 
-
-
-
-
-
-
-
-
-
-				/// текущее отображение характеристики \\ темп пробитие ... \\
-                /////////////////////////////////////////////////////////////////////////////////////
-				float XsizeVisualCharacteristic = XsizeGeneral * PercentSizeCell[1];
-
-				RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeName, 0));
-				RectangleTemp.setSize({ XsizeVisualCharacteristic, YsizeAll });
-
-				GUITextAndRectangle VisualCharacteristic({ L"0" }, RectangleTemp, false, false);
-				/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
+				GUITextAndRectangle visualCharacteristic({ L"0" }, rectangleTemp, false, false);
 
 				/// визуальное отображения процента апгрейда
-				/////////////////////////////////////////////////////////////////////////////////////
-				float XsizeVisualPercent = XsizeGeneral * PercentSizeCell[2];
+				float XsizeVisualPercent = xSizeGeneral * percentSizeCell[2];
 
-				RectangleTemp.setPosition(RectangleTemp.getPosition() + Vector2f(XsizeVisualCharacteristic, 0));
-				RectangleTemp.setSize({ XsizeVisualPercent, YsizeAll });
+				rectangleTemp.setPosition(rectangleTemp.getPosition() + Vector2f(XsizeVisualCharacteristic, 0));
+				rectangleTemp.setSize({ XsizeVisualPercent, ySizeAll });
 
-				GUITextAndRectangle VisualPercentUpgrade({ L"0.0%" }, RectangleTemp, false, false);
-				/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
+				GUITextAndRectangle visualPercentUpgrade({ L"0.0%" }, rectangleTemp, false, false);
 
 				// Общий "прямоугольник" в котором распалагаютися все юниты
-				/////////////////////////////////////////////////////////////////////////////////////
-				float XsizeRectangleALLUnits = XsizeGeneral * PercentSizeCell[3];
+				float XsizeRectangleALLUnits = xSizeGeneral * percentSizeCell[3];
 
-				RectangleShape RectanpleForUnits;
-				RectanpleForUnits.setPosition({ RectangleTemp.getPosition() + Vector2f(XsizeVisualPercent, 0) });
-				RectanpleForUnits.setSize(Vector2f(XsizeRectangleALLUnits, YsizeAll));
-
-				/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
+				RectangleShape rectanpleForUnits;
+				rectanpleForUnits.setPosition({ rectangleTemp.getPosition() + Vector2f(XsizeVisualPercent, 0) });
+				rectanpleForUnits.setSize(Vector2f(XsizeRectangleALLUnits, ySizeAll));
 
 				// размещаем едины в RectanpleForUnits
-				/////////////////////////////////////////////////////////////////////////////////////
 				vector<RectangleShape> resultShapeUnits;
 
-
 				// максимальное колво единиц для текущей характеристики
-				int   CountUnits = GunStats::getCountUnitsForCharacteristic[it];
+				int   countUnits = GunStats::getCountUnitsForCharacteristic[it];
 
-				float XposUnits = RectanpleForUnits.getPosition().x;
-				float YposUnits = RectanpleForUnits.getPosition().y;
-				float XsizeUnits = RectanpleForUnits.getSize().x / CountUnits;
-				float YsizeUnits = RectanpleForUnits.getSize().y;
+				float xPosUnits = rectanpleForUnits.getPosition().x;
+				float yPosUnits = rectanpleForUnits.getPosition().y;
+				float xSizeUnits = rectanpleForUnits.getSize().x / countUnits;
+				float ySizeUnits = rectanpleForUnits.getSize().y;
 
-
-				for (int Cur_Unit = 0; Cur_Unit < CountUnits; Cur_Unit++)
+				for (int currentUnit = 0; currentUnit < countUnits; currentUnit++)
 				{
-					RectangleShape UnitShahe;
-					UnitShahe.setSize({ XsizeUnits, YsizeUnits });
-					UnitShahe.setPosition({ XposUnits + XsizeUnits * Cur_Unit, YposUnits });
-					UnitShahe.setFillColor(Color(66, 66, 66));
-					UnitShahe.setOutlineColor(Color(10, 10, 10));
-					UnitShahe.setOutlineThickness(-1);
+					RectangleShape unitShahe;
+					unitShahe.setSize({ xSizeUnits, ySizeUnits });
+					unitShahe.setPosition({ xPosUnits + xSizeUnits * currentUnit, yPosUnits });
+					unitShahe.setFillColor(Color(66, 66, 66));
+					unitShahe.setOutlineColor(Color(10, 10, 10));
+					unitShahe.setOutlineThickness(-1);
 
-					resultShapeUnits.push_back(UnitShahe);
+					resultShapeUnits.push_back(unitShahe);
 				}
-				/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
 
 				/// кнопка для выбора
-				/////////////////////////////////////////////////////////////////////////////////////
-
-				float ResizeMark = 0.7f; // размер кнопки от максимума %
+				float resizeMark = 0.7f; // размер кнопки от максимума %
 
 				// размер кнопки
-				float SizeCellButton = RectangleTemp.getSize().y * ResizeMark;
+				float sizeCellButton = rectangleTemp.getSize().y * resizeMark;
 
 				// смещение для центрирования
-				float OffsetSizeCellButton = RectangleTemp.getSize().y * ((1.f - ResizeMark) / 2.f);
+				float offsetSizeCellButton = rectangleTemp.getSize().y * ((1.f - resizeMark) / 2.f);
 
-				RectangleTemp.setPosition(Vector2f(RectanpleForUnits.getPosition().x + RectanpleForUnits.getSize().x, RectanpleForUnits.getPosition().y) + Vector2f(OffsetSizeCellButton * 2, OffsetSizeCellButton));
+				rectangleTemp.setPosition(Vector2f(rectanpleForUnits.getPosition().x + rectanpleForUnits.getSize().x, rectanpleForUnits.getPosition().y) + Vector2f(offsetSizeCellButton * 2, offsetSizeCellButton));
 
-				RectangleTemp.setSize(Vector2f(SizeCellButton, SizeCellButton));
+				rectangleTemp.setSize(Vector2f(sizeCellButton, sizeCellButton));
 
+				GUITextAndRectangle buttonCharacteristic({}, rectangleTemp, true, false);
+				buttonCharacteristic.setTextureButton(TexturePoint_GreenMark, TexturePoint_RedMark);
 
-				GUITextAndRectangle ButtonCharacteristic({}, RectangleTemp, true, false);
-				ButtonCharacteristic.setTextureButton(TexturePoint_GreenMark, TexturePoint_RedMark);
+				if (it == 0) { buttonCharacteristic.setAsPressedButton(); }
 
-
-				if (it == 0)
-				{
-					ButtonCharacteristic.setAsPressedButton();
-				}
-				/////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-				result.emplace_back(NameCharacteristic, VisualCharacteristic, VisualPercentUpgrade, RectanpleForUnits, resultShapeUnits, ButtonCharacteristic);
+				result.emplace_back(nameCharacteristic, visualCharacteristic, visualPercentUpgrade, buttonCharacteristic, rectanpleForUnits, resultShapeUnits);
 			}
-
 			return result;
 		}();
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-	float YDownOffset = 0.7f;
+	float yDownOffset = 0.7f;
 	// между
-	float XOffsetRelated = defaultSizeCell * 0.25f;
+	float xOffsetRelated = defaultSizeCell * 0.25f;
 
 	/// отображение шанса на улучшение (внизу)
-	GUITextAndRectangle TextGeneralModChance = [defaultSizeCell, &ShaheGeneralMod, YsizeAll, YDownOffset]()
+	GUITextAndRectangle textGeneralModChance = [defaultSizeCell, &shaheGeneralMod, ySizeAll, yDownOffset]()
 		{
 			float Xsize = defaultSizeCell * 4.f;
 
-
 			RectangleShape RectangleGeneralModChance;
-			RectangleGeneralModChance.setSize({ Xsize , YsizeAll });
+			RectangleGeneralModChance.setSize({ Xsize , ySizeAll });
 
-			auto TempRectangle = ShaheGeneralMod.getRectangle();
-			RectangleGeneralModChance.setPosition(TempRectangle.getPosition() + Vector2f(0, TempRectangle.getSize().y - (defaultSizeCell * YDownOffset)));
+			auto TempRectangle = shaheGeneralMod.getRectangle();
+			RectangleGeneralModChance.setPosition(TempRectangle.getPosition() + Vector2f(0, TempRectangle.getSize().y - (defaultSizeCell * yDownOffset)));
 
 			return GUITextAndRectangle({ "Chahce_upgrade" , string(GunStats::characteristicNameInGunStat[0]) ,  L" 0.0%" }, RectangleGeneralModChance, false, false);
 		}();
 
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
 	// кнопка применить как начальный
-	GUITextAndRectangle ShapeGeneralModApplyStatInitial = [defaultSizeCell, &TextGeneralModChance, YsizeAll, YDownOffset, XOffsetRelated]()
+	GUITextAndRectangle shapeGeneralModApplyStatInitial = [defaultSizeCell, &textGeneralModChance, ySizeAll, yDownOffset, xOffsetRelated]()
 		{
-			float Xsize = defaultSizeCell * 3;
+			float xSize = defaultSizeCell * 3;
 
-			auto Rec = TextGeneralModChance.getRectangle();
+			auto shapeGMC = textGeneralModChance.getRectangle();
 
-			RectangleShape TempRec;
-			TempRec.setSize(Vector2f(Xsize, YsizeAll));
-			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+			RectangleShape tempRec;
+			tempRec.setSize(Vector2f(xSize, ySizeAll));
+			tempRec.setPosition(Vector2f(shapeGMC.getPosition().x + shapeGMC.getSize().x + xOffsetRelated, shapeGMC.getPosition().y));
 
-			return GUITextAndRectangle({ "Apply_as_initial_mod" }, TempRec, true, false);
+			return GUITextAndRectangle({ "Apply_as_initial_mod" }, tempRec, true, false);
 		}();
-
-
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
 
 	// кнопка применить как мод
-	GUITextAndRectangle ButtonGeneralModApplyStat = [defaultSizeCell, &ShapeGeneralModApplyStatInitial, YsizeAll, XOffsetRelated]()
+	GUITextAndRectangle buttonGeneralModApplyStat = [defaultSizeCell, &shapeGeneralModApplyStatInitial, ySizeAll, xOffsetRelated]()
 		{
-
 			float Xsize = defaultSizeCell * 1.8f;
 
-			auto Rec = ShapeGeneralModApplyStatInitial.getRectangle();
+			auto Rec = shapeGeneralModApplyStatInitial.getRectangle();
 
-			RectangleShape TempRec;
-			TempRec.setSize(Vector2f(Xsize, YsizeAll));
-			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+			RectangleShape tempRec;
+			tempRec.setSize(Vector2f(Xsize, ySizeAll));
+			tempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + xOffsetRelated, Rec.getPosition().y));
 
-
-			return GUITextAndRectangle({ "Apply" }, TempRec, true, false);
+			return GUITextAndRectangle({ "Apply" }, tempRec, true, false);
 		}();
 
-
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
 	// кнопка сбросить
-	GUITextAndRectangle ShapeGeneralModReset = [defaultSizeCell, &ButtonGeneralModApplyStat, YsizeAll, XOffsetRelated]()
+	GUITextAndRectangle shapeGeneralModReset = [defaultSizeCell, &buttonGeneralModApplyStat, ySizeAll, xOffsetRelated]()
 		{
 
 			float Xsize = defaultSizeCell * 1.8f;
 
-			auto Rec = ButtonGeneralModApplyStat.getRectangle();
+			auto Rec = buttonGeneralModApplyStat.getRectangle();
 
 			RectangleShape TempRec;
-			TempRec.setSize(Vector2f(Xsize, YsizeAll));
-			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+			TempRec.setSize(Vector2f(Xsize, ySizeAll));
+			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + xOffsetRelated, Rec.getPosition().y));
 
 
 			return GUITextAndRectangle({ "Reset" }, TempRec, true, false);
 		}();
 
-
-
-
-
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
 	// кнопка назад
-	GUITextAndRectangle ShapeGeneralModBack = [defaultSizeCell, &ShapeGeneralModReset, YsizeAll, XOffsetRelated]()
+	GUITextAndRectangle shapeGeneralModBack = [defaultSizeCell, &shapeGeneralModReset, ySizeAll, xOffsetRelated]()
 		{
 
 			float Xsize = defaultSizeCell * 1.6f;
 
-			auto Rec = ShapeGeneralModReset.getRectangle();
+			auto Rec = shapeGeneralModReset.getRectangle();
 
 			RectangleShape TempRec;
-			TempRec.setSize(Vector2f(Xsize, YsizeAll));
-			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + XOffsetRelated, Rec.getPosition().y));
+			TempRec.setSize(Vector2f(Xsize, ySizeAll));
+			TempRec.setPosition(Vector2f(Rec.getPosition().x + Rec.getSize().x + xOffsetRelated, Rec.getPosition().y));
 
 
 			return GUITextAndRectangle({ "Step_back" }, TempRec, true, false);
 		}();
 
-
-
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	//////////////////////// ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ///////////////////////////////////
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-	GUITextAndRectangle TextInfoDebug = [defaultSizeCell, countCellOnHeight]()
+	GUITextAndRectangle textInfoDebug = [defaultSizeCell, countCellOnHeight]()
 		{
 
-			RectangleShape ShapeInfoDebug;
-			ShapeInfoDebug.setSize(Vector2f(defaultSizeCell * 8, defaultSizeCell / 2));
-			ShapeInfoDebug.setPosition(Vector2f(static_cast<float>(defaultSizeCell * 11.5), static_cast<float>(defaultSizeCell * (countCellOnHeight + 1))));
+			RectangleShape shapeInfoDebug;
+			shapeInfoDebug.setSize(Vector2f(defaultSizeCell * 8, defaultSizeCell / 2));
+			shapeInfoDebug.setPosition(Vector2f(static_cast<float>(defaultSizeCell * 11.5), static_cast<float>(defaultSizeCell * (countCellOnHeight + 1))));
 
-			return GUITextAndRectangle({}, ShapeInfoDebug, false, false);
+			return GUITextAndRectangle({}, shapeInfoDebug, false, false);
 		}();
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	//////////////////////// ОТОБРАЖЕНИЕ ПОВТОРНЫХ СБОРОК ////////////////////////
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-	GUITextAndRectangle ShapeTargetIter = [defaultSizeCell, countCellOnHeight, totalIterations]()
+	GUITextAndRectangle shapeTargetIter = [defaultSizeCell, countCellOnHeight, totalIterations]()
 		{
 
 			RectangleShape ShapeTargetIter;
@@ -960,29 +629,7 @@ int main()
 			return GUITextAndRectangle({ "Number_weapon_assemblies" , to_wstring(totalIterations) }, ShapeTargetIter, true, false);
 		}();
 
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////// ЗАДНИЙ ФОН ////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////// ЗАДНИЙ ФОН ////////////////////////////////////////////////
 
 	RectangleShape background;
 	background.setSize(Vector2f(lengthWindowMain, heightWindowMain));
@@ -999,156 +646,29 @@ int main()
 		background.setTexture(&backgroundTexture);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////
 
-	///////////////////////////////////////////////////////////////////////////////////
+	RenderWindow mainWindow(VideoMode({ static_cast<unsigned int>(lengthWindowMain), static_cast<unsigned int>(heightWindowMain) }), "ModdingGun");
+	RenderWindow diagramWindow;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		// создаем окно
-	RenderWindow window(VideoMode({ static_cast<unsigned int>(lengthWindowMain), static_cast<unsigned int>(heightWindowMain) }), "ModdingGun");
-
-
-	RenderWindow Diagram;
-
-
-	window.setFramerateLimit(150);
-	Diagram.setFramerateLimit(150);
-	////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	mainWindow.setFramerateLimit(150);
+	diagramWindow.setFramerateLimit(150);
 
 	/////////////////////// ПРОЧИЕ ПЕРЕМЕННЫЕ ////////////////////////
 
-
-
-
 	//диаграмма
-	////////////////////////////////////////////////////////////////////////////////
 
-		// используем отрисовку кривой только один раз
-		// с помощью DiagramBool указывает какие окна отрисовали
-		// false = отрисованно -> больше не будет повторяться
-	vector<bool>         DiagramBool;
+	// используем отрисовку кривой только один раз
+	// с помощью diagramBool указывает какие окна отрисовали
+	// false = отрисованно -> больше не будет повторяться
+	vector<bool> diagramBool;
 
 	// вектор окон диаграм с отрисованными графикам
 	// графики отрисовываются один раз -> DiagramBool
-	vector<RenderWindow> VectorWindowsDiagram;
-
-
-
-	struct AllPackGraf
-	{
-		vector< GUITextAndRectangle> GUIPercentBinBt;
-		vector< GUITextAndRectangle> GUIPercentSmoothBt;
-		float PercentBin;
-		float PercentSmooth;
-
-
-
-		map<CountModifiers, float> CurrentSmoothFreqModifiers;
-		map<CountModifiers, float> CurrentSourceFreqModifiers;
-		Color       ColorCurve;
-		CurvePack   CurrentCurvePack;
-
-
-
-
-		vector<GUITextAndRectangle>     GUIPercentile50;
-		shared_ptr<GUITextAndRectangle> GUIInitialMod;
-		shared_ptr<GUITextAndRectangle> GUIEndMod;
-
-
-
-
-		shared_ptr<GUITextAndRectangle> GUIMethod;
-		vector<GUITextAndRectangle>     GUIMethodModifiers;
-		shared_ptr<GUITextAndRectangle> GUIButtonTop;
-		shared_ptr<GUITextAndRectangle> GUIButtonDown;
-
-
-
-		size_t InitialIndexMethod;
-	};
+	vector<RenderWindow> arrWindowsDiagram;
 
 	//вектор для кривых 
-	vector<AllPackGraf> VectorDiagramPack;
-
-
-
-
-
-
-
+	vector<AllPackGraf> arrDiagramPack;
 
 	RectangleShape backgroundDiagram;
 	backgroundDiagram.setSize(Vector2f(static_cast<float>(lengthWindowDiagram), static_cast<float>(heightWindowDiagram)));
@@ -1166,52 +686,28 @@ int main()
 		backgroundDiagram.setTexture(&backgroundTextureDiagram);
 	}
 
-	int Error = 0;
+	int errorNum = 0;
 
-	////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	////////////////////////////////////////////////////////////////////////////////
-
-		// дефолт статы для 
-		// START_CHARACTERISTIC
-		// INITIAL_CHARACTERISTIC
-	const array<double, GunStats::countCharacteristic> DEFAULT_CHARACTERISTIC = { GunStats::countCharacteristic , 0.0 };
+	// дефолт статы для 
+	// START_CHARACTERISTIC
+	// inititialCharacteristicStat
+	const array<double, GunStats::countCharacteristic> kDefaultCharacteristic = { GunStats::countCharacteristic , 0.0 };
 
 
 	// указанный мод
 	// использовать только в области сборки calculate / vector для передачи в drawNormalGraph
-	array<double, GunStats::countCharacteristic> MOD_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+	array<double, GunStats::countCharacteristic> currentModCharacteristic = kDefaultCharacteristic;
 
 	// начальный мод 
 	// использовать только в области сборки calculate / vector для передачи в drawNormalGraph
-	array<double, GunStats::countCharacteristic> INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
+	array<double, GunStats::countCharacteristic> inititialCharacteristicStat = kDefaultCharacteristic;
 
-
-	vector<int> MaxStatPosition = { 60, 48, 40,    40,40,40,40, };
-
-
+	vector<int> maxStatPosition = { 60, 48, 40, 40,40,40,40, };
 
 	// выгрузка данных из файла оружия
-	CharacteristicGun CurrentCharacteristicGun(MaxStatPosition);
+	CharacteristicGun currentCharacteristicGun(maxStatPosition);
 
-
-
-
-	const vector<int> NullPosition = { 0,0,0, 0,0,0,0 };
+	const vector<int> kNullPosition = { 0,0,0, 0,0,0,0 };
 
 	// текущая позиция мода
 	// 0 куч
@@ -1221,8 +717,7 @@ int main()
 	// 4 качание
 	// 6 сост
 	// 5 грязь
-	vector<int> PositionMod = NullPosition;
-
+	vector<int> positionMod = kNullPosition;
 
 	// начальная позиция мода
 	// 0 куч
@@ -1232,413 +727,193 @@ int main()
 	// 4 качание
 	// 6 сост
 	// 5 грязь
-	vector<int> InitialPosition = NullPosition;
+	vector<int> initialPosition = kNullPosition;
 
+	vector<pair <vector<int>, vector<int>>> historyPosition;
 
+	bool pressedApplyAsMod = false;
 
-
-	vector<pair <vector<int>, vector<int>>> HistoryPosition;
-
-	bool PressedApplyAsMod = false;
-
-	////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////
-
-
-	for (int WI = 0; window.isOpen(); WI++)
+	for (int itWindow = 0; mainWindow.isOpen(); itWindow++)
 	{
-		if (WI > 100) { WI = 0; }
+		if (itWindow > 100) { itWindow = 0; }
 
-		positionMouseMainWindow = Mouse::getPosition(window);
-		postionMouseGlobal = window.mapPixelToCoords(positionMouseMainWindow);
+		positionMouseMainWindow = Mouse::getPosition(mainWindow);
+		postionMouseGlobal = mainWindow.mapPixelToCoords(positionMouseMainWindow);
 
-
-
-		while (const optional event = window.pollEvent())
+		while (const optional event = mainWindow.pollEvent())
 		{
 			if (event->is<Event::Closed>())
 			{
-				window.close();
-				for (int i = 0; i < VectorWindowsDiagram.size(); i++)
+				mainWindow.close();
+				for (int i = 0; i < arrWindowsDiagram.size(); i++)
 				{
-					VectorWindowsDiagram[i].close();
+					arrWindowsDiagram[i].close();
 				}
 			}
-
-
-
 
 			// выбор
 			else if (const auto& mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
 				if (mouseButtonPressed->button == Mouse::Button::Left)
 				{
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					/// нажали на оружие в списке)
-					for (size_t it = 0; it < VectorGun.size(); it++)
+					for (size_t it = 0; it < vectorGun.size(); it++)
 					{
-						if (VectorGun[it].WeapoGUI.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (vectorGun[it].m_weapoGUI.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							HistoryPosition.clear();
+							historyPosition.clear();
 							methodStepMod.clear();
 
-							PressedApplyAsMod = false;
+							pressedApplyAsMod = false;
 
-							INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
-							MOD_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
-
-
+							inititialCharacteristicStat = kDefaultCharacteristic;
+							currentModCharacteristic = kDefaultCharacteristic;
 
 							// ставим стандартный цвет на юнитах
-							for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+							for (int it1 = 0; it1 < generalModOption.size(); it1++)
 							{
-								for (int it2 = 0; it2 < GeneralModOption[it1].m_shaheUnitsInCharacteristic.size(); it2++)
+								for (int it2 = 0; it2 < generalModOption[it1].m_shaheUnitsInCharacteristic.size(); it2++)
 								{
-									GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(66, 66, 66));
+									generalModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(66, 66, 66));
 								}
 							}
 
-
-
-
-
-
-
-							////////////////////////////////////////////////////////////////////////////////////
 							// получаем имя оружия
-							nameGun = VectorGun[it].Str_Name;
+							nameGun = vectorGun[it].m_name;
 
-							if (!CurrentCharacteristicGun.load(fileAttributeWeapon, StringToWString(nameGun)))
+							if (!currentCharacteristicGun.load(fileAttributeWeapon, stringToWString(nameGun)))
 							{
 								nameGun = "Empty";
-								TextInfoDebug.setKeyStringTextWstring({ "Error_File" });
-								PositionMod = NullPosition;
+								textInfoDebug.setKeyStringTextWstring({ "Error_File" });
+								positionMod = kNullPosition;
 								break;
 							}
 
-							SelectWeaponGUI.setKeyStringTextWstring({ nameGun });
+							selectWeaponGUI.setKeyStringTextWstring({ nameGun });
 
-							TextInfoDebug.setKeyStringTextWstring({ "Loaded",  nameGun });
-							////////////////////////////////////////////////////////////////////////////////////
+							textInfoDebug.setKeyStringTextWstring({ "Loaded",  nameGun });
 
+							initialPosition = currentCharacteristicGun.getCurrentPosition();
+							moveElement(initialPosition, 4, 2);
+							positionMod = initialPosition;
 
+							editShaheUnits(generalModOption, currentCharacteristicGun, initialPosition, positionMod);
 
-
-
-
-
-
-
-							////////////////////////////////////////////////////////////////////////////////////
-
-							InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
-							moveElement(InitialPosition, 4, 2);
-							PositionMod = InitialPosition;
-
-
-							editShaheUnits(GeneralModOption, CurrentCharacteristicGun, InitialPosition, PositionMod);
-
-
-							////////////////////////////////////////////////////////////////////////////////////
-							for (int it = 0; it < GeneralModOption.size(); it++)
+							for (int it = 0; it < generalModOption.size(); it++)
 							{
-								if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+								if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 								{
-									setChahceUpgrade(CurrentCharacteristicGun, currentModifiers, TextGeneralModChance, it);
+									setChahceUpgrade(currentCharacteristicGun, currentModifiers, textGeneralModChance, it);
 								}
 
-
-
-
-								//GeneralModOption[it].m_textCharacteristicVisualPercent.setFillColor(ColorText);
-								GeneralModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ L"0.0%" });
-
+								//generalModOption[it].m_textCharacteristicVisualPercent.setFillColor(ColorText);
+								generalModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ L"0.0%" });
 
 								// размета значений характеристики
-								auto val = CurrentCharacteristicGun.getValueCharacteristic(GunStats::transIndexToIndexGunStat[it]);
-								wstring WSval = it ? to_wstring(static_cast<int>(val)) : format(L"{:.1f}", val);
-								GeneralModOption[it].m_textVisualCharacteristic.setKeyStringTextWstring({ WSval });
-
+								auto val = currentCharacteristicGun.getValueCharacteristic(GunStats::transIndexToIndexGunStat[it]);
+								wstring wstrVal = it ? to_wstring(static_cast<int>(val)) : format(L"{:.1f}", val);
+								generalModOption[it].m_textVisualCharacteristic.setKeyStringTextWstring({ wstrVal });
 							}
-
-							////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 							/// обновляем стоимость KitPrice
 							/// tool уже выведен
 							/// skill comming soon
 							/////////////////////////////////////////////////////////
 
-							unsigned value_price = getPrice(filePriceModifiersWeapon, currentModifiers, nameGun);
-							currentPrice.m_priceKit = value_price;
-							for (auto& tp : KitPrice)
+							unsigned valuePrice = getPrice(filePriceModifiersWeapon, currentModifiers, nameGun);
+							currentPrice.m_priceKit = valuePrice;
+							for (auto& tp : arrKitPrice)
 							{
 								if (!tp.isButton())
 								{
-									tp.setKeyStringTextWstring({ format(L"{:L}", value_price), L"₽" });
+									tp.setKeyStringTextWstring({ format(L"{:L}", valuePrice), L"₽" });
 									break;
 								}
 							}
-							/////////////////////////////////////////////////////////
-
 							break;
 						}
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					// languages
-					for (size_t it = 0; it < vectorLangGUI.size(); it++)
+
+					size_t idx = 0;
+					for (auto& gui : arrLangGUI)
 					{
-						if (vectorLangGUI[it].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (gui.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							// снимаем выделение всех
-							for (size_t it1 = 0; it1 < vectorLangGUI.size(); it1++)
+							for (auto& g : arrLangGUI)
 							{
-								vectorLangGUI[it1].setAsReleasedButton();
+								g.setAsReleasedButton();
 							}
 
-							vectorLangGUI[it].setAsPressedButton();
+							gui.setAsPressedButton();
 
-							LANG_SETTING.setLanguage(it);
-
-							/// Refresh всех GUI;
+							LANG_SETTING.setLanguage(idx);
 
 							GUITextAndRectangle::refreshTranslateGui();
-
+							break;
 						}
+						++idx;
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					for (size_t it = 0; it < VectorThemeGUI.size(); it++)
+					idx = 0;
+					for (auto& gui : VectorThemeGUI)
 					{
-						if (VectorThemeGUI[it].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (gui.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							// снимаем выделение всех
-							for (size_t it1 = 0; it1 < VectorThemeGUI.size(); it1++)
+							for (auto& g : VectorThemeGUI)
+								g.setAsPressedButton();
+
+							gui.setAsReleasedButton();
+
+							auto theme = gui.getKeyStringTextWstring();
+
+							if (std::holds_alternative<std::string>(theme[0]))
 							{
-								VectorThemeGUI[it1].setAsPressedButton();
-							}
-
-							VectorThemeGUI[it].setAsReleasedButton();
-
-
-
-							/// Refresh всех GUI;
-
-							auto Theme = VectorThemeGUI[it].getKeyStringTextWstring();
-
-							if (holds_alternative<string>(Theme[0]))
-							{
-								auto StringTheme = get<string>(Theme[0]);
-								GUITextAndRectangle::refreshThemeGui(StringTheme);
+								const auto& stringTheme = std::get<std::string>(theme[0]);
+								GUITextAndRectangle::refreshThemeGui(stringTheme);
 							}
 							else
 							{
 								OUTPUT_LOG("Main -> VectorThemeGUI - no string specified");
 							}
 
-
+							break;
 						}
+
+						++idx;
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					// нажали рассчет мода
-					if (Calculation.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+					if (calculation.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 					{
-
-						Calculation.setAsReleasedButton();
-
+						calculation.setAsReleasedButton();
 
 						// загружен ли файл?
-						if (!CurrentCharacteristicGun.isEmpty())
+						if (!currentCharacteristicGun.isEmpty())
 						{
-							TextInfoDebug.setKeyStringTextWstring({ "calculation" });
-
+							textInfoDebug.setKeyStringTextWstring({ "calculation" });
 
 							resultMainModifiers.clear();
 							resultRandomAttemptUsed.clear();
 
 							for (int i = 0; i < GunStats::countCharacteristic; i++)
 							{
-								MOD_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
+								currentModCharacteristic[i] = currentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
 							}
 
-
 							// если не совпадает c начальным 
-							if (PositionMod != InitialPosition)
+							if (positionMod != initialPosition)
 							{
-								window.draw(background);
+								mainWindow.draw(background);
+								mainWindow.draw(calculation.getRectangle());
+								mainWindow.draw(calculation.getText());
+								mainWindow.draw(textInfoDebug.getRectangle());
+								mainWindow.draw(textInfoDebug.getText());
+								mainWindow.display();
 
-								window.draw(Calculation.getRectangle());
-								window.draw(Calculation.getText());
-
-								window.draw(TextInfoDebug.getRectangle());
-								window.draw(TextInfoDebug.getText());
-
-								window.display();
-
-
-								vector<thread> threads_v;
+								vector<thread> threadsV;
 								atomic<int> currentIndex = 0;
-
-
 
 								// защита от деления на 0
 								if (threadCount == 0) threadCount = 1;
@@ -1652,12 +927,11 @@ int main()
 								{
 									int end = start + chunkSize + (i < remainder ? 1 : 0);  // равномерно распределяем остаток
 
-									threads_v.emplace_back([=]()
+									threadsV.emplace_back([=]()
 										{
-
 											for (int j = start; j < end; ++j)
 											{
-												CharacteristicGun gunCopy = CurrentCharacteristicGun;
+												CharacteristicGun gunCopy = currentCharacteristicGun;
 												RunSingleAssembly(j, methodStepMod);
 											}
 										});
@@ -1665,377 +939,245 @@ int main()
 								}
 
 								// Ждём завершения всех потоков
-								for (auto& t : threads_v) t.join();
+								for (auto& t : threadsV) { t.join(); }
 
-								Error = 0;
+								errorNum = 0;
 								switch (RunSingleAssembly(-1, methodStepMod))
 								{
 								case 0:
-									TextInfoDebug.setKeyStringTextWstring({ "Success_assemble" });
+									textInfoDebug.setKeyStringTextWstring({ "Success_assemble" });
 									break;
 
 								case -1:
-									TextInfoDebug.setKeyStringTextWstring({ "Empty_vector_method" });
+									textInfoDebug.setKeyStringTextWstring({ "Empty_vector_method" });
 									break;
 
 								case -2:
-									TextInfoDebug.setKeyStringTextWstring({ "ChanceUpgrade_<=_0" });
+									textInfoDebug.setKeyStringTextWstring({ "ChanceUpgrade_<=_0" });
 									break;
 
 								case -3:
-									TextInfoDebug.setKeyStringTextWstring({ "Key_Tool_not_found" });
+									textInfoDebug.setKeyStringTextWstring({ "Key_Tool_not_found" });
 									break;
 
 								case -4:
-									TextInfoDebug.setKeyStringTextWstring({ "Key_Kit_not_found" });
+									textInfoDebug.setKeyStringTextWstring({ "Key_Kit_not_found" });
 									break;
 
 								case -5:
-									TextInfoDebug.setKeyStringTextWstring({ "Key_Skill_not_found" });
+									textInfoDebug.setKeyStringTextWstring({ "Key_Skill_not_found" });
 									break;
 
 								case -6:
-									TextInfoDebug.setKeyStringTextWstring({ "modifiers_noKit_noTool" });
-									Error = -6;
+									textInfoDebug.setKeyStringTextWstring({ "modifiers_noKit_noTool" });
+									errorNum = -6;
 									break;
 
-
 								default:
-									TextInfoDebug.setKeyStringTextWstring({ "Unknown_error_RunSingleAssembly" });
+									textInfoDebug.setKeyStringTextWstring({ "Unknown_error_RunSingleAssembly" });
 									break;
 								}
 
+								diagramWindow.create(VideoMode({ lengthWindowDiagram, heightWindowDiagram }), "Diagram");
 
-
-								Diagram.create(VideoMode({ lengthWindowDiagram, heightWindowDiagram }), "Diagram");
-
-								VectorDiagramPack.emplace_back();
-								VectorWindowsDiagram.push_back(move(Diagram));
-								DiagramBool.push_back(false);
-
+								arrDiagramPack.emplace_back();
+								arrWindowsDiagram.push_back(move(diagramWindow));
+								diagramBool.push_back(false);
 							}
 							else
 							{
-								TextInfoDebug.setKeyStringTextWstring({ "mod_matches" });
+								textInfoDebug.setKeyStringTextWstring({ "mod_matches" });
 							}
-
-
 						}
 						else
 						{
-							TextInfoDebug.setKeyStringTextWstring({ "File_not_uploaded" });
-							PositionMod = InitialPosition = NullPosition;
+							textInfoDebug.setKeyStringTextWstring({ "File_not_uploaded" });
+							positionMod = initialPosition = kNullPosition;
 						}
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					// окно смены колличества повторений
-					else if (ShapeTargetIter.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+					else if (shapeTargetIter.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 					{
-						ShapeTargetIter.setAsReleasedButton();
+						shapeTargetIter.setAsReleasedButton();
 						totalIterations < 10000 ? totalIterations += 1000 : totalIterations = 1000;
-
-
-						ShapeTargetIter.setKeyStringTextWstring({ "Number_weapon_assemblies", to_wstring(totalIterations) });
+						shapeTargetIter.setKeyStringTextWstring({ "Number_weapon_assemblies", to_wstring(totalIterations) });
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					// Окно параметров
-					else if (ShaheGeneralMod.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+					else if (shaheGeneralMod.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 					{
 						// нажали по кнопке 
-						for (int it = 0; it < GeneralModOption.size(); it++)
+						for (auto& mod : generalModOption)
 						{
-							if (GeneralModOption[it].m_markButtonCharacteristic.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+							if (mod.m_markButtonCharacteristic.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 							{
-
-								for (int it2 = 0; it2 < GeneralModOption.size(); it2++)
+								for (auto& m : generalModOption)
 								{
-									GeneralModOption[it2].m_markButtonCharacteristic.setAsReleasedButton();
+									m.m_markButtonCharacteristic.setAsReleasedButton();
 								}
-
-								GeneralModOption[it].m_markButtonCharacteristic.setAsPressedButton();
+								mod.m_markButtonCharacteristic.setAsPressedButton();
 								break;
 							}
 						}
 
-
-
-
-
 						// нажали применить как мод
-						if (ButtonGeneralModApplyStat.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (buttonGeneralModApplyStat.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
+							buttonGeneralModApplyStat.setAsReleasedButton();
 
-							ButtonGeneralModApplyStat.setAsReleasedButton();
-
-							if (!CurrentCharacteristicGun.isEmpty())
+							if (!currentCharacteristicGun.isEmpty())
 							{
-								for (int it = 0; it < GeneralModOption.size(); it++)
+								for (int it = 0; it < generalModOption.size(); it++)
 								{
-									if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+									if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 									{
-										if (PositionMod[it] < CurrentCharacteristicGun.getMaxPositionCharacteristic()[GunStats::transIndexToIndexGunStat[it]])
+										if (positionMod[it] < currentCharacteristicGun.getMaxPositionCharacteristic()[GunStats::transIndexToIndexGunStat[it]])
 										{
+											auto RealPercent = calculateSuccessChance(
+												currentCharacteristicGun.getChanceForNextStat(GunStats::transIndexToIndexGunStat[it]),
+												GunStats::Modifiers::getToolModifier(currentModifiers.m_tool),
+												GunStats::Modifiers::getKitModifier(currentModifiers.m_kit),
+												GunStats::Modifiers::getSkillModifier(currentModifiers.m_skill)
+											);
 
-
-											//////////////////////////////////////////////////////////////////////////////////////////////
-											auto RealPercent =
-												calculateSuccessChance(
-													CurrentCharacteristicGun.getChanceForNextStat(GunStats::transIndexToIndexGunStat[it]),
-													GunStats::Modifiers::getToolModifier(currentModifiers.m_tool),
-													GunStats::Modifiers::getKitModifier(currentModifiers.m_kit),
-													GunStats::Modifiers::getSkillModifier(currentModifiers.m_skill)
-												);
-											//////////////////////////////////////////////////////////////////////////////////////////////
-
-											if (!PressedApplyAsMod)
+											if (!pressedApplyAsMod)
 											{
 												for (int i = 0; i < GunStats::countCharacteristic; i++)
 												{
-													INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
+													inititialCharacteristicStat[i] = currentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
 												}
 											}
 
-
-											if (CurrentCharacteristicGun.upgradeStat(GunStats::transIndexToIndexGunStat[it]))
+											if (currentCharacteristicGun.upgradeStat(GunStats::transIndexToIndexGunStat[it]))
 											{
-
-
-
-
-												//////////////////////////////////////////////////////////////////////////////////////////////
-												PositionMod = CurrentCharacteristicGun.getCurrentPosition();
-												moveElement(PositionMod, 4, 2);
+												positionMod = currentCharacteristicGun.getCurrentPosition();
+												moveElement(positionMod, 4, 2);
 
 												// вектор уменьшения характеристик по GunStats
-												auto Des = CurrentCharacteristicGun.getDecreaseForCurrentStat(GunStats::transIndexToIndexGunStat[it]);
+												auto Des = currentCharacteristicGun.getDecreaseForCurrentStat(GunStats::transIndexToIndexGunStat[it]);
 												moveElement(Des, 4, 2);
 
 												for (int i = 0; i < GunStats::countCharacteristic; i++)
 												{
-													InitialPosition[i] -= Des[i];
+													initialPosition[i] -= Des[i];
 												}
-												//////////////////////////////////////////////////////////////////////////////////////////////
 
-
-												HistoryPosition.emplace_back(PositionMod,  InitialPosition);
+												historyPosition.emplace_back(positionMod, initialPosition);
 
 												Method m;
 												m.m_modifiersThisChance = currentModifiers;
 												m.m_price = currentPrice;
 												m.m_chanceUpgrade = RealPercent;
-												m.m_visualPercent = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[it]);
+												m.m_visualPercent = currentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[it]);
 												m.m_characteristicGunstat = GunStats::transIndexToIndexGunStat[it];
 
-												methodStepMod.emplace_back(m);
+												methodStepMod.push_back(m);
 
-												PressedApplyAsMod = true;
-												ShapeGeneralModApplyStatInitial.setAsReleasedButton();
+												pressedApplyAsMod = true;
+												shapeGeneralModApplyStatInitial.setAsReleasedButton();
 
-												TextInfoDebug.setKeyStringTextWstring({ "Applied_mod_step_recorded" });
+												textInfoDebug.setKeyStringTextWstring({ "Applied_mod_step_recorded" });
 											}
 										}
 										else
 										{
-											TextInfoDebug.setKeyStringTextWstring({ "Cannot_improved_beyond_maximum" });
+											textInfoDebug.setKeyStringTextWstring({ "Cannot_improved_beyond_maximum" });
 										}
 										break;
 									}
-
 								}
 							}
 							else
 							{
-								TextInfoDebug.setKeyStringTextWstring({ "Data_not_loaded" });
+								textInfoDebug.setKeyStringTextWstring({ "Data_not_loaded" });
 							}
 						}
 
-
-
-
-
 						// нажали применить как начальную
-						else if (ShapeGeneralModApplyStatInitial.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						else if (shapeGeneralModApplyStatInitial.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							if (!PressedApplyAsMod)
+							if (!pressedApplyAsMod)
 							{
+								shapeGeneralModApplyStatInitial.setAsReleasedButton();
 
-								ShapeGeneralModApplyStatInitial.setAsReleasedButton();
-
-								if (!CurrentCharacteristicGun.isEmpty())
+								if (!currentCharacteristicGun.isEmpty())
 								{
-
-									for (int it = 0; it < GeneralModOption.size(); it++)
+									for (int it = 0; it < generalModOption.size(); it++)
 									{
-
-										if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+										if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 										{
-
-											if (CurrentCharacteristicGun.upgradeStat(GunStats::transIndexToIndexGunStat[it]))
+											if (currentCharacteristicGun.upgradeStat(GunStats::transIndexToIndexGunStat[it]))
 											{
 
-												InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
-												moveElement(InitialPosition, 4, 2);
+												initialPosition = currentCharacteristicGun.getCurrentPosition();
+												moveElement(initialPosition, 4, 2);
 
-												PositionMod = InitialPosition;
+												positionMod = initialPosition;
 
 												for (int i = 0; i < GunStats::countCharacteristic; i++)
 												{
-													INITIAL_CHARACTERISTIC[i] = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
+													inititialCharacteristicStat[i] = currentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[i]);
 												}
 
-												HistoryPosition.push_back({ PositionMod,  InitialPosition });
+												historyPosition.push_back({ positionMod,  initialPosition });
 
-												TextInfoDebug.setKeyStringTextWstring({ "Marked_as_initial" });
+												textInfoDebug.setKeyStringTextWstring({ "Marked_as_initial" });
 											}
 											else
 											{
-												TextInfoDebug.setKeyStringTextWstring({ "Cannot_improved_beyond_maximum" });
+												textInfoDebug.setKeyStringTextWstring({ "Cannot_improved_beyond_maximum" });
 											}
 											break;
 										}
-
-
-
 									}
 								}
 								else
 								{
-									TextInfoDebug.setKeyStringTextWstring({ "Data_not_loaded" });
+									textInfoDebug.setKeyStringTextWstring({ "Data_not_loaded" });
 								}
 							}
 							else
 							{
-								TextInfoDebug.setKeyStringTextWstring({ "Prohibited_after_applying_mod" });
+								textInfoDebug.setKeyStringTextWstring({ "Prohibited_after_applying_mod" });
 							}
 						}
 
-
-
-
-
 						// нажали сбросить
-						else if (ShapeGeneralModReset.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						else if (shapeGeneralModReset.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							HistoryPosition.clear();
+							historyPosition.clear();
 							methodStepMod.clear();
 
-							ShapeGeneralModReset.setAsReleasedButton();
-							CurrentCharacteristicGun.returnDefaultPosition();
+							shapeGeneralModReset.setAsReleasedButton();
+							currentCharacteristicGun.returnDefaultPosition();
 
+							initialPosition = currentCharacteristicGun.getCurrentPosition();
+							moveElement(initialPosition, 4, 2);
+							positionMod = initialPosition;
 
-							InitialPosition = CurrentCharacteristicGun.getCurrentPosition();
-							moveElement(InitialPosition, 4, 2);
-							PositionMod = InitialPosition;
+							pressedApplyAsMod = false;
 
-							PressedApplyAsMod = false;
+							inititialCharacteristicStat = kDefaultCharacteristic;
+							currentModCharacteristic = kDefaultCharacteristic;
 
-
-							INITIAL_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
-							MOD_CHARACTERISTIC = DEFAULT_CHARACTERISTIC;
-
-
-							TextInfoDebug.setKeyStringTextWstring({ "Mod_reset" });
-
+							textInfoDebug.setKeyStringTextWstring({ "Mod_reset" });
 						}
 
-
-
-
 						//нажали вернуться на шаг  назад
-						else if (ShapeGeneralModBack.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						else if (shapeGeneralModBack.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							ShapeGeneralModBack.setAsReleasedButton();
+							shapeGeneralModBack.setAsReleasedButton();
 
 							//возвращаем шаг назад
-							if (!CurrentCharacteristicGun.isEmpty())
+							if (!currentCharacteristicGun.isEmpty())
 							{
-								if (CurrentCharacteristicGun.stepBack())
+								if (currentCharacteristicGun.stepBack())
 								{
-									TextInfoDebug.setKeyStringTextWstring({ "Step_back" });
+									textInfoDebug.setKeyStringTextWstring({ "Step_back" });
 
 									// если была нажата принять как мод, удаляем последний элемент
-									if (PressedApplyAsMod)
+									if (pressedApplyAsMod)
 									{
 										if (!methodStepMod.empty())
 										{
@@ -2043,138 +1185,97 @@ int main()
 										}
 										else
 										{
-											TextInfoDebug.setKeyStringTextWstring({ "Error - vector was not reduced, it was empty" });
+											textInfoDebug.setKeyStringTextWstring({ "Error - vector was not reduced, it was empty" });
 										}
 
-
-
-										if (methodStepMod.empty()) { PressedApplyAsMod = false; }
+										if (methodStepMod.empty()) { pressedApplyAsMod = false; }
 									}
-									if (!HistoryPosition.empty())
+									if (!historyPosition.empty())
 									{
-										HistoryPosition.pop_back();
+										historyPosition.pop_back();
 
-										auto cp_temp = CurrentCharacteristicGun.getCurrentPosition();
+										auto cp_temp = currentCharacteristicGun.getCurrentPosition();
 										moveElement(cp_temp, 4, 2);
 
-										if (!HistoryPosition.empty())
+										if (!historyPosition.empty())
 										{
-											PositionMod = HistoryPosition[HistoryPosition.size() - 1].first;
-											InitialPosition = HistoryPosition[HistoryPosition.size() - 1].second;
+											positionMod = historyPosition[historyPosition.size() - 1].first;
+											initialPosition = historyPosition[historyPosition.size() - 1].second;
 										}
 										else
 										{
-											PositionMod = InitialPosition = cp_temp;
+											positionMod = initialPosition = cp_temp;
 										}
 
 										// проверка всегда по PositionMod
-										if (PositionMod != cp_temp) { TextInfoDebug.setKeyStringTextWstring({ L"ERROR 'Position != Check' " }); }
+										if (positionMod != cp_temp) { textInfoDebug.setKeyStringTextWstring({ L"ERROR 'Position != Check' " }); }
 									}
-									else { TextInfoDebug.setKeyStringTextWstring({ L"No more steps ERROR 'HistoryPosition' " }); }
+									else { textInfoDebug.setKeyStringTextWstring({ L"No more steps ERROR 'HistoryPosition' " }); }
 								}
-								else { TextInfoDebug.setKeyStringTextWstring({ "No_steps" }); }
+								else { textInfoDebug.setKeyStringTextWstring({ "No_steps" }); }
 							}
-							else { TextInfoDebug.setKeyStringTextWstring({ "Cant_take_step_back_there_no_data" }); }
+							else { textInfoDebug.setKeyStringTextWstring({ "Cant_take_step_back_there_no_data" }); }
 						}
 
-
-
-
 						// размечаем процент
-						for (int it = 0; it < GeneralModOption.size(); it++)
+						for (int it = 0; it < generalModOption.size(); it++)
 						{
 
-							GeneralModOption[it].m_textCharacteristicVisualPercent.resetColorText();
+							generalModOption[it].m_textCharacteristicVisualPercent.resetColorText();
 
-							if (!CurrentCharacteristicGun.isEmpty())
+							if (!currentCharacteristicGun.isEmpty())
 							{
-								auto VPercent = CurrentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[it]);
+								auto VPercent = currentCharacteristicGun.getVisualPercentUpgradeCharacteristic(GunStats::transIndexToIndexGunStat[it]);
 
-								if (VPercent > 0) { GeneralModOption[it].m_textCharacteristicVisualPercent.setColorText(Color::Green); }
-								else if (VPercent < 0) { GeneralModOption[it].m_textCharacteristicVisualPercent.setColorText(Color::Red); }
+								if (VPercent > 0) { generalModOption[it].m_textCharacteristicVisualPercent.setColorText(Color::Green); }
+								else if (VPercent < 0) { generalModOption[it].m_textCharacteristicVisualPercent.setColorText(Color::Red); }
 
-								GeneralModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ format(L"{:.1f}", VPercent), L"%" });
+								generalModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ format(L"{:.1f}", VPercent), L"%" });
 
 								// если не нажата
-								if (!PressedApplyAsMod)
+								if (!pressedApplyAsMod)
 								{
-									INITIAL_CHARACTERISTIC[it] = VPercent;
-									MOD_CHARACTERISTIC[it] = VPercent;
+									inititialCharacteristicStat[it] = VPercent;
+									currentModCharacteristic[it] = VPercent;
 								}
 								else
 								{
-									MOD_CHARACTERISTIC[it] = VPercent;
+									currentModCharacteristic[it] = VPercent;
 								}
-
 							}
 							else
 							{
-								GeneralModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ L"0.0%" });
+								generalModOption[it].m_textCharacteristicVisualPercent.setKeyStringTextWstring({ L"0.0%" });
 							}
 
 							// разметка шанса улучшения процента
-							if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+							if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 							{
-								setChahceUpgrade(CurrentCharacteristicGun, currentModifiers, TextGeneralModChance, it);
+								setChahceUpgrade(currentCharacteristicGun, currentModifiers, textGeneralModChance, it);
 							}
 
-
 							// размета значений характеристики
-							auto val = CurrentCharacteristicGun.getValueCharacteristic(GunStats::transIndexToIndexGunStat[it]);
+							auto val = currentCharacteristicGun.getValueCharacteristic(GunStats::transIndexToIndexGunStat[it]);
 
 							wstring WSval = it ? to_wstring(static_cast<int>(val)) : format(L"{:.1f}", val);
 
-							GeneralModOption[it].m_textVisualCharacteristic.setKeyStringTextWstring({ WSval });
+							generalModOption[it].m_textVisualCharacteristic.setKeyStringTextWstring({ WSval });
 						}
 
-						editShaheUnits(GeneralModOption, CurrentCharacteristicGun, InitialPosition, PositionMod);
+						editShaheUnits(generalModOption, currentCharacteristicGun, initialPosition, positionMod);
 					}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 					//МОДИЦИФКАТОРЫ
-
 					// инструменты
-					for (int i = 0; i < ModifiersIcon.m_toolRectangleGUI.size(); i++)
+					for (int i = 0; i < modifiersIcon.m_toolRectangleGUI.size(); i++)
 					{
-						if (ModifiersIcon.m_toolRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (modifiersIcon.m_toolRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							for (auto& sh : ModifiersIcon.m_toolRectangleGUI)
+							for (auto& sh : modifiersIcon.m_toolRectangleGUI)
 							{
 								sh.setAsReleasedButton();
 							}
-							ModifiersIcon.m_toolRectangleGUI[i].setAsPressedButton();
-
-
-
-
-
+							modifiersIcon.m_toolRectangleGUI[i].setAsPressedButton();
 
 							string STip = toolpath[i].stem().string().erase(0, 3);
 
@@ -2188,28 +1289,22 @@ int main()
 								}
 							}
 							currentModifiers.m_tool = tool;
-							TextInfoDebug.setKeyStringTextWstring({ "Select",  GunStats::Modifiers::getToolName(tool) });
+							textInfoDebug.setKeyStringTextWstring({ "Select",  GunStats::Modifiers::getToolName(tool) });
 
-
-
-							for (int it = 0; it < GeneralModOption.size(); it++)
+							for (int it = 0; it < generalModOption.size(); it++)
 							{
-								if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+								if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 								{
-									setChahceUpgrade(CurrentCharacteristicGun, currentModifiers, TextGeneralModChance, it);
+									setChahceUpgrade(currentCharacteristicGun, currentModifiers, textGeneralModChance, it);
 									break;
 								}
 							}
 
-
-
 							/// стоимость ToolPrice
-							/////////////////////////////////////////////////////////
-
 							unsigned value_price = getPrice(filePriceModifiersWeapon, currentModifiers);
 							currentPrice.m_priceTool = value_price;
 
-							for (auto& tp : ToolPrice)
+							for (auto& tp : arrToolPrice)
 							{
 								if (!tp.isButton())
 								{
@@ -2217,22 +1312,21 @@ int main()
 									break;
 								}
 							}
-							/////////////////////////////////////////////////////////
 
 							break;
 						}
 					}
+
 					// наборы
-					for (int i = 0; i < ModifiersIcon.m_kitRectangleGUI.size(); i++)
+					for (int i = 0; i < modifiersIcon.m_kitRectangleGUI.size(); i++)
 					{
-						if (ModifiersIcon.m_kitRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (modifiersIcon.m_kitRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							for (auto& sh : ModifiersIcon.m_kitRectangleGUI)
+							for (auto& sh : modifiersIcon.m_kitRectangleGUI)
 							{
 								sh.setAsReleasedButton();
 							}
-							ModifiersIcon.m_kitRectangleGUI[i].setAsPressedButton();
-
+							modifiersIcon.m_kitRectangleGUI[i].setAsPressedButton();
 
 							string STip = kitpath[i].stem().string().erase(0, 3);
 
@@ -2244,28 +1338,24 @@ int main()
 									break;
 								}
 							}
+
 							currentModifiers.m_kit = KitSelect;
-							TextInfoDebug.setKeyStringTextWstring({ "Select", GunStats::Modifiers::GetKitName(KitSelect) });
+							textInfoDebug.setKeyStringTextWstring({ "Select", GunStats::Modifiers::GetKitName(KitSelect) });
 
-
-							for (int it = 0; it < GeneralModOption.size(); it++)
+							for (int it = 0; it < generalModOption.size(); it++)
 							{
-								if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+								if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 								{
-									setChahceUpgrade(CurrentCharacteristicGun, currentModifiers, TextGeneralModChance, it);
+									setChahceUpgrade(currentCharacteristicGun, currentModifiers, textGeneralModChance, it);
 									break;
 								}
 							}
 
-
-
-
 							/// стоимость KitPrice
-							/////////////////////////////////////////////////////////
-
 							unsigned value_price = getPrice(filePriceModifiersWeapon, currentModifiers, nameGun);
 							currentPrice.m_priceKit = value_price;
-							for (auto& kp : KitPrice)
+
+							for (auto& kp : arrKitPrice)
 							{
 								if (!kp.isButton())
 								{
@@ -2273,23 +1363,19 @@ int main()
 									break;
 								}
 							}
-							/////////////////////////////////////////////////////////
-
 							break;
 						}
 					}
 					// скилы
-					for (int i = 0; i < ModifiersIcon.m_skillRectangleGUI.size(); i++)
+					for (int i = 0; i < modifiersIcon.m_skillRectangleGUI.size(); i++)
 					{
-						if (ModifiersIcon.m_skillRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+						if (modifiersIcon.m_skillRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 						{
-							for (auto& sh : ModifiersIcon.m_skillRectangleGUI)
+							for (auto& sh : modifiersIcon.m_skillRectangleGUI)
 							{
 								sh.setAsReleasedButton();
 							}
-							ModifiersIcon.m_skillRectangleGUI[i].setAsPressedButton();
-
-
+							modifiersIcon.m_skillRectangleGUI[i].setAsPressedButton();
 
 							string STip = skillpath[i].stem().string().erase(0, 3);
 							auto SkillSelect = GunStats::Modifiers::skillTypeBegin;
@@ -2301,66 +1387,57 @@ int main()
 								}
 							}
 							currentModifiers.m_skill = SkillSelect;
-							TextInfoDebug.setKeyStringTextWstring({ "Select", GunStats::Modifiers::getSkillName(SkillSelect) });
+							textInfoDebug.setKeyStringTextWstring({ "Select", GunStats::Modifiers::getSkillName(SkillSelect) });
 
-
-							for (int it = 0; it < GeneralModOption.size(); it++)
+							for (int it = 0; it < generalModOption.size(); it++)
 							{
-								if (GeneralModOption[it].m_markButtonCharacteristic.isPressed())
+								if (generalModOption[it].m_markButtonCharacteristic.isPressed())
 								{
-									setChahceUpgrade(CurrentCharacteristicGun, currentModifiers, TextGeneralModChance, it);
+									setChahceUpgrade(currentCharacteristicGun, currentModifiers, textGeneralModChance, it);
 									break;
 								}
 							}
-
 
 							currentPrice.m_priceSkill = 0;
 							break;
 						}
 					}
 
-
-
-
-
 					/// стоимость      
-					for (auto& GUI_ToolPrice : ToolPrice)
+					for (auto& CurrentToolPrice : arrToolPrice)
 					{
-						if (GUI_ToolPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && GUI_ToolPrice.isButton())
+						if (CurrentToolPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && CurrentToolPrice.isButton())
 						{
-							auto vvstr = *GUI_ToolPrice.getKeyStringTextWstring().begin();
+							auto vvstr = *CurrentToolPrice.getKeyStringTextWstring().begin();
 							if (holds_alternative<wstring>(vvstr))
 							{
 								if (get<wstring>(vvstr) == L"--")
 								{
-									GUI_ToolPrice.setAsReleasedButton();
+									CurrentToolPrice.setAsReleasedButton();
 									setPriceTool(filePriceModifiersWeapon, currentModifiers.m_tool, currentPrice.m_priceTool - 100'000);
 								}
 								else if (get<wstring>(vvstr) == L"-")
 								{
-									GUI_ToolPrice.setAsReleasedButton();
+									CurrentToolPrice.setAsReleasedButton();
 
 									setPriceTool(filePriceModifiersWeapon, currentModifiers.m_tool, currentPrice.m_priceTool - 5'000);
 								}
 								else if (get<wstring>(vvstr) == L"+")
 								{
-									GUI_ToolPrice.setAsReleasedButton();
+									CurrentToolPrice.setAsReleasedButton();
 									setPriceTool(filePriceModifiersWeapon, currentModifiers.m_tool, currentPrice.m_priceTool + 5'000);
 								}
 								else if (get<wstring>(vvstr) == L"++")
 								{
-									GUI_ToolPrice.setAsReleasedButton();
+									CurrentToolPrice.setAsReleasedButton();
 									setPriceTool(filePriceModifiersWeapon, currentModifiers.m_tool, currentPrice.m_priceTool + 100'000);
 								}
 
-
 								/// стоимость ToolPrice
-								/////////////////////////////////////////////////////////
-
 								unsigned value_price = getPrice(filePriceModifiersWeapon, currentModifiers);
 								currentPrice.m_priceTool = value_price;
 
-								for (auto& tp : ToolPrice)
+								for (auto& tp : arrToolPrice)
 								{
 									if (!tp.isButton())
 									{
@@ -2368,48 +1445,43 @@ int main()
 										break;
 									}
 								}
-								/////////////////////////////////////////////////////////
 							}
 						}
 					}
 
-
-					for (auto& GUI_KitPrice : KitPrice)
+					for (auto& GUIKitPrice : arrKitPrice)
 					{
-						if (GUI_KitPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && GUI_KitPrice.isButton())
+						if (GUIKitPrice.getRectangle().getGlobalBounds().contains(postionMouseGlobal) && GUIKitPrice.isButton())
 						{
-							auto vvstr = *GUI_KitPrice.getKeyStringTextWstring().begin();
+							auto vvstr = *GUIKitPrice.getKeyStringTextWstring().begin();
 							if (holds_alternative<wstring>(vvstr))
 							{
 								if (get<wstring>(vvstr) == L"--")
 								{
-									GUI_KitPrice.setAsReleasedButton();
+									GUIKitPrice.setAsReleasedButton();
 
 									setPriceKit(filePriceModifiersWeapon, currentModifiers.m_kit, nameGun, currentPrice.m_priceKit - 100'000);
 								}
 								else if (get<wstring>(vvstr) == L"-")
 								{
-									GUI_KitPrice.setAsReleasedButton();
+									GUIKitPrice.setAsReleasedButton();
 									setPriceKit(filePriceModifiersWeapon, currentModifiers.m_kit, nameGun, currentPrice.m_priceKit - 5'000);
 								}
 								else if (get<wstring>(vvstr) == L"+")
 								{
-									GUI_KitPrice.setAsReleasedButton();
+									GUIKitPrice.setAsReleasedButton();
 									setPriceKit(filePriceModifiersWeapon, currentModifiers.m_kit, nameGun, currentPrice.m_priceKit + 5'000);
 								}
 								else if (get<wstring>(vvstr) == L"++")
 								{
-									GUI_KitPrice.setAsReleasedButton();
+									GUIKitPrice.setAsReleasedButton();
 									setPriceKit(filePriceModifiersWeapon, currentModifiers.m_kit, nameGun, currentPrice.m_priceKit + 100'000);
 								}
 
-
 								/// стоимость KitPrice
-								/////////////////////////////////////////////////////////
-
 								unsigned value_price = getPrice(filePriceModifiersWeapon, currentModifiers, nameGun);
 								currentPrice.m_priceKit = value_price;
-								for (auto& kp : KitPrice)
+								for (auto& kp : arrKitPrice)
 								{
 									if (!kp.isButton())
 									{
@@ -2417,544 +1489,306 @@ int main()
 										break;
 									}
 								}
-								/////////////////////////////////////////////////////////
 							}
 						}
 					}
 				}
 			}
 
-
-
 			// прокрутка
 			else if (const auto& mouseScroll = event->getIf<Event::MouseWheelScrolled>())
 			{
-				if (ALLGunShapeScrollGUI.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+				if (allGunShapeScrollGUI.getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 				{
-					if (mouseScroll->delta < 0 && it_VectorGun < VectorGun.size() - CountGunList)
+					if (mouseScroll->delta < 0 && itVectorGun < vectorGun.size() - countGunInList)
 					{
-						it_VectorGun++;
+						itVectorGun++;
 
-
-						wstring STLSTR = L"";
-						if (it_VectorGun != 0)
+						wstring stlStr = L"";
+						if (itVectorGun != 0)
 						{
-							STLSTR = to_wstring(it_VectorGun) + L"+";
+							stlStr = to_wstring(itVectorGun) + L"+";
 						}
-						TopScrollToolTip.setKeyStringTextWstring({ STLSTR });
+						topScrollToolTip.setKeyStringTextWstring({ stlStr });
 
 
-						STLSTR = L"";
-						if (VectorGun.size() - (it_VectorGun + CountGunList) > 0)
+						stlStr = L"";
+						if (vectorGun.size() - (itVectorGun + countGunInList) > 0)
 						{
-							STLSTR = to_wstring(VectorGun.size() - (it_VectorGun + CountGunList)) + "+";
+							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + "+";
 						}
-						DownScrollToolTip.setKeyStringTextWstring({ STLSTR });
+						downScrollToolTip.setKeyStringTextWstring({ stlStr });
 
 					}
-					else if (mouseScroll->delta > 0 && it_VectorGun > 0)
+					else if (mouseScroll->delta > 0 && itVectorGun > 0)
 					{
-						it_VectorGun--;
+						itVectorGun--;
 
-						wstring STLSTR = L"";
-						if (it_VectorGun != 0)
+						wstring stlStr = L"";
+						if (itVectorGun != 0)
 						{
-							STLSTR = to_wstring(it_VectorGun) + L"+";
+							stlStr = to_wstring(itVectorGun) + L"+";
 						}
-						TopScrollToolTip.setKeyStringTextWstring({ STLSTR });
+						topScrollToolTip.setKeyStringTextWstring({ stlStr });
 
-
-						STLSTR = L"";
-						if (VectorGun.size() - (it_VectorGun + CountGunList) > 0)
+						stlStr = L"";
+						if (vectorGun.size() - (itVectorGun + countGunInList) > 0)
 						{
-							STLSTR = to_wstring(VectorGun.size() - (it_VectorGun + CountGunList)) + "+";
+							stlStr = to_wstring(vectorGun.size() - (itVectorGun + countGunInList)) + "+";
 						}
-						DownScrollToolTip.setKeyStringTextWstring({ STLSTR });
+						downScrollToolTip.setKeyStringTextWstring({ stlStr });
 
 					}
 				}
 			}
 
 		}
+		mainWindow.clear(Color::White);
+		mainWindow.draw(background);
 
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.clear(Color::White);
-		window.draw(background);
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-		for (auto& GUI : vectorLangGUI)
+		for (auto& GUI : arrLangGUI)
 		{
-			window.draw(GUI.getRectangle());
-			window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			mainWindow.draw(GUI.getText());
 		}
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////       
-
 
 		for (auto& GUI : VectorThemeGUI)
 		{
-			window.draw(GUI.getRectangle());
-			window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			mainWindow.draw(GUI.getText());
 		}
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 		// модификаторы
-		////////////////////////////////////////////////////////////////////////////////////
-		for (auto& GUI : ModifiersIcon.m_toolRectangleGUI)
+		for (auto& GUI : modifiersIcon.m_toolRectangleGUI)
 		{
-			window.draw(GUI.getRectangle());
-			//window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			//mainWindow.draw(GUI.getText());
 		}
-		for (auto& GUI : ModifiersIcon.m_kitRectangleGUI)
+		for (auto& GUI : modifiersIcon.m_kitRectangleGUI)
 		{
-			window.draw(GUI.getRectangle());
-			//window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			//mainWindow.draw(GUI.getText());
 		}
-		for (auto& GUI : ModifiersIcon.m_skillRectangleGUI)
+		for (auto& GUI : modifiersIcon.m_skillRectangleGUI)
 		{
-			window.draw(GUI.getRectangle());
-			//window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			//mainWindow.draw(GUI.getText());
 		}
-
-
 
 		/// стоимость
-		for (auto& GUI : ToolPrice)
+		for (auto& GUI : arrToolPrice)
 		{
-			window.draw(GUI.getRectangle());
-			window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			mainWindow.draw(GUI.getText());
 		}
-		for (auto& GUI : KitPrice)
+		for (auto& GUI : arrKitPrice)
 		{
-			window.draw(GUI.getRectangle());
-			window.draw(GUI.getText());
+			mainWindow.draw(GUI.getRectangle());
+			mainWindow.draw(GUI.getText());
 		}
-		window.draw(SkillPrice.getRectangle());
-		window.draw(SkillPrice.getText());
+		mainWindow.draw(skillPrice.getRectangle());
+		mainWindow.draw(skillPrice.getText());
 
+		mainWindow.draw(allGunShapeScrollGUI.getRectangle());
+		//mainWindow.draw(allGunShapeScrollGUI.getText());
 
-		////////////////////////////////////////////////////////////////////////////////////
+		mainWindow.draw(selectWeaponGUI.getRectangle());
+		mainWindow.draw(selectWeaponGUI.getText());
 
-
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.draw(ALLGunShapeScrollGUI.getRectangle());
-		//window.draw(ALLGunShapeScrollGUI.getText());
-
-
-		window.draw(SelectWeaponGUI.getRectangle());
-		window.draw(SelectWeaponGUI.getText());
-
-
-		for (int it1 = 0, it_VectorGun2 = it_VectorGun; it1 < CountGunList; it1++, it_VectorGun2++)
+		for (int it1 = 0, it_VectorGun2 = itVectorGun; it1 < countGunInList; it1++, it_VectorGun2++)
 		{
+			vectorGun[it_VectorGun2].m_weapoGUI.setPositionRectangle(Vector2f(0, defaultSizeCell / 2 * it1));
 
-			VectorGun[it_VectorGun2].WeapoGUI.setPositionRectangle(Vector2f(0, defaultSizeCell / 2 * it1));
-
-			window.draw(VectorGun[it_VectorGun2].WeapoGUI.getRectangle());
-			window.draw(VectorGun[it_VectorGun2].WeapoGUI.getText());
+			mainWindow.draw(vectorGun[it_VectorGun2].m_weapoGUI.getRectangle());
+			mainWindow.draw(vectorGun[it_VectorGun2].m_weapoGUI.getText());
 		}
 
-		window.draw(TopScrollToolTip.getRectangle());
-		window.draw(TopScrollToolTip.getText());
+		mainWindow.draw(topScrollToolTip.getRectangle());
+		mainWindow.draw(topScrollToolTip.getText());
 
+		mainWindow.draw(downScrollToolTip.getRectangle());
+		mainWindow.draw(downScrollToolTip.getText());
 
-		window.draw(DownScrollToolTip.getRectangle());
-		window.draw(DownScrollToolTip.getText());
+		mainWindow.draw(calculation.getRectangle());
+		mainWindow.draw(calculation.getText());
 
-		////////////////////////////////////////////////////////////////////////////////////
+		mainWindow.draw(shaheGeneralMod.getRectangle());
+		mainWindow.draw(shaheGeneralMod.getText());
 
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.draw(Calculation.getRectangle());
-		window.draw(Calculation.getText());
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.draw(ShaheGeneralMod.getRectangle());
-		window.draw(ShaheGeneralMod.getText());
-
-
-		for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+		for (int it1 = 0; it1 < generalModOption.size(); it1++)
 		{
+			mainWindow.draw(generalModOption[it1].m_textCharacteristicName.getRectangle());
+			mainWindow.draw(generalModOption[it1].m_textCharacteristicName.getText());
 
-			window.draw(GeneralModOption[it1].m_textCharacteristicName.getRectangle());
-			window.draw(GeneralModOption[it1].m_textCharacteristicName.getText());
+			mainWindow.draw(generalModOption[it1].m_textVisualCharacteristic.getRectangle());
+			mainWindow.draw(generalModOption[it1].m_textVisualCharacteristic.getText());
 
+			mainWindow.draw(generalModOption[it1].m_textCharacteristicVisualPercent.getRectangle());
+			mainWindow.draw(generalModOption[it1].m_textCharacteristicVisualPercent.getText());
 
-			window.draw(GeneralModOption[it1].m_textVisualCharacteristic.getRectangle());
-			window.draw(GeneralModOption[it1].m_textVisualCharacteristic.getText());
+			mainWindow.draw(generalModOption[it1].m_shapeCharacteristic);
 
+			mainWindow.draw(generalModOption[it1].m_markButtonCharacteristic.getRectangle());
+			//mainWindow.draw(generalModOption[it1].m_markButtonCharacteristic.getText()); // текста нет
 
-			window.draw(GeneralModOption[it1].m_textCharacteristicVisualPercent.getRectangle());
-			window.draw(GeneralModOption[it1].m_textCharacteristicVisualPercent.getText());
-
-
-
-
-
-
-			window.draw(GeneralModOption[it1].m_shapeCharacteristic);
-
-			window.draw(GeneralModOption[it1].m_markButtonCharacteristic.getRectangle());
-			//window.draw(GeneralModOption[it1].m_markButtonCharacteristic.getText()); // текста нет
-
-
-			bool Select = GeneralModOption[it1].m_markButtonCharacteristic.isPressed();
+			bool selectModOptions = generalModOption[it1].m_markButtonCharacteristic.isPressed();
 
 			// метка юнита
-			size_t ps = PositionMod[it1];
+			size_t ps = positionMod[it1];
 
-			if (ps >= GeneralModOption[it1].m_shaheUnitsInCharacteristic.size())
+			if (ps >= generalModOption[it1].m_shaheUnitsInCharacteristic.size())
 			{
-				ps = GeneralModOption[it1].m_shaheUnitsInCharacteristic.size() - 1;
+				ps = generalModOption[it1].m_shaheUnitsInCharacteristic.size() - 1;
 			}
-
-			else if (Select && ps >= CurrentCharacteristicGun.getMaxPositionCharacteristic()[GunStats::transIndexToIndexGunStat[it1]])
+			else if (selectModOptions && ps >= currentCharacteristicGun.getMaxPositionCharacteristic()[GunStats::transIndexToIndexGunStat[it1]])
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color(128, 128, 128));
+				generalModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color(128, 128, 128));
 			}
-			else if (Select)
+			else if (selectModOptions)
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color::Green);
+				generalModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color::Green);
 			}
-
-
-			for (int it2 = 0; it2 < GeneralModOption[it1].m_shaheUnitsInCharacteristic.size(); it2++)
+			for (int it2 = 0; it2 < generalModOption[it1].m_shaheUnitsInCharacteristic.size(); it2++)
 			{
-				window.draw(GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2]);
+				mainWindow.draw(generalModOption[it1].m_shaheUnitsInCharacteristic[it2]);
 			};
-
-
-			if (Select)
+			if (selectModOptions)
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color::Black);
+				generalModOption[it1].m_shaheUnitsInCharacteristic[ps].setOutlineColor(Color::Black);
 			};
 		}
 
+		//mainWindow.draw(textGeneralModChance.getRectangle());
+		mainWindow.draw(textGeneralModChance.getText());
 
-		//window.draw(TextGeneralModChance.getRectangle());
-		window.draw(TextGeneralModChance.getText());
+		mainWindow.draw(shapeGeneralModApplyStatInitial.getRectangle());
+		mainWindow.draw(shapeGeneralModApplyStatInitial.getText());
 
+		mainWindow.draw(buttonGeneralModApplyStat.getRectangle());
+		mainWindow.draw(buttonGeneralModApplyStat.getText());
 
-		window.draw(ShapeGeneralModApplyStatInitial.getRectangle());
-		window.draw(ShapeGeneralModApplyStatInitial.getText());
+		mainWindow.draw(shapeGeneralModReset.getRectangle());
+		mainWindow.draw(shapeGeneralModReset.getText());
 
+		mainWindow.draw(shapeGeneralModBack.getRectangle());
+		mainWindow.draw(shapeGeneralModBack.getText());
 
-		window.draw(ButtonGeneralModApplyStat.getRectangle());
-		window.draw(ButtonGeneralModApplyStat.getText());
+		mainWindow.draw(textInfoDebug.getRectangle());
+		mainWindow.draw(textInfoDebug.getText());
 
-
-		window.draw(ShapeGeneralModReset.getRectangle());
-		window.draw(ShapeGeneralModReset.getText());
-
-
-		window.draw(ShapeGeneralModBack.getRectangle());
-		window.draw(ShapeGeneralModBack.getText());
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.draw(TextInfoDebug.getRectangle());
-		window.draw(TextInfoDebug.getText());
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		window.draw(ShapeTargetIter.getRectangle());
-		window.draw(ShapeTargetIter.getText());
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-		///////////////////////////     тоолтипы       /////////////////////////////////
-		////////////////////////////////////////////////////////////////////////////////
+		mainWindow.draw(shapeTargetIter.getRectangle());
+		mainWindow.draw(shapeTargetIter.getText());
 
 		// инструменты
-		for (int i = 0; i < ModifiersIcon.m_toolRectangleGUI.size(); i++)
+		for (int i = 0; i < modifiersIcon.m_toolRectangleGUI.size(); i++)
 		{
-			if (ModifiersIcon.m_toolRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+			if (modifiersIcon.m_toolRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 			{
+				string sTip = toolpath[i].stem().string().erase(0, 3);
+				wstring tip = LANG_TRANSLATE(sTip);
 
-				string STip = toolpath[i].stem().string().erase(0, 3);
-				wstring Tip = LANG_TRANSLATE(STip);
+				RectangleShape shapeToolTip;
+				shapeToolTip.setOutlineColor(Color::Black);
+				shapeToolTip.setOutlineThickness(-2);
+				shapeToolTip.setSize(Vector2f(static_cast<float>(15.f + 7.f * tip.size()), defaultSizeCell / 3.f));
+				shapeToolTip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
 
-				RectangleShape ShapeTool_tooltip;
-				ShapeTool_tooltip.setOutlineColor(Color::Black);
-				ShapeTool_tooltip.setOutlineThickness(-2);
-				ShapeTool_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), defaultSizeCell / 3.f));
-				ShapeTool_tooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
+				Text textToolTip(ThemeGui::currentFontGUI);
+				textToolTip.setString(tip);
+				textToolTip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
+				textToolTip.setFillColor(Color::Black);
 
+				auto rectPos = shapeToolTip.getPosition();
+				auto rectSize = shapeToolTip.getSize();
+				auto textBounds = textToolTip.getLocalBounds();
 
+				textToolTip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+				textToolTip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
 
-				Text TextTool_tooltip(ThemeGui::currentFontGUI);
-				TextTool_tooltip.setString(Tip);
-				TextTool_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
-				TextTool_tooltip.setFillColor(Color::Black);
-
-
-				auto rectPos = ShapeTool_tooltip.getPosition();
-				auto rectSize = ShapeTool_tooltip.getSize();
-				auto textBounds = TextTool_tooltip.getLocalBounds();
-
-
-				TextTool_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-				TextTool_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-
-				window.draw(ShapeTool_tooltip);
-				window.draw(TextTool_tooltip);
-
+				mainWindow.draw(shapeToolTip);
+				mainWindow.draw(textToolTip);
 			}
 		}
 		// наборы
-		for (int i = 0; i < ModifiersIcon.m_kitRectangleGUI.size(); i++)
+		for (int i = 0; i < modifiersIcon.m_kitRectangleGUI.size(); i++)
 		{
-			if (ModifiersIcon.m_kitRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+			if (modifiersIcon.m_kitRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 			{
-				string STip = kitpath[i].stem().string().erase(0, 3);
-				wstring Tip = LANG_TRANSLATE(STip);
+				string sTip = kitpath[i].stem().string().erase(0, 3);
+				wstring tip = LANG_TRANSLATE(sTip);
 
+				RectangleShape shapeKitTooltip;
+				shapeKitTooltip.setOutlineColor(Color::Black);
+				shapeKitTooltip.setOutlineThickness(-2);
+				shapeKitTooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * tip.size()), defaultSizeCell / 3.f));
+				shapeKitTooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
 
-				RectangleShape ShapeKit_tooltip;
-				ShapeKit_tooltip.setOutlineColor(Color::Black);
-				ShapeKit_tooltip.setOutlineThickness(-2);
-				ShapeKit_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), defaultSizeCell / 3.f));
-				ShapeKit_tooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
+				Text textKitTooltip(ThemeGui::currentFontGUI);
+				textKitTooltip.setString(tip);
+				textKitTooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
+				textKitTooltip.setFillColor(Color::Black);
 
+				auto textBounds = textKitTooltip.getLocalBounds();
+				auto rectPos = shapeKitTooltip.getPosition();
+				auto rectSize = shapeKitTooltip.getSize();
 
+				textKitTooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+				textKitTooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
 
-				Text TextKit_tooltip(ThemeGui::currentFontGUI);
-				TextKit_tooltip.setString(Tip);
-				TextKit_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
-				TextKit_tooltip.setFillColor(Color::Black);
-
-
-
-				auto textBounds = TextKit_tooltip.getLocalBounds();
-				auto rectPos = ShapeKit_tooltip.getPosition();
-				auto rectSize = ShapeKit_tooltip.getSize();
-
-				TextKit_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-				TextKit_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-
-				window.draw(ShapeKit_tooltip);
-				window.draw(TextKit_tooltip);
+				mainWindow.draw(shapeKitTooltip);
+				mainWindow.draw(textKitTooltip);
 			}
 		}
 		// скиллы
-		for (int i = 0; i < ModifiersIcon.m_skillRectangleGUI.size(); i++)
+		for (int i = 0; i < modifiersIcon.m_skillRectangleGUI.size(); i++)
 		{
-			if (ModifiersIcon.m_skillRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
+			if (modifiersIcon.m_skillRectangleGUI[i].getRectangle().getGlobalBounds().contains(postionMouseGlobal))
 			{
 				string STip = skillpath[i].stem().string().erase(0, 3);
 				wstring Tip = LANG_TRANSLATE(STip);
 
-				RectangleShape ShapeSkill_tooltip;
-				ShapeSkill_tooltip.setOutlineColor(Color::Black);
-				ShapeSkill_tooltip.setOutlineThickness(-2);
-				ShapeSkill_tooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
-				ShapeSkill_tooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), defaultSizeCell / 3.f));
+				RectangleShape ShapeSkillTooltip;
+				ShapeSkillTooltip.setOutlineColor(Color::Black);
+				ShapeSkillTooltip.setOutlineThickness(-2);
+				ShapeSkillTooltip.setPosition(Vector2f(postionMouseGlobal.x, postionMouseGlobal.y - defaultSizeCell / 3.f));
+				ShapeSkillTooltip.setSize(Vector2f(static_cast<float>(15.f + 7.f * Tip.size()), defaultSizeCell / 3.f));
 
+				Text TextSkillTooltip(ThemeGui::currentFontGUI);
+				TextSkillTooltip.setString(Tip);
+				TextSkillTooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
+				TextSkillTooltip.setFillColor(Color::Black);
 
+				auto rectPos = ShapeSkillTooltip.getPosition();
+				auto rectSize = ShapeSkillTooltip.getSize();
+				auto textBounds = TextSkillTooltip.getLocalBounds();
 
-				Text TextSkill_tooltip(ThemeGui::currentFontGUI);
-				TextSkill_tooltip.setString(Tip);
-				TextSkill_tooltip.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.8f));
-				TextSkill_tooltip.setFillColor(Color::Black);
+				TextSkillTooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
+				TextSkillTooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
 
-
-
-				auto rectPos = ShapeSkill_tooltip.getPosition();
-				auto rectSize = ShapeSkill_tooltip.getSize();
-				auto textBounds = TextSkill_tooltip.getLocalBounds();
-
-				TextSkill_tooltip.setOrigin(Vector2f(0.f, textBounds.position.y + textBounds.size.y / 2.0f));
-				TextSkill_tooltip.setPosition(Vector2f(rectPos.x + 10, rectPos.y + rectSize.y / 2.0f));
-
-
-
-				window.draw(ShapeSkill_tooltip);
-				window.draw(TextSkill_tooltip);
-
+				mainWindow.draw(ShapeSkillTooltip);
+				mainWindow.draw(TextSkillTooltip);
 			}
 		}
 
-		////////////////////////////////////////////////////////////////////////////////
+		mainWindow.display();
 
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////
-
-
-		window.display();
-
-
-		////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		////////////////////////////////////////////////////////////////////////////////
 		// отрисовка диаграмм
-		for (int iter_graf = static_cast<int>(VectorWindowsDiagram.size()) - 1; iter_graf >= 0; --iter_graf)
+		for (int iterGraf = static_cast<int>(arrWindowsDiagram.size()) - 1; iterGraf >= 0; --iterGraf)
 		{
-			if (VectorWindowsDiagram[iter_graf].isOpen())
+			if (arrWindowsDiagram[iterGraf].isOpen())
 			{
-				auto PositionMouseForGraf = Mouse::getPosition(VectorWindowsDiagram[iter_graf]);
-				auto MouseWorldPosForGraf = window.mapPixelToCoords(PositionMouseForGraf);
+				auto positionMouseForGraf = Mouse::getPosition(arrWindowsDiagram[iterGraf]);
+				auto mouseWorldPosForGraf = mainWindow.mapPixelToCoords(positionMouseForGraf);
 				unsigned int MethodList = 22;
 
-				while (const optional event = VectorWindowsDiagram[iter_graf].pollEvent())
+				while (const optional event = arrWindowsDiagram[iterGraf].pollEvent())
 				{
 					if (event->is<Event::Closed>())
 					{
-						VectorWindowsDiagram[iter_graf].close();
-						DiagramBool.erase(DiagramBool.begin() + iter_graf);
-						VectorWindowsDiagram.erase(VectorWindowsDiagram.begin() + iter_graf);
-						VectorDiagramPack.erase(VectorDiagramPack.begin() + iter_graf);
+						arrWindowsDiagram[iterGraf].close();
+						diagramBool.erase(diagramBool.begin() + iterGraf);
+						arrWindowsDiagram.erase(arrWindowsDiagram.begin() + iterGraf);
+						arrDiagramPack.erase(arrDiagramPack.begin() + iterGraf);
 
 						break; // чтобы не обращаться к уже удалённому i
 					}
@@ -2962,141 +1796,132 @@ int main()
 					{
 						if (mouseButtonPressed->button == Mouse::Button::Left)
 						{
-
 							// если прокрутка доступна
-							if (VectorDiagramPack[iter_graf].GUIButtonTop.get() != nullptr && VectorDiagramPack[iter_graf].GUIButtonDown.get() != nullptr)
+							if (arrDiagramPack[iterGraf].GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].GUIButtonDown.get() != nullptr)
 							{
-
-								auto size = VectorDiagramPack[iter_graf].GUIMethodModifiers.size();
+								auto size = arrDiagramPack[iterGraf].GUIMethodModifiers.size();
 
 								// кнопка прокрутки верхняя
-								if (VectorDiagramPack[iter_graf].GUIButtonTop.get()->getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf))
+								if (arrDiagramPack[iterGraf].GUIButtonTop.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
 								{
 									// но не более размера 
-									if (VectorDiagramPack[iter_graf].InitialIndexMethod > 0)
+									if (arrDiagramPack[iterGraf].InitialIndexMethod > 0)
 									{
-										VectorDiagramPack[iter_graf].InitialIndexMethod--;
+										arrDiagramPack[iterGraf].InitialIndexMethod--;
 									}
 								}
 
 								//кнопка прокрутки вниз
-								else if (VectorDiagramPack[iter_graf].GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf))
+								else if (arrDiagramPack[iterGraf].GUIButtonDown.get()->getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf))
 								{
 									// но не более размера 
-									if (VectorDiagramPack[iter_graf].InitialIndexMethod < size)
+									if (arrDiagramPack[iterGraf].InitialIndexMethod < size)
 									{
-										VectorDiagramPack[iter_graf].InitialIndexMethod++;
+										arrDiagramPack[iterGraf].InitialIndexMethod++;
 									}
 								}
 
 								// корректировка 
-								auto SizeRec = VectorDiagramPack[iter_graf].GUIMethodModifiers.begin()->getRectangle().getSize();
-								auto XSizeWindow = VectorWindowsDiagram[iter_graf].getSize().x;
+								auto sizeRec = arrDiagramPack[iterGraf].GUIMethodModifiers.begin()->getRectangle().getSize();
+								auto xSizeWindow = arrWindowsDiagram[iterGraf].getSize().x;
 
-								for (size_t i = VectorDiagramPack[iter_graf].InitialIndexMethod; i < MethodList || i < size; i++)
+								for (size_t i = arrDiagramPack[iterGraf].InitialIndexMethod; i < MethodList || i < size; i++)
 								{
-									VectorDiagramPack[iter_graf].GUIMethodModifiers[i].setPositionRectangle(Vector2f(XSizeWindow - SizeRec.x, SizeRec.y * (i - VectorDiagramPack[iter_graf].InitialIndexMethod)));
+									arrDiagramPack[iterGraf].GUIMethodModifiers[i].setPositionRectangle(Vector2f(xSizeWindow - sizeRec.x, sizeRec.y * (i - arrDiagramPack[iterGraf].InitialIndexMethod)));
 								}
 							}
 
-
-
-
-
-
-
-							bool NeedRefresh = false;
-							float SizeValBN = 0.010f;
-							float SizeValSM = 0.005f;
-							for (auto& GUIBinBt : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+							bool needRefresh = false;
+							float sizeValBN = 0.010f;
+							float sizeValSM = 0.005f;
+							for (auto& GUIBinBt : arrDiagramPack[iterGraf].GUIPercentBinBt)
 							{
 								auto vbt = *GUIBinBt.getKeyStringTextWstring().begin();
-								if (GUIBinBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
+								if (GUIBinBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
 								{
 									GUIBinBt.setAsReleasedButton();
-									if (VectorDiagramPack[iter_graf].PercentBin - SizeValBN >= 0.f)
+									if (arrDiagramPack[iterGraf].PercentBin - sizeValBN >= 0.f)
 									{
-										VectorDiagramPack[iter_graf].PercentBin -= SizeValBN;
-										NeedRefresh = true;
+										arrDiagramPack[iterGraf].PercentBin -= sizeValBN;
+										needRefresh = true;
 									}
 									break;
 								}
-								else if (GUIBinBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
+								else if (GUIBinBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUIBinBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
 								{
 									GUIBinBt.setAsReleasedButton();
-									if (VectorDiagramPack[iter_graf].PercentBin + SizeValBN <= 1.f)
+									if (arrDiagramPack[iterGraf].PercentBin + sizeValBN <= 1.f)
 									{
-										VectorDiagramPack[iter_graf].PercentBin += SizeValBN;
-										NeedRefresh = true;
+										arrDiagramPack[iterGraf].PercentBin += sizeValBN;
+										needRefresh = true;
 									}
 									break;
 								}
 
 							}
-							for (auto& GUISmoothBt : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+							for (auto& GUISmoothBt : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
 							{
-
 								auto vbt = *GUISmoothBt.getKeyStringTextWstring().begin();
-								if (GUISmoothBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
+								if (GUISmoothBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"-")
 								{
 									GUISmoothBt.setAsReleasedButton();
 
-									if (VectorDiagramPack[iter_graf].PercentSmooth - SizeValSM >= 0.f)
+									if (arrDiagramPack[iterGraf].PercentSmooth - sizeValSM >= 0.f)
 									{
-										VectorDiagramPack[iter_graf].PercentSmooth -= SizeValSM;
-										NeedRefresh = true;
+										arrDiagramPack[iterGraf].PercentSmooth -= sizeValSM;
+										needRefresh = true;
 									}
 									break;
 								}
-								else if (GUISmoothBt.getRectangle().getGlobalBounds().contains(MouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
+								else if (GUISmoothBt.getRectangle().getGlobalBounds().contains(mouseWorldPosForGraf) && GUISmoothBt.isButton() && holds_alternative<wstring>(vbt) && get<wstring>(vbt) == L"+")
 								{
 									GUISmoothBt.setAsReleasedButton();
 
-									if (VectorDiagramPack[iter_graf].PercentSmooth + SizeValSM <= 1.f)
+									if (arrDiagramPack[iterGraf].PercentSmooth + sizeValSM <= 1.f)
 									{
-										VectorDiagramPack[iter_graf].PercentSmooth += SizeValSM;
-										NeedRefresh = true;
+										arrDiagramPack[iterGraf].PercentSmooth += sizeValSM;
+										needRefresh = true;
 									}
 									break;
 								}
 							}
-							if (NeedRefresh)
+							if (needRefresh)
 							{
-								for (auto& GUISmoothBt : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+								for (auto& GUISmoothBt : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
 								{
 									auto vbt = *GUISmoothBt.getKeyStringTextWstring().begin();
 									if (holds_alternative<wstring>(vbt) && !GUISmoothBt.isButton())
 									{
-										GUISmoothBt.setKeyStringTextWstring({ format(L"{:.3f}", VectorDiagramPack[iter_graf].PercentSmooth) });
+										GUISmoothBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].PercentSmooth) });
 										break;
 
 									}
 								}
-								for (auto& GUIBinBt : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+								for (auto& GUIBinBt : arrDiagramPack[iterGraf].GUIPercentBinBt)
 								{
 									auto vbt = *GUIBinBt.getKeyStringTextWstring().begin();
 									if (holds_alternative<wstring>(vbt) && !GUIBinBt.isButton())
 									{
-										GUIBinBt.setKeyStringTextWstring({ format(L"{:.3f}", VectorDiagramPack[iter_graf].PercentBin) });
+										GUIBinBt.setKeyStringTextWstring({ format(L"{:.3f}", arrDiagramPack[iterGraf].PercentBin) });
 										break;
 									}
 								}
 
-								auto BinnedFreqMap = getBinedFreqModifiers(VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers, VectorDiagramPack[iter_graf].PercentBin); // сколько % оставим? (%)
-								auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, VectorDiagramPack[iter_graf].PercentSmooth); // насколько сильно (%)
+								auto BinnedFreqMap = getBinedFreqModifiers(arrDiagramPack[iterGraf].CurrentSourceFreqModifiers, arrDiagramPack[iterGraf].PercentBin); // сколько % оставим? (%)
+								auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].PercentSmooth); // насколько сильно (%)
 
-								VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
+								arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
 
-								VectorDiagramPack[iter_graf].CurrentCurvePack.m_curve = curveFun(VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve, VectorDiagramPack[iter_graf].ColorCurve, VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers);
+								arrDiagramPack[iterGraf].CurrentCurvePack.m_curve = curveFun(arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve, arrDiagramPack[iterGraf].ColorCurve, arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers);
 							}
 						}
 					}
 				}
 
-				if (iter_graf < VectorWindowsDiagram.size())
+				if (iterGraf < arrWindowsDiagram.size())
 				{
 
-					if (!DiagramBool[iter_graf])
+					if (!diagramBool[iterGraf])
 					{
 						////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						if (resultMainModifiers.empty())
@@ -3110,303 +1935,160 @@ int main()
 							OUTPUT_LOG("main -> resultRandomAttemptUsed empty");
 							continue;
 						}
-						////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 						// стандартный вид
-						VectorDiagramPack[iter_graf].PercentBin = 1.0f;
-						VectorDiagramPack[iter_graf].PercentSmooth = 0.05f;
-
-
+						arrDiagramPack[iterGraf].PercentBin = 1.0f;
+						arrDiagramPack[iterGraf].PercentSmooth = 0.05f;
 
 						// на сколько делим цену ? 
-						float PriceValueDegree = 1'000'000; // до KK
-						VectorDiagramPack[iter_graf].ColorCurve = Color::Red;
-
+						float priceValueDegree = 1'000'000; // до KK
+						arrDiagramPack[iterGraf].ColorCurve = Color::Red;
 
 						// Получаем позицию главного окна
-						Vector2i mainPos = VectorWindowsDiagram[iter_graf].getPosition();
-						Vector2u mainSize = VectorWindowsDiagram[iter_graf].getSize();
+						Vector2i mainPos = arrWindowsDiagram[iterGraf].getPosition();
+						Vector2u mainSize = arrWindowsDiagram[iterGraf].getSize();
 
-						// Центрируем текущий Diagram поверх главного окна
+						// Центрируем текущий diagramWindow поверх главного окна
 						int xPosDiagram = mainPos.x + (static_cast<int>(mainSize.x) - static_cast<int>(lengthWindowDiagram)) / 2;
 						int yPosDiagram = mainPos.y + (static_cast<int>(mainSize.y) - static_cast<int>(heightWindowDiagram)) / 2;
 
-						VectorWindowsDiagram[iter_graf].setPosition(Vector2i(xPosDiagram, yPosDiagram));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+						arrWindowsDiagram[iterGraf].setPosition(Vector2i(xPosDiagram, yPosDiagram));
 
 						// оформление кривой
-						////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						float xPosPack = arrWindowsDiagram[iterGraf].getSize().x * 0.1f;
+						float yPosPack = arrWindowsDiagram[iterGraf].getSize().y * 0.5f;
 
-						float XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.1f;
-						float YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.5f;
-
-						float XsizePack = VectorWindowsDiagram[iter_graf].getSize().x * 0.4f;
-						float YsizePack = VectorWindowsDiagram[iter_graf].getSize().y * 0.4f;
-
-
+						float xSizePack = arrWindowsDiagram[iterGraf].getSize().x * 0.4f;
+						float ySizePack = arrWindowsDiagram[iterGraf].getSize().y * 0.4f;
 
 						RectangleShape RectangleForCurve;
-						RectangleForCurve.setSize({ XsizePack, YsizePack });
-						RectangleForCurve.setPosition({ XposPack, YposPack });
+						RectangleForCurve.setSize({ xSizePack, ySizePack });
+						RectangleForCurve.setPosition({ xPosPack, yPosPack });
 						RectangleForCurve.setFillColor(Color(255, 255, 255, 220));
 						RectangleForCurve.setOutlineColor(Color::Black);
 						RectangleForCurve.setOutlineThickness(-1);
-						////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 						//"сырые" частоты
 						auto SourceFreqMap = getFreqModifiers(resultMainModifiers);
+						auto BinnedFreqMap = getBinedFreqModifiers(SourceFreqMap, arrDiagramPack[iterGraf].PercentBin); // сколько % оставим? (%)
+						auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, arrDiagramPack[iterGraf].PercentSmooth); // насколько сильно (%)
 
-						auto BinnedFreqMap = getBinedFreqModifiers(SourceFreqMap, VectorDiagramPack[iter_graf].PercentBin); // сколько % оставим? (%)
+						arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
+						arrDiagramPack[iterGraf].CurrentSourceFreqModifiers = SourceFreqMap;
 
-						auto SmoothedFreqMap = getSmoothFreqModifiers(BinnedFreqMap, VectorDiagramPack[iter_graf].PercentSmooth); // насколько сильно (%)
-
-
-
-						///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-						VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers = SmoothedFreqMap;
-						VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers = SourceFreqMap;
-
-						string NameCurve;
-						switch (Error)
+						string nameCurve;
+						switch (errorNum)
 						{
 						case 0:
-							NameCurve = "modifiers";
+							nameCurve = "modifiers";
 							break;
-
 
 						case -6:
-							NameCurve = "modifiers_noKit_noTool";
+							nameCurve = "modifiers_noKit_noTool";
 							break;
 
-
 						default:
-							NameCurve = "Error";
+							nameCurve = "Error";
 							break;
 						}
 
-						VectorDiagramPack[iter_graf].CurrentCurvePack = getCurveFrequrency(RectangleForCurve, VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers, VectorDiagramPack[iter_graf].ColorCurve, NameCurve);
-
-
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+						arrDiagramPack[iterGraf].CurrentCurvePack = getCurveFrequrency(RectangleForCurve, arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers, arrDiagramPack[iterGraf].ColorCurve, nameCurve);
 
 						// оформление 50-ого перцентиля
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+						xPosPack = arrWindowsDiagram[iterGraf].getSize().x * 0.01f;
+						yPosPack = arrWindowsDiagram[iterGraf].getSize().y * 0.01f;
 
-						XposPack = VectorWindowsDiagram[iter_graf].getSize().x * 0.01f;
-						YposPack = VectorWindowsDiagram[iter_graf].getSize().y * 0.01f;
+						xSizePack = defaultSizeCell * 3.5f;
+						ySizePack = defaultSizeCell * 0.3f;
 
-						XsizePack = defaultSizeCell * 3.5f;
-						YsizePack = defaultSizeCell * 0.3f;
-
-						auto InfoPercentile_50 = GetInfoForModifiers(getPercentile(VectorDiagramPack[iter_graf].CurrentSourceFreqModifiers, 50.0));
+						auto infoPercentile50 = GetInfoForModifiers(getPercentile(arrDiagramPack[iterGraf].CurrentSourceFreqModifiers, 50.0));
 						{
-							vector<variant<string, wstring>> VResultWS = { "Percentile_50" };
+							vector<variant<string, wstring>> vResultWS = { "Percentile_50" };
 
-							GUITextAndRectangle PercentileGuiName = [XposPack, YposPack, XsizePack, YsizePack, VResultWS]()
+							GUITextAndRectangle percentileGuiName = [xPosPack, yPosPack, xSizePack, ySizePack, vResultWS]()
 								{
-									RectangleShape RectangleTemp;
-									RectangleTemp.setSize({ XsizePack * 2, YsizePack });
-									RectangleTemp.setPosition({ XposPack, YposPack });
-									return GUITextAndRectangle(VResultWS, RectangleTemp, false, false);
+									RectangleShape rectangleTemp;
+									rectangleTemp.setSize({ xSizePack * 2, ySizePack });
+									rectangleTemp.setPosition({ xPosPack, yPosPack });
+									return GUITextAndRectangle(vResultWS, rectangleTemp, false, false);
 
 								}();
-							VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiName);
+							arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiName);
 
-
-							for (const auto& info_item : InfoPercentile_50)
+							for (const auto& infoItem : infoPercentile50)
 							{
-								XposPack = VectorDiagramPack[iter_graf].GUIPercentile50.begin()->getRectangle().getPosition().x;
-								YposPack = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getRectangle().getPosition().y + YsizePack;
+								xPosPack = arrDiagramPack[iterGraf].GUIPercentile50.begin()->getRectangle().getPosition().x;
+								yPosPack = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getRectangle().getPosition().y + ySizePack;
 
-								VResultWS = { info_item.first };
+								vResultWS = { infoItem.first };
 
-								GUITextAndRectangle PercentileGuiInfo = [XposPack, YposPack, XsizePack, YsizePack, VResultWS]()
+								GUITextAndRectangle percentileGuiInfo = [xPosPack, yPosPack, xSizePack, ySizePack, vResultWS]()
 									{
-										RectangleShape RectangleTemp;
-										RectangleTemp.setSize({ XsizePack, YsizePack });
-										RectangleTemp.setPosition({ XposPack, YposPack });
-										return GUITextAndRectangle(VResultWS, RectangleTemp, false, false);
+										RectangleShape rectangleTemp;
+										rectangleTemp.setSize({ xSizePack, ySizePack });
+										rectangleTemp.setPosition({ xPosPack, yPosPack });
+										return GUITextAndRectangle(vResultWS, rectangleTemp, false, false);
 
 									}();
 
-								VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiInfo);
+								arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiInfo);
 
-								PercentileGuiInfo.setPositionRectangle(PercentileGuiInfo.getPositionRectangle() + Vector2f(PercentileGuiInfo.getRectangle().getSize().x, 0));
+								percentileGuiInfo.setPositionRectangle(percentileGuiInfo.getPositionRectangle() + Vector2f(percentileGuiInfo.getRectangle().getSize().x, 0));
 
-								vector<variant<string, wstring>> NameVal = { format(L"{:L}", info_item.second) };
+								vector<variant<string, wstring>> nameVal = { format(L"{:L}", infoItem.second) };
 
-								if (info_item.first == "AllPrice")
+								if (infoItem.first == "AllPrice")
 								{
-									NameVal.push_back(L"->");
-									NameVal.push_back(format(L"{:L}", static_cast<float>(info_item.second / PriceValueDegree)));
-									NameVal.push_back("kk");
+									nameVal.push_back(L"->");
+									nameVal.push_back(format(L"{:L}", static_cast<float>(infoItem.second / priceValueDegree)));
+									nameVal.push_back("kk");
 								}
 								else
 								{
-									NameVal.push_back("units");
+									nameVal.push_back("units");
 								}
 
-								PercentileGuiInfo.setKeyStringTextWstring(NameVal);
-								VectorDiagramPack[iter_graf].GUIPercentile50.push_back(PercentileGuiInfo);
-
+								percentileGuiInfo.setKeyStringTextWstring(nameVal);
+								arrDiagramPack[iterGraf].GUIPercentile50.push_back(percentileGuiInfo);
 							}
 						}
 
+						// оформление начального и конечного мода
 						//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+						auto size = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getRectangle().getSize();
+						xSizePack = size.x * 2.3f;
+						ySizePack = size.y;
 
+						xPosPack = arrDiagramPack[iterGraf].GUIPercentile50.begin()->getPositionRectangle().x;
+						yPosPack = arrDiagramPack[iterGraf].GUIPercentile50.rbegin()->getPositionRectangle().y + size.y;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					   // оформление начального и конечного мода
-					   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-						auto size = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getRectangle().getSize();
-						XsizePack = size.x * 2.3f;
-						YsizePack = size.y;
-
-						XposPack = VectorDiagramPack[iter_graf].GUIPercentile50.begin()->getPositionRectangle().x;
-						YposPack = VectorDiagramPack[iter_graf].GUIPercentile50.rbegin()->getPositionRectangle().y + size.y;
-
-
-						GUITextAndRectangle GInitialMod = [XsizePack, YsizePack, XposPack, YposPack, INITIAL_CHARACTERISTIC]()
+						GUITextAndRectangle GUInitialMod = [xSizePack, ySizePack, xPosPack, yPosPack, inititialCharacteristicStat]()
 							{
-								RectangleShape RectangleTemp;
-								RectangleTemp.setSize({ XsizePack, YsizePack });
-								RectangleTemp.setPosition({ XposPack, YposPack });
+								RectangleShape rectangleTemp;
+								rectangleTemp.setSize({ xSizePack, ySizePack });
+								rectangleTemp.setPosition({ xPosPack, yPosPack });
 								wstring result;
-
-								for (const auto& ch : INITIAL_CHARACTERISTIC)
+								for (const auto& ch : inititialCharacteristicStat)
 								{
 									result += format(L"{:.1f}", ch) + L" |\t";
 								}
-
-								return GUITextAndRectangle({ "Initial_mod", L"\t\t" ,result }, RectangleTemp, false, false);
-
+								return GUITextAndRectangle({ "Initial_mod", L"\t\t" ,result }, rectangleTemp, false, false);
 							}();
 
+						arrDiagramPack[iterGraf].GUIInitialMod = make_shared<GUITextAndRectangle>(GUInitialMod);
 
-						VectorDiagramPack[iter_graf].GUIInitialMod = make_shared<GUITextAndRectangle>(GInitialMod);
+						yPosPack += ySizePack;
 
-
-
-
-
-						YposPack += YsizePack;
-
-						GUITextAndRectangle GEndMod = [XsizePack, YsizePack, XposPack, YposPack, MOD_CHARACTERISTIC]()
+						GUITextAndRectangle endMod = [xSizePack, ySizePack, xPosPack, yPosPack, currentModCharacteristic]()
 							{
 								RectangleShape RectangleTemp;
-								RectangleTemp.setSize({ XsizePack, YsizePack });
-								RectangleTemp.setPosition({ XposPack, YposPack });
+								RectangleTemp.setSize({ xSizePack, ySizePack });
+								RectangleTemp.setPosition({ xPosPack, yPosPack });
 								wstring result;
 
-								for (const auto& ch : MOD_CHARACTERISTIC)
+								for (const auto& ch : currentModCharacteristic)
 								{
 									result += format(L"{:.1f}", ch) + L" |\t";
 								}
@@ -3415,86 +2097,32 @@ int main()
 
 							}();
 
-
-						VectorDiagramPack[iter_graf].GUIEndMod = make_shared<GUITextAndRectangle>(GEndMod);
-
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+						arrDiagramPack[iterGraf].GUIEndMod = make_shared<GUITextAndRectangle>(endMod);
 
 						// оформление метода
-						 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-						XsizePack = defaultSizeCell * 8.0f;
-						YsizePack = defaultSizeCell * 0.4f;
+						xSizePack = defaultSizeCell * 8.0f;
+						ySizePack = defaultSizeCell * 0.4f;
 
-						vector< GUITextAndRectangle> ResultGuiMethodMod;
+						vector< GUITextAndRectangle> resultGuiMethodMod;
 
 						for (size_t i = 0; i < methodStepMod.size(); i++)
 						{
-							XposPack = VectorWindowsDiagram[iter_graf].getSize().x - XsizePack;
-							YposPack = YsizePack * i;
+							xPosPack = arrWindowsDiagram[iterGraf].getSize().x - xSizePack;
+							yPosPack = ySizePack * i;
 
-							GUITextAndRectangle GuiMethodMod = [XsizePack, YsizePack, XposPack, YposPack, &methodStepMod, i, PriceValueDegree]()
+							GUITextAndRectangle GUIMethodMod = [xSizePack, ySizePack, xPosPack, yPosPack, &methodStepMod, i, priceValueDegree]()
 								{
-									RectangleShape RectangleTemp;
-									RectangleTemp.setSize({ XsizePack, YsizePack });
-									RectangleTemp.setPosition({ XposPack, YposPack });
+									RectangleShape rectangleTemp;
+									rectangleTemp.setSize({ xSizePack, ySizePack });
+									rectangleTemp.setPosition({ xPosPack, yPosPack });
 
 									const auto& [tool, kit, skill] = methodStepMod[i].m_modifiersThisChance;
 
-
-
 									auto cancheUp = methodStepMod[i].m_chanceUpgrade;
 
-									float pricet = methodStepMod[i].m_price.m_priceTool / PriceValueDegree;
-									float pricek = methodStepMod[i].m_price.m_priceKit / PriceValueDegree;
-									float prices = methodStepMod[i].m_price.m_priceSkill / PriceValueDegree;
-
-
+									float priceTool = methodStepMod[i].m_price.m_priceTool / priceValueDegree;
+									float priceKit = methodStepMod[i].m_price.m_priceKit / priceValueDegree;
+									float priceSkill = methodStepMod[i].m_price.m_priceSkill / priceValueDegree;
 
 									GUITextAndRectangle result(
 										{
@@ -3502,16 +2130,15 @@ int main()
 
 										   string(GunStats::characteristicNameInGunStat[methodStepMod[i].m_characteristicGunstat]),
 										   format(L"{:.1f} ({:.2f}%)", methodStepMod[i].m_visualPercent , cancheUp), L"- (",
-										   GunStats::Modifiers::getToolName(tool),   format(L"{:.1f}", pricet) + LANG_TRANSLATE("kk"), L"|",
-										   GunStats::Modifiers::GetKitName(kit),     format(L"{:.1f}", pricek) + LANG_TRANSLATE("kk"), L"|",
-										   GunStats::Modifiers::getSkillName(skill), format(L"{:.1f}", prices) + LANG_TRANSLATE("kk"), L")"
+										   GunStats::Modifiers::getToolName(tool),   format(L"{:.1f}", priceTool) + LANG_TRANSLATE("kk"), L"|",
+										   GunStats::Modifiers::GetKitName(kit),     format(L"{:.1f}", priceKit) + LANG_TRANSLATE("kk"), L"|",
+										   GunStats::Modifiers::getSkillName(skill), format(L"{:.1f}", priceSkill) + LANG_TRANSLATE("kk"), L")"
 
 										},
-										RectangleTemp,
+										rectangleTemp,
 										false,
 										false
 									);
-
 
 									if (cancheUp >= 100.0)
 									{
@@ -3522,145 +2149,78 @@ int main()
 
 								}();
 
-							ResultGuiMethodMod.push_back(GuiMethodMod);
+							resultGuiMethodMod.push_back(GUIMethodMod);
 
 						}
-						VectorDiagramPack[iter_graf].GUIMethodModifiers = ResultGuiMethodMod;
-
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
+						arrDiagramPack[iterGraf].GUIMethodModifiers = resultGuiMethodMod;
 
 						// оформление метода
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+						xPosPack = arrWindowsDiagram[iterGraf].getSize().x - xSizePack;
+						yPosPack = 0;
 
+						xSizePack = defaultSizeCell * 2;
+						ySizePack = defaultSizeCell * 0.4f;
 
-						XposPack = VectorWindowsDiagram[iter_graf].getSize().x - XsizePack;
-						YposPack = 0;
+						xPosPack -= xSizePack;
 
-						XsizePack = defaultSizeCell * 2;
-						YsizePack = defaultSizeCell * 0.4f;
-
-						XposPack -= XsizePack;
-
-						GUITextAndRectangle GuiMethod = [XsizePack, YsizePack, XposPack, YposPack]()
+						GUITextAndRectangle GUIMethod = [xSizePack, ySizePack, xPosPack, yPosPack]()
 							{
-								RectangleShape RectangleTemp;
-								RectangleTemp.setSize({ XsizePack, YsizePack });
-								RectangleTemp.setPosition({ XposPack, YposPack });
-								return GUITextAndRectangle({ "Method" }, RectangleTemp, false, false);
+								RectangleShape rectangleTemp;
+								rectangleTemp.setSize({ xSizePack, ySizePack });
+								rectangleTemp.setPosition({ xPosPack, yPosPack });
+								return GUITextAndRectangle({ "Method" }, rectangleTemp, false, false);
 
 							}();
 
-						VectorDiagramPack[iter_graf].GUIMethod = make_shared<GUITextAndRectangle>(GuiMethod);
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
+						arrDiagramPack[iterGraf].GUIMethod = make_shared<GUITextAndRectangle>(GUIMethod);
 
 						// добавляем стрелочки для прокрутки если выходим за указанный предел
-						if (ResultGuiMethodMod.size() >= MethodList)
+						if (resultGuiMethodMod.size() >= MethodList)
 						{
-							//////////////////////////////////////////////////////////////////////////////////////////////////////////
 							// верхняя
-							XsizePack = defaultSizeCell * 0.4f;
-							YsizePack = defaultSizeCell * 0.4f;
+							xSizePack = defaultSizeCell * 0.4f;
+							ySizePack = defaultSizeCell * 0.4f;
 
-							XposPack = ResultGuiMethodMod[1].getRectangle().getPosition().x - XsizePack;
-							YposPack = ResultGuiMethodMod[1].getRectangle().getPosition().y;
+							xPosPack = resultGuiMethodMod[1].getRectangle().getPosition().x - xSizePack;
+							yPosPack = resultGuiMethodMod[1].getRectangle().getPosition().y;
 
-							GUITextAndRectangle Btop = [XsizePack, YsizePack, XposPack, YposPack]()
+							GUITextAndRectangle buttonTop = [xSizePack, ySizePack, xPosPack, yPosPack]()
 								{
-									RectangleShape RectangleTemp;
-									RectangleTemp.setSize({ XsizePack, YsizePack });
-									RectangleTemp.setPosition({ XposPack, YposPack });
+									RectangleShape rectangleTemp;
+									rectangleTemp.setSize({ xSizePack, ySizePack });
+									rectangleTemp.setPosition({ xPosPack, yPosPack });
 
 
-									return GUITextAndRectangle({ L"↑" }, RectangleTemp, false, false);
+									return GUITextAndRectangle({ L"↑" }, rectangleTemp, false, false);
 
 								}();
-							VectorDiagramPack[iter_graf].GUIButtonTop = make_shared<GUITextAndRectangle>(Btop);
+							arrDiagramPack[iterGraf].GUIButtonTop = make_shared<GUITextAndRectangle>(buttonTop);
 
-							//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-							//////////////////////////////////////////////////////////////////////////////////////////////////////////
 							// нижняя
-							XsizePack = defaultSizeCell * 0.4f;
-							YsizePack = defaultSizeCell * 0.4f;
+							xSizePack = defaultSizeCell * 0.4f;
+							ySizePack = defaultSizeCell * 0.4f;
 
-							XposPack = ResultGuiMethodMod[MethodList - 1].getRectangle().getPosition().x - XsizePack;
-							YposPack = ResultGuiMethodMod[MethodList - 1].getRectangle().getPosition().y;
+							xPosPack = resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().x - xSizePack;
+							yPosPack = resultGuiMethodMod[MethodList - 1].getRectangle().getPosition().y;
 
-							GUITextAndRectangle Bdown = [XsizePack, YsizePack, XposPack, YposPack]()
+							GUITextAndRectangle buttonDown = [xSizePack, ySizePack, xPosPack, yPosPack]()
 								{
 									RectangleShape RectangleTemp;
-									RectangleTemp.setSize({ XsizePack, YsizePack });
-									RectangleTemp.setPosition({ XposPack, YposPack });
+									RectangleTemp.setSize({ xSizePack, ySizePack });
+									RectangleTemp.setPosition({ xPosPack, yPosPack });
 
 
 									return GUITextAndRectangle({ L"↓" }, RectangleTemp, false, false);
 
 								}();
-							VectorDiagramPack[iter_graf].GUIButtonDown = make_shared<GUITextAndRectangle>(Bdown);
-
-							//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+							arrDiagramPack[iterGraf].GUIButtonDown = make_shared<GUITextAndRectangle>(buttonDown);
 						}
 
-						VectorDiagramPack[iter_graf].InitialIndexMethod = 0;
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+						arrDiagramPack[iterGraf].InitialIndexMethod = 0;
 
 						// сглаживание графика
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-						vector<pair<wstring, float>> AllocationBt =
+						vector<pair<wstring, float>> allocationBt =
 						{
 							{L"name",0.55f},
 							{L"-",   0.12f},
@@ -3669,509 +2229,273 @@ int main()
 						};
 
 						int itbt1 = 0;
-						for (const auto& [wstrbt, SizeP] : AllocationBt)
+						for (const auto& [wstrbt, SizeP] : allocationBt)
 						{
-							GUITextAndRectangle GUI_BinBt = [&wstrbt, &SizeP, &VectorDiagramPack, iter_graf, defaultSizeCell, itbt1]()
+							GUITextAndRectangle GUI_BinBt = [&wstrbt, &SizeP, &arrDiagramPack, iterGraf, defaultSizeCell, itbt1]()
 								{
-									RectangleShape BinBt;
-									BinBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
+									RectangleShape binBt;
+									binBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
 
-
-
-
-
-
-									auto posR = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
-									auto SizeR = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getSize();
+									auto posR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
+									auto SizeR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize();
 									if (itbt1 == 1)
 									{
-										posR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getPositionRectangle();
-										SizeR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
-										BinBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
+										posR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+										binBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
 
 									}
 									else if (itbt1)
 									{
-										posR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getPositionRectangle();
-										SizeR = VectorDiagramPack[iter_graf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
-										BinBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+										posR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].GUIPercentBinBt.rbegin()->getRectangle().getSize();
+										binBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
 									else
 									{
-										BinBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+										binBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
-
-
-
-
-
-
-
 
 									if (wstrbt == L"val")
 									{
-										return GUITextAndRectangle({ format(L"{:.1f}", VectorDiagramPack[iter_graf].PercentBin) }, BinBt, false, false);
+										return GUITextAndRectangle({ format(L"{:.1f}", arrDiagramPack[iterGraf].PercentBin) }, binBt, false, false);
 									}
 									else if (wstrbt == L"name")
 									{
-										return GUITextAndRectangle({ "PercentBin" }, BinBt, false, false);
+										return GUITextAndRectangle({ "PercentBin" }, binBt, false, false);
 									}
-									return GUITextAndRectangle({ wstrbt }, BinBt, true, false);
-
+									return GUITextAndRectangle({ wstrbt }, binBt, true, false);
 								}();
-
-
-							VectorDiagramPack[iter_graf].GUIPercentBinBt.push_back(GUI_BinBt);
+							arrDiagramPack[iterGraf].GUIPercentBinBt.push_back(GUI_BinBt);
 							itbt1++;
 						}
-
-
 
 						itbt1 = 0;
-						for (const auto& [wstrbt, SizeP] : AllocationBt)
+						for (const auto& [wstrbt, SizeP] : allocationBt)
 						{
-							GUITextAndRectangle GUI_SmoothBt = [&wstrbt, &SizeP, &VectorDiagramPack, iter_graf, defaultSizeCell, itbt1]()
+							GUITextAndRectangle GUISmoothBt = [&wstrbt, &SizeP, &arrDiagramPack, iterGraf, defaultSizeCell, itbt1]()
 								{
-									RectangleShape SmBt;
-									SmBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
+									RectangleShape smBt;
+									smBt.setSize(Vector2f((defaultSizeCell * 3.f) * SizeP, defaultSizeCell * 0.35f));
 
-
-
-
-
-
-									auto posR = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, defaultSizeCell * 0.35f * 3.f);
-									auto SizeR = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getSize();
+									auto posR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, defaultSizeCell * 0.35f * 3.f);
+									auto SizeR = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize();
 									if (itbt1 == 1)
 									{
-										posR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
-										SizeR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
-										SmBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
+										posR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+										smBt.setPosition(Vector2f(posR.x, posR.y + SizeR.y));
 
 									}
 									else if (itbt1)
 									{
-										posR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
-										SizeR = VectorDiagramPack[iter_graf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
-										SmBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+										posR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getPositionRectangle();
+										SizeR = arrDiagramPack[iterGraf].GUIPercentSmoothBt.rbegin()->getRectangle().getSize();
+										smBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
 									else
 									{
-										SmBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
+										smBt.setPosition(Vector2f(posR.x + SizeR.x, posR.y));
 									}
-
-
 
 									if (wstrbt == L"val")
 									{
-										return GUITextAndRectangle({ format(L"{:.2f}", VectorDiagramPack[iter_graf].PercentSmooth) }, SmBt, false, false);
+										return GUITextAndRectangle({ format(L"{:.2f}", arrDiagramPack[iterGraf].PercentSmooth) }, smBt, false, false);
 									}
 									else if (wstrbt == L"name")
 									{
-										return GUITextAndRectangle({ "PercentSmooth" }, SmBt, false, false);
+										return GUITextAndRectangle({ "PercentSmooth" }, smBt, false, false);
 									}
-									return GUITextAndRectangle({ wstrbt }, SmBt, true, false);
-
+									return GUITextAndRectangle({ wstrbt }, smBt, true, false);
 								}();
-
-
-							VectorDiagramPack[iter_graf].GUIPercentSmoothBt.push_back(GUI_SmoothBt);
+							arrDiagramPack[iterGraf].GUIPercentSmoothBt.push_back(GUISmoothBt);
 							itbt1++;
 						}
-
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					   // end
-					   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-						DiagramBool[iter_graf] = true;
-						OUTPUT_LOG("Main -> Graph setting is finished: " + to_string(iter_graf));
-						//////////////////////////////////////////////////////////////////////////////////////////////////////////
+						// end
+						diagramBool[iterGraf] = true;
+						OUTPUT_LOG("Main -> Graph setting is finished: " + to_string(iterGraf));
 					}
-					//////////////////////////////////////////////////////////////////////////////////////////////////////////
-					//////////////////////////////////////////////////////////////////////////////////////////////////////////
-					//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+					arrWindowsDiagram[iterGraf].clear(Color::White);
+					arrWindowsDiagram[iterGraf].draw(backgroundDiagram);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					VectorWindowsDiagram[iter_graf].clear(Color::White);
-					VectorWindowsDiagram[iter_graf].draw(backgroundDiagram);
-
-
-
-					////////////////////////////////////////////////////////////////////////////////
-					for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentBinBt)
 					{
-						VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
+						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
-					////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-										////////////////////////////////////////////////////////////////////////////////
-					for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
 					{
-						VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
+						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
-					////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-					////////////////////////////////////////////////////////////////////////////////
-					for (auto& GUI : VectorDiagramPack[iter_graf].GUIPercentile50)
+					for (auto& GUI : arrDiagramPack[iterGraf].GUIPercentile50)
 					{
-						VectorWindowsDiagram[iter_graf].draw(GUI.getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(GUI.getText());
+						arrWindowsDiagram[iterGraf].draw(GUI.getRectangle());
+						arrWindowsDiagram[iterGraf].draw(GUI.getText());
 					}
-					////////////////////////////////////////////////////////////////////////////////
 
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethod.get()->getRectangle());
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethod.get()->getText());
 
-
-
-
-
-
-
-					////////////////////////////////////////////////////////////////////////////////
-
-					VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethod.get()->getRectangle());
-					VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethod.get()->getText());
-
-
-					for (size_t it = VectorDiagramPack[iter_graf].InitialIndexMethod; it < VectorDiagramPack[iter_graf].GUIMethodModifiers.size(); it++)
+					for (size_t it = arrDiagramPack[iterGraf].InitialIndexMethod; it < arrDiagramPack[iterGraf].GUIMethodModifiers.size(); it++)
 					{
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIMethodModifiers[it].getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethodModifiers[it].getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIMethodModifiers[it].getText());
 					}
 
-					if (VectorDiagramPack[iter_graf].GUIButtonTop.get() != nullptr && VectorDiagramPack[iter_graf].GUIButtonDown.get() != nullptr)
+					if (arrDiagramPack[iterGraf].GUIButtonTop.get() != nullptr && arrDiagramPack[iterGraf].GUIButtonDown.get() != nullptr)
 					{
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonTop.get()->getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonTop.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonTop.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonTop.get()->getText());
 
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonDown.get()->getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIButtonDown.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonDown.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIButtonDown.get()->getText());
 					}
 
-					if (VectorDiagramPack[iter_graf].GUIInitialMod.get() != nullptr && VectorDiagramPack[iter_graf].GUIEndMod.get() != nullptr)
+					if (arrDiagramPack[iterGraf].GUIInitialMod.get() != nullptr && arrDiagramPack[iterGraf].GUIEndMod.get() != nullptr)
 					{
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIInitialMod.get()->getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIInitialMod.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIInitialMod.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIInitialMod.get()->getText());
 
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIEndMod.get()->getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].GUIEndMod.get()->getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIEndMod.get()->getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].GUIEndMod.get()->getText());
 					}
 
-					////////////////////////////////////////////////////////////////////////////////
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve);
 
-
-
-
-
-
-
-
-
-
-					////////////////////////////////////////////////////////////////////////////////
-					VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve);
-
-					for (size_t it2 = 0; it2 < VectorDiagramPack[iter_graf].CurrentCurvePack.m_arrayGUITextCurve.size(); it2++)
+					for (size_t it2 = 0; it2 < arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve.size(); it2++)
 					{
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.m_arrayGUITextCurve[it2].getRectangle());
-						VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.m_arrayGUITextCurve[it2].getText());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve[it2].getRectangle());
+						arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_arrayGUITextCurve[it2].getText());
 					}
-					VectorWindowsDiagram[iter_graf].draw(VectorDiagramPack[iter_graf].CurrentCurvePack.m_curve);
-
-					////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+					arrWindowsDiagram[iterGraf].draw(arrDiagramPack[iterGraf].CurrentCurvePack.m_curve);
 
 					/// если мы навелись на кривую ->  выведем инфу о колличестваx на текущей позиции
-					if (VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getGlobalBounds().contains(MouseWorldPosForGraf))
+					if (arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getGlobalBounds().contains(mouseWorldPosForGraf))
 					{
-
 						// вертикальная линия
-						//////////////////////////////////////////////////////////////////////////////////////////
-						auto posLineTop = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
-						auto posLineDown = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getSize().y);
+						auto posLineTop = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition();
+						auto posLineDown = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition() + Vector2f(0, arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize().y);
 
 						// поправка линии на позицию мышки
-						float PosMouseRelativeRectangleCure = MouseWorldPosForGraf.x - VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
+						float PosMouseRelativeRectangleCure = mouseWorldPosForGraf.x - arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
 						posLineTop += Vector2f(PosMouseRelativeRectangleCure, 0);
 						posLineDown += Vector2f(PosMouseRelativeRectangleCure, 0);
 
 						//делаем прямую y - 0
-						VertexArray VerticalLine(PrimitiveType::Lines, 2);
+						VertexArray verticalLine(PrimitiveType::Lines, 2);
 
-						VerticalLine[0].position = posLineTop;
-						VerticalLine[0].color = Color::Black;
+						verticalLine[0].position = posLineTop;
+						verticalLine[0].color = Color::Black;
 
-						VerticalLine[1].position = posLineDown;
-						VerticalLine[1].color = Color::Black;
+						verticalLine[1].position = posLineDown;
+						verticalLine[1].color = Color::Black;
 
-						VectorWindowsDiagram[iter_graf].draw(VerticalLine);
-						//////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
+						arrWindowsDiagram[iterGraf].draw(verticalLine);
 
 						// перебираем отрезки кривой для вывода информации
-						//////////////////////////////////////////////////////////////////////////////////////////
-
-						size_t CountSectionCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.m_curve.getVertexCount();
-						if (CountSectionCurve == 0)
+						size_t countSectionCurve = arrDiagramPack[iterGraf].CurrentCurvePack.m_curve.getVertexCount();
+						if (countSectionCurve == 0)
 						{
-							CountSectionCurve = 1;
+							countSectionCurve = 1;
 						}
+						auto lengthCurve = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getSize().x;
 
-						auto LengthCurve = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getSize().x;
-
-						auto XposRectangle = VectorDiagramPack[iter_graf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
-						auto LengthOneSectionCurve = LengthCurve / CountSectionCurve;
-						auto XposLine = posLineTop.x; // || posLineDown.x
+						auto xPosRectangleDP = arrDiagramPack[iterGraf].CurrentCurvePack.m_mainRectangleCurve.getPosition().x;
+						auto lengthOneSectionCurve = lengthCurve / countSectionCurve;
+						auto xPosLineDiagram = posLineTop.x; // || posLineDown.x
 
 						//имя инструмента \ кол-во
-						vector<pair<string, unsigned long long>> InfoCountModifiers;
+						vector<pair<string, unsigned long long>> infoCountModifiers;
 
 						// перебираем все отрезки
-						unsigned it_max;
-						float Cur_Freq;
+						unsigned itMax = 0;
+						float currentFreq = 0.f;
 
-						for (it_max = 0; it_max < CountSectionCurve; it_max++)
+						for (itMax = 0; itMax < countSectionCurve; itMax++)
 						{
 							// делаем допуск
 							float epsilon = 0.01f;
-							float start = XposRectangle + LengthOneSectionCurve * it_max;
-							float end = XposRectangle + LengthOneSectionCurve * (it_max + 1);
-
+							float start = xPosRectangleDP + lengthOneSectionCurve * itMax;
+							float end = xPosRectangleDP + lengthOneSectionCurve * (itMax + 1);
 
 							// проверяем позиция x вертикальной линии входит в секцию кривой?
-							if (XposLine >= start - epsilon && XposLine < end + epsilon)
+							if (xPosLineDiagram >= start - epsilon && xPosLineDiagram < end + epsilon)
 							{
+								auto iteratorMap = arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers.begin();
+								advance(iteratorMap, itMax);
 
-								auto iteratorMap = VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers.begin();
-								advance(iteratorMap, it_max);
+								CountModifiers modifiersM = iteratorMap->first;
 
+								currentFreq = iteratorMap->second;
 
-								CountModifiers MODIFIERS_M = iteratorMap->first;
-
-								Cur_Freq = iteratorMap->second;
-
-								if (iteratorMap != VectorDiagramPack[iter_graf].CurrentSmoothFreqModifiers.end())
+								if (iteratorMap != arrDiagramPack[iterGraf].CurrentSmoothFreqModifiers.end())
 								{
-									MODIFIERS_M = iteratorMap->first;
-									Cur_Freq = iteratorMap->second;
+									modifiersM = iteratorMap->first;
+									currentFreq = iteratorMap->second;
 								}
-
-
-								InfoCountModifiers = GetInfoForModifiers(MODIFIERS_M);
-
+								infoCountModifiers = GetInfoForModifiers(modifiersM);
 								break;
 							}
 						}
-						//////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 
 						// информация о секции
-						//////////////////////////////////////////////////////////////////////////////////////////
-						Text NameModifier(ThemeGui::currentFontGUI);
-						NameModifier.setFillColor(Color::Black);
-						NameModifier.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.9f));
+						Text nameModifier(ThemeGui::currentFontGUI);
+						nameModifier.setFillColor(Color::Black);
+						nameModifier.setCharacterSize(static_cast<unsigned>(ThemeGui::characterSizeGUI * 0.9f));
 
-						RectangleShape RectangleForGraf;
-						RectangleForGraf.setSize(Vector2f(defaultSizeCell * 2.7f, defaultSizeCell * 0.23f * static_cast<float>(InfoCountModifiers.size() + 1)));
-						RectangleForGraf.setPosition({ posLineTop + Vector2f(defaultSizeCell * 0.3f, 0) });
-						RectangleForGraf.setFillColor(Color(230, 230, 230, 200));
-						RectangleForGraf.setOutlineColor(Color::Black);
-						RectangleForGraf.setOutlineThickness(-1);
+						RectangleShape rectangleForGraf;
+						rectangleForGraf.setSize(Vector2f(defaultSizeCell * 2.7f, defaultSizeCell * 0.23f * static_cast<float>(infoCountModifiers.size() + 1)));
+						rectangleForGraf.setPosition({ posLineTop + Vector2f(defaultSizeCell * 0.3f, 0) });
+						rectangleForGraf.setFillColor(Color(230, 230, 230, 200));
+						rectangleForGraf.setOutlineColor(Color::Black);
+						rectangleForGraf.setOutlineThickness(-1);
 
-
-						VectorWindowsDiagram[iter_graf].draw(RectangleForGraf);
+						arrWindowsDiagram[iterGraf].draw(rectangleForGraf);
 
 						size_t it4;
-						for (it4 = 0; it4 < InfoCountModifiers.size(); it4++)
+						for (it4 = 0; it4 < infoCountModifiers.size(); it4++)
 						{
-							//////////////////////////////////////////////////////////////////////////////////////////
 							auto pos1 = posLineTop + Vector2f(defaultSizeCell * 0.4f, defaultSizeCell * 0.2f * it4);
+							nameModifier.setPosition(pos1);
 
-							NameModifier.setPosition(pos1);
-
-							if (it4 == InfoCountModifiers.size() - 1)
+							if (it4 == infoCountModifiers.size() - 1)
 							{
-
-								NameModifier.setString(format(L"{:L}", static_cast<float>(InfoCountModifiers[it4].second / 1'000'000)) + LANG_TRANSLATE("kk"));
-
+								nameModifier.setString(format(L"{:L}", static_cast<float>(infoCountModifiers[it4].second / 1'000'000)) + LANG_TRANSLATE("kk"));
 							}
 							else
 							{
-								NameModifier.setString(to_wstring(InfoCountModifiers[it4].second));
+								nameModifier.setString(to_wstring(infoCountModifiers[it4].second));
 							}
+							arrWindowsDiagram[iterGraf].draw(nameModifier);
 
-
-							VectorWindowsDiagram[iter_graf].draw(NameModifier);
-							//////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-							//////////////////////////////////////////////////////////////////////////////////////////
 							auto pos2 = posLineTop + Vector2f(defaultSizeCell * 0.85f, defaultSizeCell * 0.2f * it4);
 
-							NameModifier.setPosition(pos2);
-							NameModifier.setString(L" - " + LANG_TRANSLATE(InfoCountModifiers[it4].first));
+							nameModifier.setPosition(pos2);
+							nameModifier.setString(L" - " + LANG_TRANSLATE(infoCountModifiers[it4].first));
 
-							VectorWindowsDiagram[iter_graf].draw(NameModifier);
-							//////////////////////////////////////////////////////////////////////////////////////////
+							arrWindowsDiagram[iterGraf].draw(nameModifier);
 						}
 
+						nameModifier.setPosition(posLineTop + Vector2f(defaultSizeCell * 0.4f, defaultSizeCell * 0.2f * it4));
+						nameModifier.setString(LANG_TRANSLATE("Section") + to_wstring(itMax + 1) + L" | " + LANG_TRANSLATE("Freq") + format(L"{:.2f}", currentFreq));
 
-
-						//////////////////////////////////////////////////////////////////////////////////////////
-						NameModifier.setPosition(posLineTop + Vector2f(defaultSizeCell * 0.4f, defaultSizeCell * 0.2f * it4));
-						NameModifier.setString(LANG_TRANSLATE("Section") + to_wstring(it_max + 1) + L" | " + LANG_TRANSLATE("Freq") + format(L"{:.2f}", Cur_Freq));
-
-						VectorWindowsDiagram[iter_graf].draw(NameModifier);
-						//////////////////////////////////////////////////////////////////////////////////////////
+						arrWindowsDiagram[iterGraf].draw(nameModifier);
 					}
-					////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					VectorWindowsDiagram[iter_graf].display();
-
-
-
-
-
-
-
+					arrWindowsDiagram[iterGraf].display();
 
 					// возврат к дефолт цвету
-					if (WI % 50 == 10)
+					if (itWindow % 50 == 10)
 					{
-						for (auto& button : VectorDiagramPack[iter_graf].GUIPercentBinBt)
+						for (auto& button : arrDiagramPack[iterGraf].GUIPercentBinBt)
 						{
 							button.setAsPressedButton();
 						}
-						for (auto& button : VectorDiagramPack[iter_graf].GUIPercentSmoothBt)
+						for (auto& button : arrDiagramPack[iterGraf].GUIPercentSmoothBt)
 						{
 							button.setAsPressedButton();
 						}
@@ -4179,196 +2503,173 @@ int main()
 				}
 			}
 		}
-		////////////////////////////////////////////////////////////////////////////////       
-		// возврат к дефолт цвету
-		if (WI % 50 == 10)
-		{
-			Calculation.setAsPressedButton();
-			ShapeTargetIter.setAsPressedButton();
-			ButtonGeneralModApplyStat.setAsPressedButton();
-			ShapeGeneralModReset.setAsPressedButton();
-			ShapeGeneralModBack.setAsPressedButton();
 
-			if (!PressedApplyAsMod) { ShapeGeneralModApplyStatInitial.setAsPressedButton(); }
+		// возврат к дефолт цвету
+		if (itWindow % 50 == 10)
+		{
+			calculation.setAsPressedButton();
+			shapeTargetIter.setAsPressedButton();
+			buttonGeneralModApplyStat.setAsPressedButton();
+			shapeGeneralModReset.setAsPressedButton();
+			shapeGeneralModBack.setAsPressedButton();
+
+			if (!pressedApplyAsMod) { shapeGeneralModApplyStatInitial.setAsPressedButton(); }
 
 			/// стоимость
-			for (auto& button : ToolPrice)
+			for (auto& button : arrToolPrice)
 			{
 				button.setAsPressedButton();
 			}
-			for (auto& button : KitPrice)
+			for (auto& button : arrKitPrice)
 			{
 				button.setAsPressedButton();
 			}
 		}
-
 	}
-
-
-
 	return 0;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-vector<pair<string, unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS)
+vector<pair<string, unsigned long long>> GetInfoForModifiers(const CountModifiers& modifiers)
 {
 	vector<pair<string, unsigned long long>> result;
 	// выводим информацию о 
 	// CountModifiers
 
-
-
-	for (const auto& [CurrentTool, CountTool] : MODIFIERS.CountTool)
+	for (const auto& [currentTool, countTool] : modifiers.m_countTool)
 	{
-		if (CountTool) // != 0
+		if (countTool) // != 0
 		{
-			if (CurrentTool != GunStats::Modifiers::ToolType::noTool)
+			if (currentTool != GunStats::Modifiers::ToolType::noTool)
 			{
-				result.emplace_back(GunStats::Modifiers::getToolName(CurrentTool), CountTool);
+				result.emplace_back(GunStats::Modifiers::getToolName(currentTool), countTool);
 			}
 		}
 	}
-	for (const auto& [Currentkit, CountKit] : MODIFIERS.CountKit)
+	for (const auto& [currentkit, countKit] : modifiers.m_countKit)
 	{
-		if (CountKit) // != 0
+		if (countKit) // != 0
 		{
-			if (Currentkit != GunStats::Modifiers::KitType::noKit)
+			if (currentkit != GunStats::Modifiers::KitType::noKit)
 			{
-				result.emplace_back(GunStats::Modifiers::GetKitName(Currentkit), CountKit);
+				result.emplace_back(GunStats::Modifiers::GetKitName(currentkit), countKit);
 			}
 		}
 	}
 
-	for (const auto& [CurrentSkill, CountSkill] : MODIFIERS.CountSkill)
+	for (const auto& [currentSkill, countSkill] : modifiers.m_countSkill)
 	{
-		if (CountSkill) // != 0 
+		if (countSkill) // != 0 
 		{
 			// не учитываем
-			if (CurrentSkill != GunStats::Modifiers::SkillType::playerMasterLvl1 &&
-				CurrentSkill != GunStats::Modifiers::SkillType::playerMasterLvl2 &&
-				CurrentSkill != GunStats::Modifiers::SkillType::playerMasterLvl3 &&
-				CurrentSkill != GunStats::Modifiers::SkillType::playerMasterLvl4 &&
-				CurrentSkill != GunStats::Modifiers::SkillType::playerMasterLvl5 &&
-				CurrentSkill != GunStats::Modifiers::SkillType::playerNoSkill
+			if (currentSkill != GunStats::Modifiers::SkillType::playerMasterLvl1 &&
+				currentSkill != GunStats::Modifiers::SkillType::playerMasterLvl2 &&
+				currentSkill != GunStats::Modifiers::SkillType::playerMasterLvl3 &&
+				currentSkill != GunStats::Modifiers::SkillType::playerMasterLvl4 &&
+				currentSkill != GunStats::Modifiers::SkillType::playerMasterLvl5 &&
+				currentSkill != GunStats::Modifiers::SkillType::playerNoSkill
 				)
 			{
-				result.emplace_back(GunStats::Modifiers::getSkillName(CurrentSkill), CountSkill);
+				result.emplace_back(GunStats::Modifiers::getSkillName(currentSkill), countSkill);
 			}
 		}
 	}
-	result.emplace_back("AllPrice", MODIFIERS.AllPrice);
-
-
+	result.emplace_back("AllPrice", modifiers.m_allPrice);
 	return result;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-void editShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& CurrentCharacteristicGun, vector<int> InitialPosition, vector<int> ModPosition)
+void editShaheUnits(std::vector<GeneralStat>& generalModOption, CharacteristicGun& currentCharacteristicGun, std::vector<int> initialPosition, std::vector<int> modPosition)
 {
-	auto DefaultPosition = CurrentCharacteristicGun.getDefaultPosition();
-	moveElement(DefaultPosition, 4, 2);
+	auto defaultPosition = currentCharacteristicGun.getDefaultPosition();
+	moveElement(defaultPosition, 4, 2);
 
-	auto MaxPosition = CurrentCharacteristicGun.getMaxPositionCharacteristic();
-	moveElement(MaxPosition, 4, 2);
+	auto maxPosition = currentCharacteristicGun.getMaxPositionCharacteristic();
+	moveElement(maxPosition, 4, 2);
 
-	auto Current = CurrentCharacteristicGun.getCurrentPosition();
-	moveElement(Current, 4, 2);
+	auto current = currentCharacteristicGun.getCurrentPosition();
+	moveElement(current, 4, 2);
 
-
-	for (int it1 = 0; it1 < GeneralModOption.size(); it1++)
+	for (size_t it1 = 0; it1 < generalModOption.size(); it1++)
 	{
-		for (int it2 = 0; it2 < GeneralModOption[it1].m_shaheUnitsInCharacteristic.size(); it2++)
+		auto& units = generalModOption[it1].m_shaheUnitsInCharacteristic;
+
+		for (size_t it2 = 0; it2 < units.size(); it2++)
 		{
-			//отрисовали  текущие 
-			if (Current[it1] > it2 && it2 < DefaultPosition[it1])
+			
+			if (current[it1] > it2 && it2 < defaultPosition[it1]) //отрисовали  текущие 
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(14, 88, 28));
-			}
-
-			//отрисовали  начальные мод статы 
-			else if (InitialPosition[it1] > it2 && it2 < Current[it1])
+				units[it2].setFillColor(Color(14, 88, 28));
+			}			
+			else if (initialPosition[it1] > it2 && it2 < current[it1]) //отрисовали  начальные мод статы 
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(13, 38, 13));
-			}
-
-			//отрисовали  мод статы
-			else if (it2 < ModPosition[it1])
+				units[it2].setFillColor(Color(13, 38, 13));
+			}			
+			else if (it2 < modPosition[it1]) //отрисовали  мод статы
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color::Green);
-			}
-
-			// отрисовали  недостающие до дефолт статов
-			else if (it2 < DefaultPosition[it1])
+				units[it2].setFillColor(Color::Green);
+			}			
+			else if (it2 < defaultPosition[it1]) // отрисовали  недостающие до дефолт статов
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(128, 128, 128));
-			}
-
-			//отрисовали возможные до макс
-			else if (it2 < MaxPosition[it1])
+				units[it2].setFillColor(Color(128, 128, 128));
+			}			
+			else if (it2 < maxPosition[it1]) //отрисовали возможные до макс
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(66, 66, 66));
-			}
-
-			// отрисовали невозможные
-			else
+				units[it2].setFillColor(Color(66, 66, 66));
+			}			
+			else // отрисовали невозможные
 			{
-				GeneralModOption[it1].m_shaheUnitsInCharacteristic[it2].setFillColor(Color(30, 30, 30));
+				units[it2].setFillColor(Color(30, 30, 30));
 			}
 		}
 	}
 }
 
-bool setChahceUpgrade(const CharacteristicGun& CurrentCharacteristicGun, const SelectModifiers& CurrentModifiers, GUITextAndRectangle& GUI_Chance, size_t it)
-{
-	GUI_Chance.resetColorText();
+//-----------------------------------------------------------------------------------------------------------------------
 
-	if (CurrentCharacteristicGun.isEmpty())
+bool setChahceUpgrade(const CharacteristicGun& сurrentCharacteristicGun, const SelectModifiers& сurrentModifiers, GUITextAndRectangle& GUIChance, size_t it)
+{
+	GUIChance.resetColorText();
+
+	if (сurrentCharacteristicGun.isEmpty())
 	{
 		return false;
 	}
 
+	auto tempChance = calculateSuccessChance(
+		сurrentCharacteristicGun.getChanceForNextStat(GunStats::transIndexToIndexGunStat[it]),
 
-	auto TempChance = calculateSuccessChance(
-		CurrentCharacteristicGun.getChanceForNextStat(GunStats::transIndexToIndexGunStat[it]),
-
-		GunStats::Modifiers::getToolModifier(CurrentModifiers.m_tool),
-		GunStats::Modifiers::getKitModifier(CurrentModifiers.m_kit),
-		GunStats::Modifiers::getSkillModifier(CurrentModifiers.m_skill)
+		GunStats::Modifiers::getToolModifier(сurrentModifiers.m_tool),
+		GunStats::Modifiers::getKitModifier(сurrentModifiers.m_kit),
+		GunStats::Modifiers::getSkillModifier(сurrentModifiers.m_skill)
 	);
 
-	wstring Percent = L" ";
+	wstring percent = L" ";
 
-	if (!CurrentCharacteristicGun.isEmpty())
+	if (!сurrentCharacteristicGun.isEmpty())
 	{
-		Percent += format(L"{:.2f}", TempChance);
+		percent += format(L"{:.2f}", tempChance);
 	}
 	else
 	{
-		Percent += L"0.0";
+		percent += L"0.0";
 	}
-	Percent += L"%";
+	percent += L"%";
 
-	auto NameCharacteristic = string(GunStats::indexCharacteristicName[it]);
+	auto nameCharacteristic = string(GunStats::indexCharacteristicName[it]);
 
-	GUI_Chance.setKeyStringTextWstring({ "Chahce_upgrade" , NameCharacteristic ,  Percent });
+	GUIChance.setKeyStringTextWstring({ "Chahce_upgrade" , nameCharacteristic ,  percent });
 
-	if (TempChance >= 100.0f)
+	if (tempChance >= 100.0f)
 	{
-		GUI_Chance.setColorText(Color::Green);
+		GUIChance.setColorText(Color::Green);
 	}
 	return true;
 }
 
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 template<typename T>
 void moveElement(vector<T>& vec, size_t from, size_t to)
@@ -4389,120 +2690,118 @@ void moveElement(vector<T>& vec, size_t from, size_t to)
 	vec.insert(vec.begin() + to, move(val));
 }
 
-unsigned getPrice(const path& PathToPriceModifiers_JS, const SelectModifiers& CurrentModifiers)
+//-----------------------------------------------------------------------------------------------------------------------
+
+unsigned getPrice(const path& pathToPriceModifiers, const SelectModifiers& currentModifiers)
 {
 	int result = -1;
-
-
-	ifstream in_jsonFile_price(PathToPriceModifiers_JS);
-	if (!in_jsonFile_price)
+	
+	ifstream inJsonFilePrice(pathToPriceModifiers);
+	if (!inJsonFilePrice)
 	{
-		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(pathToPriceModifiers));
 	}
 	else
 	{
-		nlohmann::json JSON_PRICE;
-		in_jsonFile_price >> JSON_PRICE;
-		in_jsonFile_price.close();
+		nlohmann::json jsonPrice;
+		inJsonFilePrice >> jsonPrice;
+		inJsonFilePrice.close();
 
+		string nameTool = GunStats::Modifiers::getToolName(currentModifiers.m_tool);
 
-		string Str_tool = GunStats::Modifiers::getToolName(CurrentModifiers.m_tool);
-
-
-		if (JSON_PRICE.contains("MD_Tool") && JSON_PRICE["MD_Tool"].contains(Str_tool))
+		if (jsonPrice.contains("MD_Tool") && jsonPrice["MD_Tool"].contains(nameTool))
 		{
-			result = JSON_PRICE["MD_Tool"][Str_tool].get<unsigned>();
+			result = jsonPrice["MD_Tool"][nameTool].get<unsigned>();
 		}
 		else
 		{
-			JSON_PRICE["MD_Tool"][Str_tool] = 0;
+			jsonPrice["MD_Tool"][nameTool] = 0;
 		}
 
 		if (result == -1)
 		{
-			ofstream out_jsonFile_price(PathToPriceModifiers_JS);
-			out_jsonFile_price << JSON_PRICE.dump(2);
-			out_jsonFile_price.close();
-
-			result = 0;
-		}
-	}
-	return static_cast<unsigned>(result);
-}
-unsigned getPrice(const path& PathToPriceModifiers_JS, const SelectModifiers& CurrentModifiers, string NameGun)
-{
-	int result = -1;
-
-
-	ifstream in_jsonFile_price(PathToPriceModifiers_JS);
-	if (!in_jsonFile_price)
-	{
-		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
-	}
-	else
-	{
-
-		nlohmann::json JSON_PRICE;
-		in_jsonFile_price >> JSON_PRICE;
-		in_jsonFile_price.close();
-
-
-		if (JSON_PRICE.contains("MD_Kit") && JSON_PRICE["MD_Kit"].contains(NameGun) && JSON_PRICE["MD_Kit"][NameGun].contains(GunStats::Modifiers::GetKitName(CurrentModifiers.m_kit)))
-		{
-			result = JSON_PRICE["MD_Kit"][NameGun][GunStats::Modifiers::GetKitName(CurrentModifiers.m_kit)].get<unsigned>();
-		}
-		else
-		{
-			JSON_PRICE["MD_Kit"][NameGun][GunStats::Modifiers::GetKitName(CurrentModifiers.m_kit)] = 0;
-		}
-
-		if (result == -1)
-		{
-			ofstream out_jsonFile_price(PathToPriceModifiers_JS);
-			out_jsonFile_price << JSON_PRICE.dump(2);
-			out_jsonFile_price.close();
-
+			ofstream outJsonFile(pathToPriceModifiers);
+			outJsonFile << jsonPrice.dump(2);
+			outJsonFile.close();
 			result = 0;
 		}
 	}
 	return static_cast<unsigned>(result);
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-bool setPriceTool(const path& PathToPriceModifiers_JS, GunStats::Modifiers::ToolType Tool, unsigned Price)
+unsigned getPrice(const path& pathToPriceModifiersJson, const SelectModifiers& currentModifiers, string nameGun)
 {
-	if (Tool == GunStats::Modifiers::ToolType::noTool)
+	int result = -1;
+
+	ifstream inJjsonFilePrice(pathToPriceModifiersJson);
+	if (!inJjsonFilePrice)
+	{
+		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(pathToPriceModifiersJson));
+	}
+	else
+	{
+		nlohmann::json jsonPrice;
+		inJjsonFilePrice >> jsonPrice;
+		inJjsonFilePrice.close();
+
+		if (jsonPrice.contains("MD_Kit") && jsonPrice["MD_Kit"].contains(nameGun) && jsonPrice["MD_Kit"][nameGun].contains(GunStats::Modifiers::GetKitName(currentModifiers.m_kit)))
+		{
+			result = jsonPrice["MD_Kit"][nameGun][GunStats::Modifiers::GetKitName(currentModifiers.m_kit)].get<unsigned>();
+		}
+		else
+		{
+			jsonPrice["MD_Kit"][nameGun][GunStats::Modifiers::GetKitName(currentModifiers.m_kit)] = 0;
+		}
+
+		if (result == -1)
+		{
+			ofstream outJson(pathToPriceModifiersJson);
+			outJson << jsonPrice.dump(2);
+			outJson.close();
+
+			result = 0;
+		}
+	}
+	return static_cast<unsigned>(result);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+bool setPriceTool(const path& pathToPriceModifiersJson, GunStats::Modifiers::ToolType tool, unsigned price)
+{
+	if (tool == GunStats::Modifiers::ToolType::noTool)
 	{
 		return false;
 	}
 
-	ifstream in_jsonFile_price(PathToPriceModifiers_JS);
-	if (!in_jsonFile_price)
+	ifstream inJjsonFilePrice(pathToPriceModifiersJson);
+	if (!inJjsonFilePrice)
 	{
-		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(pathToPriceModifiersJson));
 		return false;
 	}
 	else
 	{
-		nlohmann::json JSON_PRICE;
-		in_jsonFile_price >> JSON_PRICE;
-		in_jsonFile_price.close();
+		nlohmann::json jsonPrice;
+		inJjsonFilePrice >> jsonPrice;
+		inJjsonFilePrice.close();
 
-		JSON_PRICE["MD_Tool"][GunStats::Modifiers::getToolName(Tool)] = Price;
+		jsonPrice["MD_Tool"][GunStats::Modifiers::getToolName(tool)] = price;
 
-		ofstream out_jsonFile_price(PathToPriceModifiers_JS);
-		out_jsonFile_price << JSON_PRICE.dump(2);
-		out_jsonFile_price.close();
+		ofstream outJson(pathToPriceModifiersJson);
+		outJson << jsonPrice.dump(2);
+		outJson.close();
 	}
 	return true;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-bool setPriceKit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitType Kit, string nameGun, unsigned Price)
+bool setPriceKit(const path& pathToPriceModifiersJson, GunStats::Modifiers::KitType kit, string nameGun, unsigned price)
 {
-	if (Kit == GunStats::Modifiers::KitType::noKit)
+	if (kit == GunStats::Modifiers::KitType::noKit)
 	{
 		return false;
 	}
@@ -4511,26 +2810,25 @@ bool setPriceKit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitTy
 		return false;
 	}
 
-
-	ifstream in_jsonFile_price(PathToPriceModifiers_JS);
-	if (!in_jsonFile_price)
+	ifstream inJjsonFilePrice(pathToPriceModifiersJson);
+	if (!inJjsonFilePrice)
 	{
-		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(PathToPriceModifiers_JS));
+		OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(pathToPriceModifiersJson));
 		return false;
 	}
 	else
 	{
-		nlohmann::json JSON_PRICE;
-		in_jsonFile_price >> JSON_PRICE;
-		in_jsonFile_price.close();
+		nlohmann::json jsonPrice;
+		inJjsonFilePrice >> jsonPrice;
+		inJjsonFilePrice.close();
 
+		jsonPrice["MD_Kit"][nameGun][GunStats::Modifiers::GetKitName(kit)] = price;
 
-		JSON_PRICE["MD_Kit"][nameGun][GunStats::Modifiers::GetKitName(Kit)] = Price;
-
-
-		ofstream out_jsonFile_price(PathToPriceModifiers_JS);
-		out_jsonFile_price << JSON_PRICE.dump(2);
-		out_jsonFile_price.close();
+		ofstream outJson(pathToPriceModifiersJson);
+		outJson << jsonPrice.dump(2);
+		outJson.close();
 	}
 	return true;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------

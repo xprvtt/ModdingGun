@@ -23,7 +23,7 @@ bool LangManager::loadLangInFolder(path PathToLanguage_json)
 
 	if (m_countLan == 0)
 	{
-		OUTPUT_LOG("LangManager -> json not exist in path: " + WstringToString(m_currentLanguagePath));
+		OUTPUT_LOG("LangManager -> json not exist in path: " + wstringToString(m_currentLanguagePath));
 		return false;
 	}
 
@@ -89,7 +89,7 @@ bool LangManager::setLanguage(size_t itLang)
 
 	for (const auto& [json_key, translate] : jsonLang.items())
 	{
-		m_translates.emplace(json_key, StringToWString(translate.get<string>()));
+		m_translates.emplace(json_key, stringToWString(translate.get<string>()));
 	}
 
 	this->m_itLang = itLang;
@@ -110,7 +110,7 @@ wstring LangManager::getTranslate(const string& key)
 	else
 	{
 		OUTPUT_LOG("LangManager -> Key not found: " + key);
-		wstring error = L"[" + StringToWString(key) + L"]";
+		wstring error = L"[" + stringToWString(key) + L"]";
 		return error;
 	}
 }

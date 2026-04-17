@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-wstring StringToWString(const string& str)
+wstring stringToWString(const string& str)
 {
     if (str.empty()) { return L""; }
 

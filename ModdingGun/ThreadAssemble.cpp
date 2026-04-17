@@ -44,7 +44,7 @@ int RunSingleAssembly(int currentNoThread, const std::vector<Method>& methodMod)
                 static_cast<unsigned int>(std::round(successRandom * 100))
             );
 
-            currentUsedModifiers.AllPrice +=
+            currentUsedModifiers.m_allPrice +=
                 method.m_price.m_priceTool +
                 method.m_price.m_priceKit +
                 method.m_price.m_priceSkill;
@@ -55,16 +55,16 @@ int RunSingleAssembly(int currentNoThread, const std::vector<Method>& methodMod)
 
             if (currentNoThread != -1)
             {
-                currentUsedModifiers.CountTool[tool]++;
-                currentUsedModifiers.CountKit[kit]++;
-                currentUsedModifiers.CountSkill[skill]++;
+                currentUsedModifiers.m_countTool[tool]++;
+                currentUsedModifiers.m_countKit[kit]++;
+                currentUsedModifiers.m_countSkill[skill]++;
             }
             else
             {
                 // проверки существования ключей убрал бы полностью (см. ниже)
-                currentUsedModifiers.CountTool[tool]++;
-                currentUsedModifiers.CountKit[kit]++;
-                currentUsedModifiers.CountSkill[skill]++;
+                currentUsedModifiers.m_countTool[tool]++;
+                currentUsedModifiers.m_countKit[kit]++;
+                currentUsedModifiers.m_countSkill[skill]++;
             }
 
             if (tool == GunStats::Modifiers::ToolType::noTool &&

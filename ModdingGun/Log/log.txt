@@ -1,5 +1,2 @@
-[2026-04-17 14:21:31] Start!
-[2026-04-17 14:21:41] CharacteristicGun -> can't get a chance greater than the maximum
-[2026-04-17 14:21:42] CharacteristicGun -> can't get a chance greater than the maximum
-[2026-04-17 14:21:42] CharacteristicGun -> can't get a chance greater than the maximum
-[2026-04-17 14:21:48] Main -> Graph setting is finished: 0
+[2026-04-17 15:47:08] Start!
+[2026-04-17 15:47:18] Main -> Graph setting is finished: 0

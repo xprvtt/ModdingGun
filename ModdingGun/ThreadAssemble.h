@@ -47,11 +47,11 @@ void addResultsThread(const vector<unsigned int>& otherAverageRandomGen, CountMo
 /// </summary>
 struct CountModifiers
 {
-    map<GunStats::Modifiers::ToolType, unsigned int > CountTool;
-    map<GunStats::Modifiers::KitType, unsigned int > CountKit;
-    map<GunStats::Modifiers::SkillType, unsigned int > CountSkill;
+    map<GunStats::Modifiers::ToolType, unsigned int > m_countTool;
+    map<GunStats::Modifiers::KitType, unsigned int > m_countKit;
+    map<GunStats::Modifiers::SkillType, unsigned int > m_countSkill;
 
-    unsigned long long AllPrice;
+    unsigned long long m_allPrice;
 
     CountModifiers()
     {
@@ -59,19 +59,19 @@ struct CountModifiers
         auto kit = GunStats::Modifiers::KitType::kitTypeBegin;
         auto skill = GunStats::Modifiers::SkillType::skillTypeBegin;
 
-        this->AllPrice = 0;
+        this->m_allPrice = 0;
 
         for (tool++; tool < GunStats::Modifiers::ToolType::ToolTypeEnd; tool++)
         {
-            this->CountTool[tool] = 0;
+            this->m_countTool[tool] = 0;
         }
         for (kit++; kit < GunStats::Modifiers::KitType::kitTypeEnd; kit++)
         {
-            this->CountKit[kit] = 0;
+            this->m_countKit[kit] = 0;
         }
         for (skill++; skill < GunStats::Modifiers::SkillType::skillTypeEnd; skill++)
         {
-            this->CountSkill[skill] = 0;
+            this->m_countSkill[skill] = 0;
         }
     }
 
@@ -82,8 +82,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountTool.at(tool);
-                auto Other = other.CountTool.at(tool);
+                auto This = this->m_countTool.at(tool);
+                auto Other = other.m_countTool.at(tool);
 
                 if (This != Other)
                 {
@@ -102,8 +102,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountKit.at(kit);
-                auto Other = other.CountKit.at(kit);
+                auto This = this->m_countKit.at(kit);
+                auto Other = other.m_countKit.at(kit);
 
                 if (This != Other)
                 {
@@ -122,8 +122,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountSkill.at(skill);
-                auto Other = other.CountSkill.at(skill);
+                auto This = this->m_countSkill.at(skill);
+                auto Other = other.m_countSkill.at(skill);
 
                 if (This != Other)
                 {
@@ -136,7 +136,7 @@ struct CountModifiers
                 exit(-10);
             }
         }
-        return this->AllPrice == other.AllPrice;
+        return this->m_allPrice == other.m_allPrice;
     };
 
     bool operator<(const CountModifiers& other) const
@@ -149,8 +149,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountTool.at(tool);
-                auto Other = other.CountTool.at(tool);
+                auto This = this->m_countTool.at(tool);
+                auto Other = other.m_countTool.at(tool);
 
                 CountToolThis += This;
                 CountToolOther += Other;
@@ -171,8 +171,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountKit.at(kit);
-                auto Other = other.CountKit.at(kit);
+                auto This = this->m_countKit.at(kit);
+                auto Other = other.m_countKit.at(kit);
 
                 CountKitThis += This;
                 CountKitOther += Other;
@@ -193,8 +193,8 @@ struct CountModifiers
         {
             try
             {
-                auto This = this->CountSkill.at(skill);
-                auto Other = other.CountSkill.at(skill);
+                auto This = this->m_countSkill.at(skill);
+                auto Other = other.m_countSkill.at(skill);
 
                 CountSkillThis += This;
                 CountSkillOther += Other;
@@ -205,7 +205,7 @@ struct CountModifiers
                 exit(-11);
             }
         }
-        return tie(CountKitThis, CountToolThis, CountSkillThis, this->AllPrice) < tie(CountKitOther, CountToolOther, CountSkillOther, other.AllPrice);
+        return tie(CountKitThis, CountToolThis, CountSkillThis, this->m_allPrice) < tie(CountKitOther, CountToolOther, CountSkillOther, other.m_allPrice);
     }
 };
 

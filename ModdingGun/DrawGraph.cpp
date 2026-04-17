@@ -198,7 +198,7 @@ map<CountModifiers, float> getSmoothFreqModifiers(const map<CountModifiers, floa
 	{
 		return otherMap;
 	}
-	
+
 	int totalSize = static_cast<int>(otherMap.size());
 	float radius = max(0, smoothnessPercent * totalSize);
 

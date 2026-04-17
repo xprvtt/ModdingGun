@@ -76,5 +76,5 @@ double getChance(int position, const vector<pair<int, double>>& chancePoints);
 
 double calculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
 
-wstring StringToWString(const string& str);
-string  WstringToString(const wstring& wstr);
+wstring stringToWString(const string& str);
+string  wstringToString(const wstring& wstr);

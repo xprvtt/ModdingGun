@@ -40,10 +40,10 @@ private:
 
 //    vector<tuple<RectangleShape, shared_ptr<Texture>, wstring, int, Text>> VectorGun;
 
-//struct VectorWeapon
+//struct Weapon
 //{
 //	RectangleShape Wshape;
-//	shared_ptr<Texture> WTexture;
+//	shared_ptr<Texture> m_ptrTexture;
 //	wstring WName;
 //	int No_weapon;
 //	Text WText;

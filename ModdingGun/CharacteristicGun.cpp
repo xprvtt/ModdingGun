@@ -9,7 +9,7 @@ bool CharacteristicGun::load(path pathToInfoJS, wstring namegun)
     ifstream jsonFileIFS(pathToInfoJS);
     if (!jsonFileIFS)
     {
-        OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(pathToInfoJS));
+        OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + wstringToString(pathToInfoJS));
         return false;
     }
 
@@ -20,7 +20,7 @@ bool CharacteristicGun::load(path pathToInfoJS, wstring namegun)
     for (const auto& currentSelectGun : jsonStat)
     {        
         auto jsonNameGunB = currentSelectGun.contains("NameGun");
-        wstring jsonNameGun = StringToWString(currentSelectGun["NameGun"]);
+        wstring jsonNameGun = stringToWString(currentSelectGun["NameGun"]);
 
         if (jsonNameGunB && jsonNameGun == namegun)
         {
@@ -58,11 +58,11 @@ bool CharacteristicGun::load(path pathToInfoJS, wstring namegun)
                     //реальный параметр = parametr например темп огня parametr = 650
                     float valueCharacteristic = 0;
 
-                    if      (lineCurrent == 0) { valueCharacteristic = static_cast<double>(36 - (0.6 * realPosition)); }
-                    else if (lineCurrent == 1) { valueCharacteristic = static_cast<double>(50 + (25 * realPosition)); }
-                    else if (lineCurrent == 4) { valueCharacteristic = static_cast<double>(-100 + (5 * realPosition)); }
+                    if      (lineCurrent == 0) { valueCharacteristic = static_cast<float>(36 - (0.6 * realPosition)); }
+                    else if (lineCurrent == 1) { valueCharacteristic = static_cast<float>(50 + (25 * realPosition)); }
+                    else if (lineCurrent == 4) { valueCharacteristic = static_cast<float>(-100 + (5 * realPosition)); }
 
-                    else    { valueCharacteristic = static_cast<double>(realPosition); }
+                    else    { valueCharacteristic = static_cast<float>(realPosition); }
 
                     auto allStatCurrent = AllStat(realPosition, valueCharacteristic, (getChance(realPosition - 1, pairs)), 0.0);
                     result.push_back(allStatCurrent);

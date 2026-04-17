@@ -180,7 +180,7 @@ namespace GunStats
 			return "No_Name_Tool";
 		}
 
-		static inline  double getKitModifier(KitType kit)
+		static inline double getKitModifier(KitType kit)
 		{
 			switch (kit)
 			{
@@ -190,7 +190,7 @@ namespace GunStats
 			}
 			return -1.0;
 		}
-		static inline  string GetKitName(KitType kit)
+		static inline string GetKitName(KitType kit)
 		{
 			switch (kit)
 			{
@@ -201,7 +201,7 @@ namespace GunStats
 			return "No_Name_Kit";
 		}
 
-		static inline  double getSkillModifier(SkillType skill)
+		static inline double getSkillModifier(SkillType skill)
 		{
 			switch (skill)
 			{
@@ -280,17 +280,18 @@ struct SelectModifiers
 	/// <summary>
 	/// инструмент
 	/// </summary>
-	GunStats::Modifiers::ToolType m_tool;
+	GunStats::Modifiers::ToolType m_tool = GunStats::Modifiers::ToolType::toolTypeBegin;
 
 	/// <summary>
 	/// набор
 	/// </summary>
-	GunStats::Modifiers::KitType m_kit;
+	GunStats::Modifiers::KitType m_kit = GunStats::Modifiers::KitType::kitTypeBegin;;
 
 	/// <summary>
 	/// навык
 	/// </summary>
-	GunStats::Modifiers::SkillType m_skill;
+	GunStats::Modifiers::SkillType m_skill = GunStats::Modifiers::SkillType::skillTypeBegin;
+
 
 	bool operator==(const SelectModifiers& other)
 	{
@@ -303,9 +304,9 @@ struct SelectModifiers
 /// </summary>
 struct PriceModifiers
 {
-	unsigned m_priceTool;
-	unsigned m_priceKit;
-	unsigned m_priceSkill;
+	unsigned m_priceTool = 0;
+	unsigned m_priceKit = 0;
+	unsigned m_priceSkill = 0;
 };
 
 
@@ -318,27 +319,27 @@ struct Method
 	/// <summary>
 	/// модификаторы, которыми получился шанс
 	/// </summary>
-	SelectModifiers m_modifiersThisChance;
+	SelectModifiers m_modifiersThisChance = {};
 
 	/// <summary>
 	/// цены на улучшение этого параметра
 	/// </summary>
-	PriceModifiers m_price;
+	PriceModifiers m_price = {};
 
 	/// <summary>
 	/// шанс улучшения для этого параметра
 	/// </summary>
-	double m_chanceUpgrade;
+	double m_chanceUpgrade = 0.0;
 
 	/// <summary>
 	/// визуальный процент
 	/// </summary>
-	double m_visualPercent;
+	double m_visualPercent = 0.0;
 
 	/// <summary>
 	/// параметр который был улучшен (INDEXGUNSTAT)
 	/// </summary>
-	int m_characteristicGunstat;
+	int m_characteristicGunstat = 0;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------

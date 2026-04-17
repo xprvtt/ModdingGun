@@ -71,6 +71,11 @@ struct GeneralStat
 	GUITextAndRectangle    m_textCharacteristicVisualPercent;
 
 	/// <summary>
+	/// кнопка для выбора
+	/// </summary>
+	GUITextAndRectangle    m_markButtonCharacteristic;
+
+	/// <summary>
 	/// Общий "прямоугольник" в котором распалагаютися все юниты
 	/// </summary>
 	RectangleShape         m_shapeCharacteristic;
@@ -79,11 +84,6 @@ struct GeneralStat
 	/// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
 	/// </summary>
 	vector<RectangleShape> m_shaheUnitsInCharacteristic;
-
-	/// <summary>
-	/// кнопка для выбора
-	/// </summary>
-	GUITextAndRectangle    m_markButtonCharacteristic;
 };
 
 struct RectangleModifiers
@@ -91,7 +91,37 @@ struct RectangleModifiers
 	vector<GUITextAndRectangle> m_toolRectangleGUI;
 	vector<GUITextAndRectangle> m_kitRectangleGUI;
 	vector<GUITextAndRectangle> m_skillRectangleGUI;
+};
 
+struct Weapon
+{
+	GUITextAndRectangle m_weapoGUI;
+	string m_name;
+	shared_ptr<Texture> m_ptrTexture;
+};
+
+struct AllPackGraf
+{
+	vector< GUITextAndRectangle> GUIPercentBinBt;
+	vector< GUITextAndRectangle> GUIPercentSmoothBt;
+	float PercentBin;
+	float PercentSmooth;
+
+	map<CountModifiers, float> CurrentSmoothFreqModifiers;
+	map<CountModifiers, float> CurrentSourceFreqModifiers;
+	Color       ColorCurve;
+	CurvePack   CurrentCurvePack;
+
+	vector<GUITextAndRectangle>     GUIPercentile50;
+	shared_ptr<GUITextAndRectangle> GUIInitialMod;
+	shared_ptr<GUITextAndRectangle> GUIEndMod;
+
+	shared_ptr<GUITextAndRectangle> GUIMethod;
+	vector<GUITextAndRectangle>     GUIMethodModifiers;
+	shared_ptr<GUITextAndRectangle> GUIButtonTop;
+	shared_ptr<GUITextAndRectangle> GUIButtonDown;
+
+	size_t InitialIndexMethod;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------
