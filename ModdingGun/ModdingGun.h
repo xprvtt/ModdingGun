@@ -41,6 +41,8 @@ bool setPriceTool(const path& pathToPriceModifiersJs, GunStats::Modifiers::ToolT
 
 bool setPriceKit(const path& pathToPriceModifiersJs, GunStats::Modifiers::KitType kit, string nameGun, unsigned price);
 
+void loadTexturesAndShapes(const vector<path>& paths, float Ypos, vector<shared_ptr<Texture>>& textures, vector<GUITextAndRectangle>& shapes, float defaultSizeCell);
+
 /// <summary>
 /// получаем инфу о кол-вах модификаторов из CountModifiers
 /// </summary>
