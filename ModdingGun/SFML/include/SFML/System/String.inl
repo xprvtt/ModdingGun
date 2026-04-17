@@ -1,11 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-<<<<<<< HEAD
-// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
-=======
 // Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
->>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -38,20 +34,20 @@ namespace sf
 {
 ////////////////////////////////////////////////////////////
 template <typename T>
-String String::fromUtf8(T begin, T end, std::optional<char32_t> replacement)
+String String::fromUtf8(T begin, T end)
 {
     String string;
-    Utf8::toUtf32(begin, end, std::back_inserter(string.m_string), replacement);
+    Utf8::toUtf32(begin, end, std::back_inserter(string.m_string));
     return string;
 }
 
 
 ////////////////////////////////////////////////////////////
 template <typename T>
-String String::fromUtf16(T begin, T end, std::optional<char32_t> replacement)
+String String::fromUtf16(T begin, T end)
 {
     String string;
-    Utf16::toUtf32(begin, end, std::back_inserter(string.m_string), replacement);
+    Utf16::toUtf32(begin, end, std::back_inserter(string.m_string));
     return string;
 }
 

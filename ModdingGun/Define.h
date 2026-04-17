@@ -8,7 +8,6 @@
 #define DEBUG
 
 #ifdef  DEBUG
-
 	#define OUTPUT_LOG(__STRING_MESSAGE__) outputMessage(__STRING_MESSAGE__)
 	#define DEBUG_CODE(__DEBUG_CODE__) __DEBUG_CODE__
 

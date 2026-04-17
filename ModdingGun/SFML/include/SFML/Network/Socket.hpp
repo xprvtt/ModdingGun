@@ -1,11 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-<<<<<<< HEAD
-// Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
-=======
 // Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
->>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -33,7 +29,6 @@
 ////////////////////////////////////////////////////////////
 #include <SFML/Network/Export.hpp>
 
-#include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/SocketHandle.hpp>
 
 
@@ -163,10 +158,8 @@ protected:
     ///
     /// This function can only be accessed by derived classes.
     ///
-    /// \param addressType The address type of the socket
-    ///
     ////////////////////////////////////////////////////////////
-    void create(IpAddress::Type addressType = IpAddress::Type::IpV4);
+    void create();
 
     ////////////////////////////////////////////////////////////
     /// \brief Create the internal representation of the socket

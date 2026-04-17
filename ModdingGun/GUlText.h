@@ -88,6 +88,7 @@ public:
 	/// <returns></returns>
 	bool isPressed() const;
 
+
 	/// <summary>
 	/// получаем ссылку
 	/// </summary>
@@ -120,7 +121,6 @@ public:
 
 	GUITextAndRectangle& operator=(const GUITextAndRectangle& other);
 
-
 private:
 
 	/// <summary>
@@ -139,7 +139,6 @@ private:
 	RectangleShape   m_UIRectangle;
 
 	/// <summary>
-
 	/// это кнопка?
 	/// </summary>
 	bool m_isButton;
@@ -169,4 +168,5 @@ private:
 
 
 };
+
 

@@ -2,9 +2,10 @@
 
 vector<path> searchFile(path searchInPath, string extension)
 {
-	vector<path> result;
 	try
 	{
+		vector<path> result;
+
 		for (const auto& entry : directory_iterator(searchInPath))
 		{
 			if (extension == "")
@@ -22,11 +23,12 @@ vector<path> searchFile(path searchInPath, string extension)
 				}
 			}
 		}
+
+		return result;
 	}
 	catch ([[maybe_unused]] const filesystem_error& error)
 	{
 		OUTPUT_LOG("SearchFile -> Error");
 		return vector<path>();
 	}
-	return result;
 }

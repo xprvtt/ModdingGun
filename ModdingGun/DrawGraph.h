@@ -32,7 +32,7 @@ VertexArray curveFun(RectangleShape mainRectangleCurve, Color colorCurve, const 
 /// <summary>
 /// получаем частоту экземпляров
 /// </summary>
-/// <param name="otherVectorCountModifiers"></param>
+/// <param name="OtherVectorCountModifiers"></param>
 /// <returns></returns>
 map<CountModifiers, float> getFreqModifiers(const vector<CountModifiers>& otherVectorCountModifiers);
 
@@ -40,7 +40,7 @@ map<CountModifiers, float> getBinedFreqModifiers(const map<CountModifiers, float
 
 /// <summary>
 /// получаем сглаженный график по частоте/// </summary>
-/// <param name="otherMap"></param>
+/// <param name="OtherMap"></param>
 /// <param name="smoothnessPercent"></param>
 /// <param name="original_min"></param>
 /// <param name="original_max"></param>

@@ -12,7 +12,6 @@ public:
 
 	CharacteristicGun(const CharacteristicGun& other);
 
-<<<<<<< HEAD
 	CharacteristicGun(vector<int> MaxStatPosition);
 
 	bool isEmpty()  const;
@@ -22,28 +21,13 @@ public:
 	void clear();
 
 	bool upgradeStat(int CharacteristicGun_in_NAMESTAT);
-=======
-	CharacteristicGun(vector<int> maxStatPosition);
-
-	bool is_Empty()  const;
-
-	bool load(path pathToInfo, wstring namegun);
-
-	void clear();
-
-	bool upgradeStat(int CharacteristicGunInNamestat);
->>>>>>> main
 
 	/// <summary>
 	/// получить шанс услучшения ДЛЯ УЛУЧШЕНИЯ НА СЛЕД ПОЗИЦИЮ характеристики
 	/// </summary>
 	/// <param name="stat">GunStats::</param>
 	/// <returns></returns>
-<<<<<<< HEAD
 	double getChanceForNextStat(size_t stat) const;
-=======
-	double getChanceFor_NEXT_Stat(size_t stat) const;
->>>>>>> main
 
 	/// <summary>
 	/// получить вектор уменьшения характеристик, для текущей статы
@@ -103,7 +87,6 @@ public:
 	/// <returns></returns>
 	vector<int> getCurrentPosition() const;
 
-<<<<<<< HEAD
 	/// <summary>
 	/// 
 	/// </summary>
@@ -118,15 +101,6 @@ private:
 		int    m_realPosition;
 
 		/// <summary>
-=======
-	double getValueCharacteristic(size_t stat) const;
-
-private:
-
-	struct AllStat
-	{
-		/// <summary>
->>>>>>> main
 		/// параметр ВИДИМЫЙ \\\ например кучность 1.2 \ темп огня 650 и тд.....
 		/// </summary>
 		double m_valueCharacteristic;
@@ -140,16 +114,6 @@ private:
 		/// текущий ВИЗУАЛЬНЫЙ процент
 		/// </summary>
 		double m_visualPercentStat;
-<<<<<<< HEAD
-=======
-
-		/// <summary>
-		///  текущий индекс ОТНОСИТЕЛЬНО МАКСИМАЛЬНОГО РАЗМЕРА
-		/// </summary>
-		int m_realPosition;
-
-		explicit AllStat(double valueCharacteristic, double currentChance, double visualPercentStat, int realPosition) : m_valueCharacteristic(valueCharacteristic), m_currentChance(currentChance), m_visualPercentStat(visualPercentStat), m_realPosition(realPosition) {}
->>>>>>> main
 	};
 
 	struct DecreaseStatST
@@ -169,10 +133,6 @@ private:
 		/// </summary>
 		int m_positionStartLower;
 
-<<<<<<< HEAD
-=======
-		explicit DecreaseStatST(int pos, int howMany, int start) : m_positionLower(pos), m_howMany(howMany), m_positionStartLower(start) {}
->>>>>>> main
 	};
 
 	/// <summary>
@@ -186,7 +146,6 @@ private:
 	/// <para>5 - отказ грязи</para>
 	/// <para>6 - отказ состояния</para>
 	/// </summary>
-<<<<<<< HEAD
 	vector<vector<AllStat>> m_fullAllStat;
 
 	/// <summary>
@@ -246,65 +205,5 @@ private:
 	bool m_empty;
 
 	bool upStat(int statNo);	
-=======
-	vector<vector<AllStat>> m_fulAllStat;
->>>>>>> main
 
-	/// <summary>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<vector<DecreaseStatST>> m_fullDecreaseStat;
-
-	/// <summary>
-	/// текущая позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_currentStatPosition;
-
-	/// <summary>
-	/// максимальная позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_maxStatPosition;
-
-	/// <summary>
-	/// начальная позиция статов</para>
-	/// <para>0 - кучность </para>
-	/// <para>1 - темп</para>
-	/// <para>2 - отдача</para>
-	/// <para>3 - качание</para>
-	/// <para>4 - пробитие</para>
-	/// <para>5 - отказ грязи</para>
-	/// <para>6 - отказ состояния</para>
-	/// </summary>
-	vector<int> m_defaultStatPosition;
-
-	/// <summary>
-	/// запись всех апгрейдов
-	/// </summary>
-	vector<vector<int>> m_upgradeHistory;
-
-	unsigned int m_countOption;
-
-	bool empty;
-
-	bool upStat(int statNo);
 };
