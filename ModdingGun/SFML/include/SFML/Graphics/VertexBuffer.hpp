@@ -1,11 +1,7 @@
-﻿////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-<<<<<<< HEAD
 // Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
-=======
-// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
->>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -217,7 +213,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Overload of assignment operator
     ///
-    /// \param right instance to assign
+    /// \param right Instance to assign
     ///
     /// \return Reference to self
     ///
@@ -227,7 +223,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Swap the contents of this vertex buffer with those of another
     ///
-    /// \param right instance to swap with
+    /// \param right Instance to swap with
     ///
     ////////////////////////////////////////////////////////////
     void swap(VertexBuffer& right) noexcept;

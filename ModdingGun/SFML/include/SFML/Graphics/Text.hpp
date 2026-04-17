@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
 // Copyright (C) 2007-2026 Laurent Gomila (laurent@sfml-dev.org)
-=======
-﻿////////////////////////////////////////////////////////////
-//
-// SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2025 Laurent Gomila (laurent@sfml-dev.org)
->>>>>>> main
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -38,10 +31,7 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
-<<<<<<< HEAD
 #include <SFML/Graphics/Glyph.hpp>
-=======
->>>>>>> main
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -51,12 +41,9 @@
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
 
-<<<<<<< HEAD
 #include <functional>
 #include <memory>
 
-=======
->>>>>>> main
 #include <cstddef>
 #include <cstdint>
 
@@ -87,7 +74,6 @@ public:
     };
 
     ////////////////////////////////////////////////////////////
-<<<<<<< HEAD
     /// \brief Enumeration of the text alignment options
     ///
     ////////////////////////////////////////////////////////////
@@ -151,8 +137,6 @@ public:
     };
 
     ////////////////////////////////////////////////////////////
-=======
->>>>>>> main
     /// \brief Construct the text from a string, font and size
     ///
     /// Note that if the used font is a bitmap font, it is not
@@ -327,7 +311,6 @@ public:
     void setOutlineThickness(float thickness);
 
     ////////////////////////////////////////////////////////////
-<<<<<<< HEAD
     /// \brief Set the line alignment for a multi-line text
     ///
     /// By default, the lines will be aligned according to the
@@ -371,8 +354,6 @@ public:
     void setTextOrientation(TextOrientation textOrientation);
 
     ////////////////////////////////////////////////////////////
-=======
->>>>>>> main
     /// \brief Get the text's string
     ///
     /// The returned string is a `sf::String`, which can automatically
@@ -475,7 +456,6 @@ public:
     [[nodiscard]] float getOutlineThickness() const;
 
     ////////////////////////////////////////////////////////////
-<<<<<<< HEAD
     /// \brief Get the line alignment for a multi-line text
     ///
     /// \return Line alignment
@@ -500,10 +480,6 @@ public:
     ///
     /// \deprecated Use `getShapedGlyphs()` instead.
     ///
-=======
-    /// \brief Return the position of the `index`-th character
-    ///
->>>>>>> main
     /// This function computes the visual position of a character
     /// from its index in the string. The returned position is
     /// in global coordinates (translation, rotation, scale and
@@ -516,7 +492,6 @@ public:
     /// \return Position of the character
     ///
     ////////////////////////////////////////////////////////////
-<<<<<<< HEAD
     [[deprecated("Use getShapedGlyphs() instead")]] [[nodiscard]] Vector2f findCharacterPos(std::size_t index) const;
 
     ////////////////////////////////////////////////////////////
@@ -765,9 +740,6 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     VertexArray& getOutlineVertexData() const;
-=======
-    [[nodiscard]] Vector2f findCharacterPos(std::size_t index) const;
->>>>>>> main
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the local bounding rectangle of the entity
@@ -816,7 +788,6 @@ private:
     ////////////////////////////////////////////////////////////
     void ensureGeometryUpdate() const;
 
-<<<<<<< HEAD
     struct ShaperImpl;
 
     ////////////////////////////////////////////////////////////
@@ -836,30 +807,12 @@ private:
     ClusterGrouping       m_clusterGrouping{ClusterGrouping::Character}; //!< Cluster grouping algorithm
     GlyphPreProcessor     m_glyphPreProcessor;                           //!< Glyph pre-processor
     mutable VertexArray   m_vertices{PrimitiveType::Triangles};          //!< Vertex array containing the fill geometry
-=======
-    ////////////////////////////////////////////////////////////
-    // Member data
-    ////////////////////////////////////////////////////////////
-    String                m_string;                                    //!< String to display
-    const Font*           m_font{};                                    //!< Font used to display the string
-    unsigned int          characterSize{30};                         //!< Base size of characters, in pixels
-    float                 m_letterSpacingFactor{1.f};                  //!< Spacing factor between letters
-    float                 m_lineSpacingFactor{1.f};                    //!< Spacing factor between lines
-    std::uint32_t         m_style{Regular};                            //!< Text style (see Style enum)
-    Color                 m_fillColor{Color::White};                   //!< Text fill color
-    Color                 m_outlineColor{Color::Black};                //!< Text outline color
-    float                 m_outlineThickness{0.f};                     //!< Thickness of the text's outline
-    mutable VertexArray   m_vertices{PrimitiveType::Triangles};        //!< Vertex array containing the fill geometry
->>>>>>> main
     mutable VertexArray   m_outlineVertices{PrimitiveType::Triangles}; //!< Vertex array containing the outline geometry
     mutable FloatRect     m_bounds;               //!< Bounding rectangle of the text (in local coordinates)
     mutable bool          m_geometryNeedUpdate{}; //!< Does the geometry need to be recomputed?
     mutable std::uint64_t m_fontTextureId{};      //!< The font texture id
-<<<<<<< HEAD
     mutable std::vector<ShapedGlyph>    m_glyphs; //!< Cluster positions
     mutable std::shared_ptr<ShaperImpl> m_shaper; //!< The shaper implementation
-=======
->>>>>>> main
 };
 
 } // namespace sf

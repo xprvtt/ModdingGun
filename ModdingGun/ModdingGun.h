@@ -8,47 +8,9 @@
 #include "LangManager.h"
 #include "GulText.h"
 
-<<<<<<< HEAD
 struct GeneralStat;
 
 //-----------------------------------------------------------------------------------------------------------------------
-=======
-/// <summary>
-/// основные элементы главного окна отображения модов
-/// </summary>
-struct GeneralStat
-{
-    /// <summary>
-    /// имя характеристики \ первое
-    /// </summary>
-    GUIModdingGun    m_textCharacteristicName;
-
-    /// <summary>
-    /// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
-    /// </summary>
-    GUIModdingGun    m_textVisualCharacteristic;
-
-    /// <summary>
-    /// визуальное отображения процента апгрейда
-    /// </summary>
-    GUIModdingGun    m_textCharacteristicVisualPercent;
-
-    /// <summary>
-    /// кнопка для выбора
-    /// </summary>
-    GUIModdingGun    m_markButtonCharacteristic;
-
-    /// <summary>
-    /// Общий "прямоугольник" в котором распалагаютися все юниты
-    /// </summary>
-    RectangleShape         m_shapeCharacteristic;
-
-    /// <summary>
-    /// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
-    /// </summary>
-    vector<RectangleShape> m_shaheUnitsInCharacteristic;
-};
->>>>>>> main
 
 /// <summary>
 /// перемешаем местами элементы из вектора характеристик CharacteristicGun и Обратно
@@ -63,7 +25,6 @@ void moveElement(vector<T>& vec, size_t from, size_t to);
 /// <summary>/// 
 /// функция для изменения цветов юнитов характеристик
 /// </summary>/// 
-<<<<<<< HEAD
 /// <param name="GeneralModOption"></param>
 /// <param name="CurrentCharacteristicGun"></param>
 /// <param name="InitialPosition"></param>
@@ -79,28 +40,12 @@ unsigned getPrice(const path& pathToPriceModifiersJs, const SelectModifiers& cur
 bool setPriceTool(const path& pathToPriceModifiersJs, GunStats::Modifiers::ToolType tool, unsigned price);
 
 bool setPriceKit(const path& pathToPriceModifiersJs, GunStats::Modifiers::KitType kit, string nameGun, unsigned price);
-=======
-/// <param name="generalModOption"></param>
-/// <param name="currentCharacteristicGun"></param>
-/// <param name="initialPosition"></param>
-/// <param name="modPosition"></param>
-void editShaheUnits(vector<GeneralStat>& generalModOption, CharacteristicGun& currentCharacteristicGun, vector<int> initialPosition, vector<int> modPosition);
-
-bool setChahceUpgrade(const CharacteristicGun& currentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUIModdingGun& GUIChance, size_t it);
-
-unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers);
-unsigned getPrice(const path& pathToPriceModifiersJS, const Select_Modifiers& currentModifiers, string nameGun);
-
-bool setPriceTool(const path& pathToPriceModifiersJS, GunStats::Modifiers::ToolType tool, unsigned price);
-bool setsPriceKit(const path& pathToPriceModifiersJS, GunStats::Modifiers::KitType kit, string nameGun, unsigned price);
->>>>>>> main
 
 /// <summary>
 /// получаем инфу о кол-вах модификаторов из CountModifiers
 /// </summary>
-/// <param name="Modifiers"></param>
+/// <param name="MODIFIERS"></param>
 /// <returns></returns>
-<<<<<<< HEAD
 vector<pair<string, unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -180,6 +125,3 @@ struct AllPackGraf
 };
 
 //-----------------------------------------------------------------------------------------------------------------------
-=======
-vector<pair<string,unsigned long long>> getInfoForModifiers(const CountModifiers& Modifiers);
->>>>>>> main

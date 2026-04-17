@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #define _CRT_SECURE_NO_WARNINGS
-#define _CRTDBG_MAP_ALLOC
 
 #include "iostream"
 
@@ -73,8 +72,5 @@ double getChance(int position, const vector<pair<int, double>>& chancePoints);
 double calculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
 
 wstring stringToWString(const string& str);
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 string  wstringToString(const wstring& wstr);

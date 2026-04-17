@@ -16,17 +16,9 @@ namespace ThemeGui
 	/// </summary>
 	extern const map< string_view, array<Color, 5>> allTheme;
 
-<<<<<<< HEAD
     extern const unsigned int characterSizeGUI;
 
     extern const float outlineThicknessSizeGUI;
 
 	extern const Font currentFontGUI;
-=======
-    extern const unsigned int characterSize;
-
-    extern const float outlineThicknessSize;
-
-	extern const Font currentFont;
->>>>>>> main
 }

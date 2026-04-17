@@ -1,0 +1,76 @@
+﻿  CharacteristicGun.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "CharacteristicGun.cpp")
+  
+  GetChance.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "GetChance.cpp")
+  
+  GUlText.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "GUlText.cpp")
+  
+  LangManager.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "LangManager.cpp")
+  
+  LoadFont.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "LoadFont.cpp")
+  
+  ModdingGun.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "ModdingGun.cpp")
+  
+  SearchFile.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "SearchFile.cpp")
+  
+  GetCurrentTimeMG.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "GetCurrentTimeMG.cpp")
+  
+  OutputMessage.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "OutputMessage.cpp")
+  
+  DrawGraph.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "DrawGraph.cpp")
+  
+  GetRandomDouble.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "GetRandomDouble.cpp")
+  
+  ThemeGui.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "ThemeGui.cpp")
+  
+  WstringToString.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "WstringToString.cpp")
+  
+  StringToWString.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "StringToWString.cpp")
+  
+  ThreadAssemble.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\xprvtt\Documents\GitHub\ModdingGun\ModdingGun\Core.h(31,10): error C1083: Не удается открыть файл включение: : No such file or directory,
+  (компиляция исходного файла "ThreadAssemble.cpp")
+  
+  Создание кода...
