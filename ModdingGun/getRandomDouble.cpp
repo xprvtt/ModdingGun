@@ -1,6 +1,6 @@
 ﻿#include "Core.h"
 
-double GetRandomDouble(double range)
+double getRandomDouble(double range)
 {
     random_device rd;
     mt19937 gen(rd());

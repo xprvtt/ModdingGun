@@ -1,374 +1,312 @@
 ﻿#pragma once
 #include "Core.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// общие параметры 
-namespace GunStats 
+namespace GunStats
 {
-    struct Modifiers 
-    {
+	inline constexpr size_t countCharacteristic = 7;
 
-        //////////////////////////////////
-        enum ToolType
-        {
-            ToolType_begin,
+	/// <summary>
+	/// <para> Колличество единиц для характеристики | обычный index</para>
+	/// <para> 0 - кол-во юнитов кучности    </para>
+	/// <para> 1 - кол-во юнитов темпа огня  </para>
+	/// <para> 2 - кол-во юнитов пробития    </para>
+	/// <para> 3 - кол-во юнитов отдачи      </para>
+	/// <para> 4 - кол-во юнитов качания     </para>
+	/// <para> 5 - кол-во юнитов отказ сост  </para> 
+	/// <para> 6 - кол-во юнитов отказ грязи </para>
+	/// </summary>
+	inline constexpr array<int, countCharacteristic> getCountUnitsForCharacteristic = { 60, 48, 40, 40, 40, 40, 40 };
 
-            NO_TOOL,
-            OLD_TOOL,
-            NORMAL_TOOL,
-            IMPROVED_TOOL,
+	/// <summary>
+	/// кучность
+	/// </summary>
+	inline  constexpr int kAccuracyIndex = 0;
 
-            ToolType_end            
-        };
+	/// <summary>
+	/// темп стрельбы
+	/// </summary>
+	inline  constexpr int kRateOfFireIndex = 1;
 
-        //////////////////////////////////
-        enum KitType
-        {
-            KitType_begin,
+	/// <summary>
+	/// отдача оружия
+	/// </summary>
+	inline  constexpr int kKickbackIndex = 2;
 
-            NO_KIT,
-            REPAIR_KIT,
-            DETAIL_KIT,
+	/// <summary>
+	/// качание оружия
+	/// </summary>
+	inline  constexpr int kSwayIndex = 3;
 
-            KitType_end
+	/// <summary>
+	/// пробитие
+	/// </summary>
+	inline  constexpr int kPenetrationIndex = 4;
 
-        };
-        //////////////////////////////////
+	/// <summary>
+	/// отказ из-за состояния оружия
+	/// </summary>
+	inline  constexpr int kMalfunctionConditionIndex = 5;
 
-        enum SkillType
-        {
-            SkillType_begin,
+	/// <summary>
+	/// отказ из-за грязи
+	/// </summary>
+	inline  constexpr int kMalfunctionDirtIndex = 6;
 
-            PLAYER_NO_SKILL,
+	/// <summary>
+	/// получаем название характеристики по индексу GunStats
+	/// </summary>
+	inline constexpr array<string_view, countCharacteristic> characteristicNameInGunStat
+	{
+		"ACCURACY",
+		"RATE_OF_FIRE",
+		"KICKBACK",
+		"SWAY",
+		"PENETRATION",
+		"MALFUNCTION_CONDITION",
+		"MALFUNCTION_DIRT"
+	};
 
-            PLAYER_MASTER_1,
-            PLAYER_MASTER_2,
-            PLAYER_MASTER_3,
-            PLAYER_MASTER_4,
-            PLAYER_MASTER_5,
+	/// <summary>
+	/// получаем название характеристики по индексу 
+	/// </summary>
+	inline constexpr array<string_view, countCharacteristic> indexCharacteristicName
+	{
+		"ACCURACY",
+		"RATE_OF_FIRE",
+		"PENETRATION",
+		"KICKBACK",
+		"SWAY",
+		"MALFUNCTION_CONDITION",
+		"MALFUNCTION_DIRT"
+	};
 
-            NPC_MASTER_2,
-            NPC_MASTER_3,
-            NPC_MASTER_4,
-            NPC_MASTER_5,
+	/// <summary>
+	/// Перевод из index в index_GunStat
+	/// </summary>
+	inline constexpr array<int, countCharacteristic> transIndexToIndexGunStat
+	{
+		GunStats::kAccuracyIndex,               // 0
+		GunStats::kRateOfFireIndex,           // 1
+		GunStats::kPenetrationIndex,            // 2
+		GunStats::kKickbackIndex,               // 3
+		GunStats::kSwayIndex,                   // 4
+		GunStats::kMalfunctionConditionIndex,  // 5
+		GunStats::kMalfunctionDirtIndex        // 6
+	};
 
-            SkillType_end
-        };
-        //////////////////////////////////
+	/// <summary>
+	/// Перевод из  index_GunStat index
+	/// </summary>
+	inline constexpr array<int, countCharacteristic> transIndexGunStatToIndex
+	{
+		0, // 0 kAccuracyIndex
+		1, // 1 kRateOfFireIndex
+		3, // 2 kKickbackIndex
+		4, // 3 kSwayIndex
+		2, // 4 kPenetrationIndex
+		5, // 5 kMalfunctionConditionIndex
+		6  // 6 kMalfunctionDirtIndex 
+	};
 
+	//-----------------------------------------------------------------------------------------------------------------------
 
+	struct Modifiers
+	{
+		enum ToolType
+		{
+			toolTypeBegin,
 
+			noTool,
+			old,
+			normal,
+			improved,
 
+			ToolTypeEnd
+		};
 
+		enum KitType
+		{
+			kitTypeBegin,
 
+			noKit,
+			repair,
+			detail,
 
+			kitTypeEnd
+		};
 
+		enum SkillType
+		{
+			skillTypeBegin,
 
+			playerNoSkill,
 
+			playerMasterLvl1,
+			playerMasterLvl2,
+			playerMasterLvl3,
+			playerMasterLvl4,
+			playerMasterLvl5,
 
-        //////////////////////////////////
+			npcMasterLvl2,
+			npcMasterLvl3,
+			npcMasterLvl4,
+			npcMasterLvl5,
 
-        static inline double GetToolModifier(ToolType tool)
-        {
-            switch (tool)
-            {
-            case ToolType::NO_TOOL:       return 0.0;
-            case ToolType::OLD_TOOL:      return 0.2;
-            case ToolType::NORMAL_TOOL:   return 0.5;
-            case ToolType::IMPROVED_TOOL: return 0.8;
-            }
-            return -1.0;
-        }
+			skillTypeEnd
+		};
 
-        static inline string GetToolName(ToolType tool)
-        {
-            switch (tool)
-            {
-            case ToolType::NO_TOOL:       return "without_tool";
-            case ToolType::OLD_TOOL:      return "Old_tool";
-            case ToolType::NORMAL_TOOL:   return "Common_tool";
-            case ToolType::IMPROVED_TOOL: return "Improved_tool";
-            }
-            return "No_Name_Tool";
-        }
+		static inline double getToolModifier(ToolType tool)
+		{
+			switch (tool)
+			{
+			case ToolType::noTool:   return 0.0;
+			case ToolType::old:      return 0.2;
+			case ToolType::normal:   return 0.5;
+			case ToolType::improved: return 0.8;
+			}
+			return -1.0;
+		}
 
-        //////////////////////////////////
+		static inline string getToolName(ToolType tool)
+		{
+			switch (tool)
+			{
+			case ToolType::noTool:   return "without_tool";
+			case ToolType::old:      return "Old_tool";
+			case ToolType::normal:   return "Common_tool";
+			case ToolType::improved: return "Improved_tool";
+			}
+			return "No_Name_Tool";
+		}
 
-        static inline  double GetKitModifier(KitType kit)
-        {
-            switch (kit)
-            {
-            case KitType::NO_KIT:      return 0.0;
-            case KitType::REPAIR_KIT:  return 1.0;
-            case KitType::DETAIL_KIT:  return 4.0;
-            }
-            return -1.0;
-        }
-        static inline  string GetKitName(KitType kit)
-        {
-            switch (kit)
-            {
-            case KitType::NO_KIT:      return "Without_set_parts";
-            case KitType::REPAIR_KIT:  return "Repair_kit";
-            case KitType::DETAIL_KIT:  return "Detail";
-            }
-            return "No_Name_Kit";
-        }
-        //////////////////////////////////
-        static inline  double GetSkillModifier(SkillType skill)
-        {
-            switch (skill) 
-            {
-            case SkillType::PLAYER_NO_SKILL:  return 0.0;
-            
-            case SkillType::PLAYER_MASTER_1:  return 0.2;
-            case SkillType::PLAYER_MASTER_2:  return 0.4;
-            case SkillType::PLAYER_MASTER_3:  return 0.6;
-            case SkillType::PLAYER_MASTER_4:  return 0.8;
-            case SkillType::PLAYER_MASTER_5:  return 1.0;
-            
-            case SkillType::NPC_MASTER_2:     return 0.5;
-            case SkillType::NPC_MASTER_3:     return 1.0;
-            case SkillType::NPC_MASTER_4:     return 1.5;
-            case SkillType::NPC_MASTER_5:     return 2.0;
-            }
-            return -1.0;
-        }
-        static inline string GetSkillName(SkillType skill)
-        {
-            switch (skill)
-            {
-            case SkillType::PLAYER_NO_SKILL:  return "without_skill";
+		static inline  double getKitModifier(KitType kit)
+		{
+			switch (kit)
+			{
+			case KitType::noKit:   return 0.0;
+			case KitType::repair:  return 1.0;
+			case KitType::detail:  return 4.0;
+			}
+			return -1.0;
+		}
+		static inline  string GetKitName(KitType kit)
+		{
+			switch (kit)
+			{
+			case KitType::noKit:   return "Without_set_parts";
+			case KitType::repair:  return "Repair_kit";
+			case KitType::detail:  return "Detail";
+			}
+			return "No_Name_Kit";
+		}
 
-            case SkillType::PLAYER_MASTER_1:  return "Player_master_1";
-            case SkillType::PLAYER_MASTER_2:  return "Player_master_2";
-            case SkillType::PLAYER_MASTER_3:  return "Player_master_3";
-            case SkillType::PLAYER_MASTER_4:  return "Player_master_4";
-            case SkillType::PLAYER_MASTER_5:  return "Player_master_5";
+		static inline  double getSkillModifier(SkillType skill)
+		{
+			switch (skill)
+			{
+			case SkillType::playerNoSkill:  return 0.0;
 
-            case SkillType::NPC_MASTER_2:     return "NPC_master_2";
-            case SkillType::NPC_MASTER_3:     return "NPC_master_3";
-            case SkillType::NPC_MASTER_4:     return "NPC_master_4";
-            case SkillType::NPC_MASTER_5:     return "NPC_master_5";
-            }
-            return "No_Name_Skill";
-        }
-        //////////////////////////////////
+			case SkillType::playerMasterLvl1:  return 0.2;
+			case SkillType::playerMasterLvl2:  return 0.4;
+			case SkillType::playerMasterLvl3:  return 0.6;
+			case SkillType::playerMasterLvl4:  return 0.8;
+			case SkillType::playerMasterLvl5:  return 1.0;
 
+			case SkillType::npcMasterLvl2:     return 0.5;
+			case SkillType::npcMasterLvl3:     return 1.0;
+			case SkillType::npcMasterLvl4:     return 1.5;
+			case SkillType::npcMasterLvl5:     return 2.0;
+			}
+			return -1.0;
+		}
 
+		static inline string getSkillName(SkillType skill)
+		{
+			switch (skill)
+			{
+			case SkillType::playerNoSkill:  return "without_skill";
 
-    };
+			case SkillType::playerMasterLvl1:  return "Player_master_1";
+			case SkillType::playerMasterLvl2:  return "Player_master_2";
+			case SkillType::playerMasterLvl3:  return "Player_master_3";
+			case SkillType::playerMasterLvl4:  return "Player_master_4";
+			case SkillType::playerMasterLvl5:  return "Player_master_5";
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+			case SkillType::npcMasterLvl2:     return "NPC_master_2";
+			case SkillType::npcMasterLvl3:     return "NPC_master_3";
+			case SkillType::npcMasterLvl4:     return "NPC_master_4";
+			case SkillType::npcMasterLvl5:     return "NPC_master_5";
+			}
+			return "No_Name_Skill";
+		}
+	};
 
-    
-    inline Modifiers::ToolType  operator++(Modifiers::ToolType& Other, int)
-    {
-        if (Other < Modifiers::ToolType::ToolType_end)
-        {
-            Other = static_cast<Modifiers::ToolType>(static_cast<int>(Other) + 1);
-        }
-        return Other;
-    }
-    inline Modifiers::KitType   operator++(Modifiers::KitType& Other, int)
-    {
-        if (Other < Modifiers::KitType::KitType_end)
-        {
-            Other = static_cast<Modifiers::KitType>(static_cast<int>(Other) + 1);
-        }
-        return Other;
-    }
-    inline Modifiers::SkillType operator++(Modifiers::SkillType& Other, int)
-    {
-        if (Other < Modifiers::SkillType::SkillType_end)
-        {
-            Other = static_cast<Modifiers::SkillType>(static_cast<int>(Other) + 1);
-        }
-        return Other;
-    }
+	inline Modifiers::ToolType  operator++(Modifiers::ToolType& other, int)
+	{
+		if (other < Modifiers::ToolType::ToolTypeEnd)
+		{
+			other = static_cast<Modifiers::ToolType>(static_cast<int>(other) + 1);
+		}
+		return other;
+	}
+	inline Modifiers::KitType   operator++(Modifiers::KitType& other, int)
+	{
+		if (other < Modifiers::KitType::kitTypeEnd)
+		{
+			other = static_cast<Modifiers::KitType>(static_cast<int>(other) + 1);
+		}
+		return other;
+	}
+	inline Modifiers::SkillType operator++(Modifiers::SkillType& other, int)
+	{
+		if (other < Modifiers::SkillType::skillTypeEnd)
+		{
+			other = static_cast<Modifiers::SkillType>(static_cast<int>(other) + 1);
+		}
+		return other;
+	}
 
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    inline  constexpr size_t COUNT_CHARACTERISTIC = 7;
-
-    /// <summary>
-    /// <para> Колличество единиц для характеристики | обычный index</para>
-    /// <para> 0 - кол-во юнитов кучности    </para>
-    /// <para> 1 - кол-во юнитов темпа огня  </para>
-    /// <para> 2 - кол-во юнитов пробития    </para>
-    /// <para> 3 - кол-во юнитов отдачи      </para>
-    /// <para> 4 - кол-во юнитов качания     </para>
-    /// <para> 5 - кол-во юнитов отказ сост  </para> 
-    /// <para> 6 - кол-во юнитов отказ грязи </para>
-    /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> GET_COUNT_UNITS_FOR_CHARACTERISTIC =
-    {
-        60, 
-        48, 
-        40, 
-
-        40, 
-        40, 
-        40, 
-        40
-    };
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /// <summary>
-    /// кучность
-    /// </summary>
-    inline  constexpr int INDEX_ACCURACY = 0;
-
-    /// <summary>
-    /// темп стрельбы
-    /// </summary>
-    inline  constexpr int INDEX_RATE_OF_FIRE = 1;
-
-
-    /// <summary>
-    /// отдача оружия
-    /// </summary>
-    inline  constexpr int INDEX_KICKBACK = 2;
-
-    /// <summary>
-    /// качание оружия
-    /// </summary>
-    inline  constexpr int INDEX_SWAY = 3;
-
-    /// <summary>
-    /// пробитие
-    /// </summary>
-    inline  constexpr int INDEX_PENETRATION = 4;
-
-    /// <summary>
-    /// отказ из-за состояния оружия
-    /// </summary>
-    inline  constexpr int INDEX_MALFUNCTION_CONDITION = 5;
-
-    /// <summary>
-    /// отказ из-за грязи
-    /// </summary>
-    inline  constexpr int INDEX_MALFUNCTION_DIRT = 6;
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /// <summary>
-    /// получаем название характеристики по индексу GunStats
-    /// </summary>
-    inline constexpr array<string_view, COUNT_CHARACTERISTIC> MapCharacteristicName_GunStat
-    {
-        "ACCURACY",
-        "RATE_OF_FIRE",
-        "KICKBACK",
-        "SWAY",
-        "PENETRATION",
-        "MALFUNCTION_CONDITION",
-        "MALFUNCTION_DIRT"
-    };
-    
-    /// <summary>
-    /// получаем название характеристики по индексу 
-    /// </summary>
-    inline constexpr array<string_view, COUNT_CHARACTERISTIC> MapCharacteristicName_Index
-    {
-        "ACCURACY",
-        "RATE_OF_FIRE",
-        "PENETRATION",
-        "KICKBACK",
-        "SWAY",
-        "MALFUNCTION_CONDITION",
-        "MALFUNCTION_DIRT"
-    };
-    
-    /// <summary>
-    /// Перевод из index в index_GunStat
-    /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> Trans_INDEX_to_INDEXGUNSTAT
-    {
-        GunStats::INDEX_ACCURACY,               // 0
-        GunStats::INDEX_RATE_OF_FIRE,           // 1
-        GunStats::INDEX_PENETRATION,            // 2
-        GunStats::INDEX_KICKBACK,               // 3
-        GunStats::INDEX_SWAY,                   // 4
-        GunStats::INDEX_MALFUNCTION_CONDITION,  // 5
-        GunStats::INDEX_MALFUNCTION_DIRT        // 6
-    };
-    
-    /// <summary>
-    /// Перевод из  index_GunStat index
-    /// </summary>
-    inline constexpr array<int, COUNT_CHARACTERISTIC> Trans_INDEXGUNSTAT_to_INDEX
-    {
-        0, // 0 INDEX_ACCURACY
-        1, // 1 INDEX_RATE_OF_FIRE
-        3, // 2 INDEX_KICKBACK
-        4, // 3 INDEX_SWAY
-        2, // 4 INDEX_PENETRATION
-        5, // 5 INDEX_MALFUNCTION_CONDITION
-        6  // 6 INDEX_MALFUNCTION_DIRT 
-    };
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
 
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 /// <summary>
 /// модификаторы
 /// </summary>
-struct Select_Modifiers
+struct SelectModifiers
 {
-    /// <summary>
-    /// инструмент
-    /// </summary>
-    GunStats::Modifiers::ToolType Tool;
-    /// <summary>
-    /// набор
-    /// </summary>
-    GunStats::Modifiers::KitType Kit;
-    /// <summary>
-    /// навык
-    /// </summary>
-    GunStats::Modifiers::SkillType Skill;
+	/// <summary>
+	/// инструмент
+	/// </summary>
+	GunStats::Modifiers::ToolType m_tool;
 
-    bool operator==(const Select_Modifiers& Other)
-    {
-        return
-        {
-            this->Tool == Other.Tool &&
-            this->Kit == Other.Kit &&
-            this->Skill == Other.Skill
-        };
+	/// <summary>
+	/// набор
+	/// </summary>
+	GunStats::Modifiers::KitType m_kit;
 
-    };
+	/// <summary>
+	/// навык
+	/// </summary>
+	GunStats::Modifiers::SkillType m_skill;
+
+	bool operator==(const SelectModifiers& other)
+	{
+		return { this->m_tool == other.m_tool && this->m_kit == other.m_kit && this->m_skill == other.m_skill };
+	};
 };
 
+/// <summary>
+/// 
+/// </summary>
 struct PriceModifiers
 {
-    unsigned PriceTool;
-    unsigned PriceKit;
-    unsigned PriceSkill;
+	unsigned m_priceTool;
+	unsigned m_priceKit;
+	unsigned m_priceSkill;
 };
-
 
 
 /// содержит 
@@ -377,34 +315,30 @@ struct PriceModifiers
 /// Select_Modifiers ModifiersForChance - модификаторы, которыми получился шанс
 struct Method
 {
-    /// <summary>
-    /// параметр который был улучшен (INDEXGUNSTAT)
-    /// </summary>
-    int Characteristic_Gunstat;
-    /// <summary>
-    /// шанс улучшения для этого параметра
-    /// </summary>
-    double ChanceUpgrade;
+	/// <summary>
+	/// модификаторы, которыми получился шанс
+	/// </summary>
+	SelectModifiers m_modifiersThisChance;
 
-    /// <summary>
-    /// модификаторы, которыми получился шанс
-    /// </summary>
-    Select_Modifiers ModifiersThisChance;
+	/// <summary>
+	/// цены на улучшение этого параметра
+	/// </summary>
+	PriceModifiers m_price;
 
-    /// <summary>
-    /// визуальный процент
-    /// </summary>
-    double VisualPercent;
+	/// <summary>
+	/// шанс улучшения для этого параметра
+	/// </summary>
+	double m_chanceUpgrade;
 
-    /// <summary>
-    /// цены на улучшение этого параметра
-    /// </summary>
-    PriceModifiers Price;
+	/// <summary>
+	/// визуальный процент
+	/// </summary>
+	double m_visualPercent;
 
+	/// <summary>
+	/// параметр который был улучшен (INDEXGUNSTAT)
+	/// </summary>
+	int m_characteristicGunstat;
 };
 
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------------------------------------------------------------

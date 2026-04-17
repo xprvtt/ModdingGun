@@ -8,68 +8,52 @@
 /// <summary>
 /// управляем всеми текстами
 /// </summary>
-class GUI_TextAndRectangle
+class GUITextAndRectangle
 {
     /// <summary>
-    /// список слов
+    /// список слов где string это ключ для перевода, wstring это текст без перевода
     /// </summary>
-    vector<variant<string, wstring>> KeyString_and_TextWstring;
+    vector<variant<string, wstring>> m_KeyStringTextWstring;
 
     /// <summary>
     /// Текст
     /// </summary>
-    unique_ptr<Text> UI_Text;
+    unique_ptr<Text> m_UIText;
 
     /// <summary>
     /// Rectangle в который был вписан тект
     /// </summary>
-    RectangleShape   UI_Rectangle;
+    RectangleShape   m_UIRectangle;
 
     /// <summary>
     /// это кнопка?
     /// </summary>
-    bool is_Button;
+    bool m_isButton;
     
     /// <summary>
     /// она нажата сейчас?
     /// </summary>
-    bool is_Pressed;
-
+    bool m_isPressed;
 
     /// <summary>
     /// установлен ли кастомный цвет текста
     /// </summary>
-    bool DefaultTextColor;
+    bool m_defaultTextColor;
 
     /// <summary>
     /// текущая тема
     /// </summary>
-    string NameTheme;  
+    string m_nameTheme;  
 
+    shared_ptr<Texture> m_texturePressedButton;
 
-    shared_ptr<Texture> TexturePressedButton;
+    shared_ptr<Texture> m_textureReleasedButton;
 
-    shared_ptr<Texture> TextureReleasedButton;    
-
-
-
-
-    static set<GUI_TextAndRectangle*> instancesGui;
-    
-
-
-
-
+    static set<GUITextAndRectangle*> m_instancesGui; 
 
     void centerText();
 
-
-
-
-
 public:
-
-
 
     /// <summary>
     /// 
@@ -78,59 +62,38 @@ public:
     /// <param name="UI_Rectangle">Rectangle в который был вписан текcт</param>
     /// <param name="is_Button">это кнопка?</param>
     /// <param name="is_Pressed">она сейчас нажата?</param>
-    GUI_TextAndRectangle(const vector<variant<string, wstring>>& KeyString_and_TextWstring, const RectangleShape& UI_Rectangle, bool is_Button, bool is_Pressed);
-    GUI_TextAndRectangle(const GUI_TextAndRectangle& other);
-    ~GUI_TextAndRectangle();
+    GUITextAndRectangle(const vector<variant<string, wstring>>& KeyString_and_TextWstring, const RectangleShape& UI_Rectangle, bool is_Button, bool is_Pressed);
 
+    GUITextAndRectangle(const GUITextAndRectangle& other);
+
+    ~GUITextAndRectangle();
 
     /// <summary>
     /// обновляем язык интерфейса
     /// </summary>
     /// <param name="it_lang"></param>
-    void RefreshTranslate();
-
+    void refreshTranslate();
 
     /// <summary>
     /// устанавливаем тему
     /// </summary>
     /// <param name="NameTheme">имя темы</param>
     /// <returns></returns>
-    bool setTheme(string NameTheme = "");
-
-
-
-
-
-    /// KeyString_and_TextWstring
-    ///////////////////////////////////////////////////////////////////
-
+    bool setTheme(string nameTheme = "");
 
     /// <summary>
     /// установить новую строку
     /// </summary>
     /// <param name="KeyString_and_TextWstring"></param>
-    void setKeyString_and_TextWstring(const vector<variant<string, wstring>>& KeyString_and_TextWstring);
+    void setKeyStringTextWstring(const vector<variant<string, wstring>>& keyStringTextWstring);
 
     /// <summary>
     /// получить строку
     /// </summary>
     /// <returns></returns>
-    vector<variant<string, wstring>> getKeyString_and_TextWstring();
+    vector<variant<string, wstring>> getKeyStringTextWstring();
 
-    ///////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-    /// UI_Rectangle
-    ///////////////////////////////////////////////////////////////////
-    void setRectangle(const RectangleShape& UI_Rectangle);
+    void setRectangle(const RectangleShape& UIRectangle);
 
     /// <summary>
     /// нажать кнопку, установится если isButton
@@ -142,31 +105,23 @@ public:
     /// </summary>
     void setAsReleasedButton();
 
-    
-
     /// <summary>
     /// установим текстуры кнопки
     /// </summary>
     /// <param name="TexturePressedButton"></param>
     /// <param name="TextureDefaultButton"></param>
     /// <returns></returns>
-    bool setTextureButton(const shared_ptr<Texture>& TexturePressedButton, const shared_ptr<Texture>& TextureReleasedButton);
-
-
-
+    bool setTextureButton(const shared_ptr<Texture>& texturePressedButton, const shared_ptr<Texture>& textureReleasedButton);
 
     Vector2f getPositionRectangle();
 
     void setPositionRectangle(Vector2f position);
-
-
 
     /// <summary>
     /// получаем ссылку
     /// </summary>
     /// <returns></returns>
     const RectangleShape& getRectangle();
-
 
     bool isButton();
 
@@ -175,20 +130,7 @@ public:
     /// </summary>
     /// <returns></returns>
     bool isPressed();
-    ///////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-    /// UI_Text
-    ///////////////////////////////////////////////////////////////////
 
     /// <summary>
     /// получаем ссылку
@@ -196,42 +138,31 @@ public:
     /// <returns></returns>
     const Text& getText();
 
-
     /// <summary>
     /// установить кастомный цвет только для текста
     /// </summary>
     /// <param name="TextColor"></param>
     void setColorText(Color TextColor);
 
-
     void resetColorText();
-    ///////////////////////////////////////////////////////////////////    
 
-
-
-
-    static void FREFRESH_THEME_GUI(string nametheme = "")
+    static void refreshThemeGui(string nametheme = "")
     {
-        for (auto& ins : GUI_TextAndRectangle::instancesGui)
+        for (auto& ins : GUITextAndRectangle::m_instancesGui)
         {
             ins->setTheme(nametheme);
         }
     }
 
-
-
-    static void FREFRESH_TR_GUI()
+    static void refreshTranslateGui()
     {
-        for (auto& ins : GUI_TextAndRectangle::instancesGui)
+        for (auto& ins : GUITextAndRectangle::m_instancesGui)
         {
-            ins->RefreshTranslate();
+            ins->refreshTranslate();
         }
     }
 
-
-
-    GUI_TextAndRectangle operator=(const GUI_TextAndRectangle& other);
- 
+    GUITextAndRectangle& operator=(const GUITextAndRectangle& other);
 };
 
 

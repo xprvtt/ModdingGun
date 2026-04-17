@@ -1,479 +1,357 @@
 ﻿#include "GulText.h"
 
-set<GUI_TextAndRectangle*> GUI_TextAndRectangle::instancesGui;
+set<GUITextAndRectangle*> GUITextAndRectangle::m_instancesGui;
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-void GUI_TextAndRectangle::centerText()
+void GUITextAndRectangle::centerText()
 {
-    float XOffset = UI_Rectangle.getSize().y * 0.3f;
+	float xOffset = m_UIRectangle.getSize().y * 0.3f;
 
-    // Горизонтальное позиционирование — от левого края с отступом
-    float x = UI_Rectangle.getPosition().x + XOffset;
+	// Горизонтальное позиционирование — от левого края с отступом
+	float x = m_UIRectangle.getPosition().x + xOffset;
 
-    // Вертикальное центрирование
-    float rectCenterY = UI_Rectangle.getPosition().y + UI_Rectangle.getSize().y / 2.0f;
-    float textHeight  = UI_Text.get()->getLocalBounds().size.y;
-    float textOffsetY = UI_Text.get()->getLocalBounds().position.y; 
+	// Вертикальное центрирование
+	float rectCenterY = m_UIRectangle.getPosition().y + m_UIRectangle.getSize().y / 2.0f;
+	float textHeight = m_UIText.get()->getLocalBounds().size.y;
+	float textOffsetY = m_UIText.get()->getLocalBounds().position.y;
 
-    float y = rectCenterY - (textHeight / 2.0f + textOffsetY);
+	float y = rectCenterY - (textHeight / 2.0f + textOffsetY);
 
+	// Уменьшение размера текста, если ширина превышает прямоугольник
+	float maxWidth = m_UIRectangle.getSize().x - (xOffset * 2.0f); // допустимая ширина с учётом отступов
+	unsigned int charSize = m_UIText.get()->getCharacterSize();
 
-    // Уменьшение размера текста, если ширина превышает прямоугольник
-    float maxWidth = UI_Rectangle.getSize().x - (XOffset * 2.0f); // допустимая ширина с учётом отступов
-    unsigned int charSize = UI_Text.get()->getCharacterSize();
+	while (m_UIText.get()->getLocalBounds().size.x > maxWidth && charSize > 5) // нижний предел
+	{
+		charSize -= 1;
+		m_UIText.get()->setCharacterSize(charSize);
+	}
 
-    while (UI_Text.get()->getLocalBounds().size.x > maxWidth && charSize > 5) // нижний предел
-    {
-        charSize -= 1;
-        UI_Text.get()->setCharacterSize(charSize);
-    }
-
-    // Установка позиции
-    UI_Text.get()->setPosition(Vector2f(x, y));
+	// Установка позиции
+	m_UIText.get()->setPosition(Vector2f(x, y));
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-GUI_TextAndRectangle::GUI_TextAndRectangle(
-    const vector<variant<string, wstring>>& KeyString_and_TextWstring, 
-    const RectangleShape& UI_Rectangle, 
-    bool is_Button,
-    bool is_Pressed
-
-)
+GUITextAndRectangle::GUITextAndRectangle(const vector<variant<string, wstring>>& KeyString_and_TextWstring, const RectangleShape& UI_Rectangle, bool is_Button, bool is_Pressed)
 {
-    instancesGui.insert(this);
+	m_instancesGui.insert(this);
 
+	this->m_KeyStringTextWstring = KeyString_and_TextWstring;
+	this->m_isButton = is_Button;
+	this->m_isPressed = is_Pressed;
+	this->m_UIRectangle = UI_Rectangle;
+	this->m_UIRectangle.setOutlineThickness(ThemeGui::outlineThicknessSizeGUI);
 
-    ////////////////////////////////////////////////////////
+	//устанавливает текст из KeyString_and_TextWstring
+	Text textCurrent(ThemeGui::currentFontGUI, "", ThemeGui::characterSizeGUI);
+	this->m_UIText = make_unique<Text>(textCurrent);
+	refreshTranslate();
 
-    this->KeyString_and_TextWstring = KeyString_and_TextWstring;
-    ////////////////////////////////////////////////////////
+	// центрируем по вертикале относительно UI_Rectangle
+	centerText();
 
+	this->m_defaultTextColor = false;
+	this->m_nameTheme = "";
 
-
-
-
-
-    ////////////////////////////////////////////////////////
-    this->is_Button  = is_Button;
-    this->is_Pressed = is_Pressed;
-    ////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-    ////////////////////////////////////////////////////////
-    this->UI_Rectangle = UI_Rectangle; 
-    this->UI_Rectangle.setOutlineThickness(ThemeGui::OutlineThicknessSize);
-    ////////////////////////////////////////////////////////
-
-
-
-
-
-
-    //устанавливает текст из KeyString_and_TextWstring
-    ////////////////////////////////////////////////////////
-    Text TextCurrent(ThemeGui::CurrentFont, "", ThemeGui::CharacterSize);
-    this->UI_Text = make_unique<Text>(TextCurrent);
-    RefreshTranslate();
-
-    // центрируем по вертикале относительно UI_Rectangle
-    centerText();
-    ////////////////////////////////////////////////////////
-
-
-
-
-
-
-    ////////////////////////////////////////////////////////
-    this->DefaultTextColor = false;
-    this->NameTheme = "";
-    
-    // устанавливаем стандартную тему (т.е. первую в списке AllTheme)
-    setTheme(NameTheme);
-    ////////////////////////////////////////////////////////
-
+	// устанавливаем стандартную тему (т.е. первую в списке AllTheme)
+	setTheme(m_nameTheme);
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-void GUI_TextAndRectangle::RefreshTranslate()
+void GUITextAndRectangle::refreshTranslate()
 {
-    if (KeyString_and_TextWstring.empty())
-    {
-        return;
-    }
+	if (m_KeyStringTextWstring.empty()) { return; }
 
+	wstring fullWstring = L"";
+	for (size_t it = 0; it < m_KeyStringTextWstring.size(); it++)
+	{
+		if (holds_alternative<string>(m_KeyStringTextWstring[it]))
+		{
+			string key = get<string>(m_KeyStringTextWstring[it]);
+			fullWstring += LANG_TRANSLATE(key);
+			fullWstring += L" ";
+		}
+		else if (holds_alternative<wstring>(m_KeyStringTextWstring[it]))
+		{
+			wstring text = get<wstring>(m_KeyStringTextWstring[it]);
+			fullWstring += text;
+			fullWstring += L" ";
+		}
+	}
+	m_UIText.get()->setString(fullWstring);
 
-
-
-
-    ////////////////////////////////////////////////////////
-    wstring FullWstring = L"";
-    for (size_t it = 0; it < KeyString_and_TextWstring.size(); it++)
-    {
-        if (holds_alternative<string>(KeyString_and_TextWstring[it]))
-        {
-            string key = get<string>(KeyString_and_TextWstring[it]);
-            FullWstring += LANG_TRANSLATE(key);
-            FullWstring += L" ";
-        }
-        else if (holds_alternative<wstring>(KeyString_and_TextWstring[it]))
-        {
-            wstring text = get<wstring>(KeyString_and_TextWstring[it]);
-            FullWstring += text;
-            FullWstring += L" ";
-        }
-    }
-    UI_Text.get()->setString(FullWstring);
-    ////////////////////////////////////////////////////////
-
-
-
-
-
-    // центрируем по вертикале относительно UI_Rectangle
-    centerText();
+	// центрируем по вертикале относительно UI_Rectangle
+	centerText();
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-bool GUI_TextAndRectangle::setTheme(string NameTheme)
+bool GUITextAndRectangle::setTheme(string nameTheme)
 {
-    bool result = false;
+	bool result = false;
 
-    
+	if (ThemeGui::allTheme.empty())
+	{
+		this->m_nameTheme = "";
+		OUTPUT_LOG("GUIText -> allTheme empty");
+		return false;
+	}
+	
+	// устанавливаем первую в списке если вдруг не найдем;
+	auto vColor = ThemeGui::allTheme.begin()->second;
 
-    if (ThemeGui::AllTheme.empty())
-    {
-        this->NameTheme = "";
-        OutputLog("GUIText -> AllTheme empty");
-        return false;
-    }
+	if (ThemeGui::allTheme.find(nameTheme) != ThemeGui::allTheme.end())
+	{
+		vColor = ThemeGui::allTheme.at(nameTheme);
+		result = true;
+	}
+	
+	// для текста \ если установлен стандартный (кастомный цвет не меняем нужно сначала сбросить )
+	if (!m_defaultTextColor)
+	{
+		m_UIText.get()->setFillColor(vColor[0]);
+	}
 
+	// насйтройка под кнопку
+	if (m_isButton)
+	{
+		if (m_isPressed)
+		{
+			m_UIRectangle.setOutlineColor(vColor[4]);
 
+			if (m_texturePressedButton)
+			{
+				m_UIRectangle.setTexture(m_texturePressedButton.get());
+			}
 
+		}
+		else
+		{
+			m_UIRectangle.setOutlineColor(vColor[3]);
+			if (m_textureReleasedButton)
+			{
+				m_UIRectangle.setTexture(m_textureReleasedButton.get());
+			}
+		}
+	}
+	else
+	{
+		m_UIRectangle.setOutlineColor(vColor[1]);
+	}
 
+	// заливка если не поставлены текстуры
+	if (m_UIRectangle.getTexture() == nullptr)
+	{
+		m_UIRectangle.setFillColor(vColor[2]);
+	}
 
-    ///////////////////////////////////////////////////////////////////
-    // устанавливаем первую в списке если вдруг не найдем;
-    auto vColor = ThemeGui::AllTheme.begin()->second;
-
-
-    if (ThemeGui::AllTheme.find(NameTheme) != ThemeGui::AllTheme.end())
-    {
-        vColor = ThemeGui::AllTheme.at(NameTheme);
-        result = true;
-    }
-    ///////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-    ///////////////////////////////////////////////////////////////////
-    // для текста \ если установлен стандартный (кастомный цвет не меняем нужно сначала сбросить )
-    if (!DefaultTextColor)
-    {
-        UI_Text.get()->setFillColor(vColor[0]);
-    }
-
-
-
-
-    ///////////////////////////////////////////////////////////////////
-
-    // насйтройка под кнопку
-    if (is_Button)
-    {
-        if (is_Pressed)
-        {
-            UI_Rectangle.setOutlineColor(vColor[4]);
-
-            if (TexturePressedButton)
-            {
-                UI_Rectangle.setTexture(TexturePressedButton.get());
-            }
-
-        }
-        else
-        {
-            UI_Rectangle.setOutlineColor(vColor[3]);
-            if (TextureReleasedButton)
-            {
-                UI_Rectangle.setTexture(TextureReleasedButton.get());
-            }
-        }
-    }
-    else
-    {
-        UI_Rectangle.setOutlineColor(vColor[1]);
-    }
-
-    // заливка если не поставлены текстуры
-    if (UI_Rectangle.getTexture() == nullptr)
-    {
-        UI_Rectangle.setFillColor(vColor[2]);
-    }
-    ///////////////////////////////////////////////////////////////////
-
-
-
-
-
-    this->NameTheme = NameTheme;
-    return result;
+	this->m_nameTheme = nameTheme;
+	return result;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-/// KeyString_and_TextWstring
-///////////////////////////////////////////////////////////////////
-
-void GUI_TextAndRectangle::setKeyString_and_TextWstring(const vector<variant<string, wstring>>& KeyString_and_TextWstring)
+void GUITextAndRectangle::setKeyStringTextWstring(const vector<variant<string, wstring>>& KeyString_and_TextWstring)
 {
-    this->KeyString_and_TextWstring = KeyString_and_TextWstring;
-    /// обновляем UI_Text
-    RefreshTranslate();
+	this->m_KeyStringTextWstring = KeyString_and_TextWstring;
+	/// обновляем UI_Text
+	refreshTranslate();
 }
 
-vector<variant<string, wstring>> GUI_TextAndRectangle::getKeyString_and_TextWstring()
+//-----------------------------------------------------------------------------------------------------------------------
+
+vector<variant<string, wstring>> GUITextAndRectangle::getKeyStringTextWstring()
 {
-    return KeyString_and_TextWstring;
+	return m_KeyStringTextWstring;
 }
-///////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-/// UI_Rectangle
-///////////////////////////////////////////////////////////////////
-void GUI_TextAndRectangle::setRectangle(const RectangleShape& UI_Rectangle)
+void GUITextAndRectangle::setRectangle(const RectangleShape& UIRectangle)
 {
-    this->UI_Rectangle = UI_Rectangle;
-    
-    setTheme(NameTheme);
+	this->m_UIRectangle = UIRectangle;
 
-    centerText();
+	setTheme(m_nameTheme);
+
+	centerText();
 
 }
 
-void GUI_TextAndRectangle::setAsPressedButton()
+//-----------------------------------------------------------------------------------------------------------------------
+
+void GUITextAndRectangle::setAsPressedButton()
 {
-    if (is_Button)
-    {
-        auto vColor = ThemeGui::AllTheme.begin()->second;
+	if (m_isButton)
+	{
+		auto vColor = ThemeGui::allTheme.begin()->second;
 
+		if (ThemeGui::allTheme.find(m_nameTheme) != ThemeGui::allTheme.end())
+		{
+			vColor = ThemeGui::allTheme.at(m_nameTheme);
+		}
+		m_UIRectangle.setOutlineColor(vColor[3]);
 
-        if (ThemeGui::AllTheme.find(NameTheme) != ThemeGui::AllTheme.end())
-        {
-            vColor = ThemeGui::AllTheme.at(NameTheme);
-        }
-        UI_Rectangle.setOutlineColor(vColor[3]);
+		if (m_texturePressedButton)
+		{
+			m_UIRectangle.setTexture(m_texturePressedButton.get());
+		}
 
-        if (TexturePressedButton)
-        {
-            UI_Rectangle.setTexture(TexturePressedButton.get());
-        }
-
-        is_Pressed = true;
-    }
+		m_isPressed = true;
+	}
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-void GUI_TextAndRectangle::setAsReleasedButton()
+void GUITextAndRectangle::setAsReleasedButton()
 {
-    if (is_Button)
-    {
-        auto vColor = ThemeGui::AllTheme.begin()->second;
+	if (m_isButton)
+	{
+		auto vColor = ThemeGui::allTheme.begin()->second;
 
 
-        if (ThemeGui::AllTheme.find(NameTheme) != ThemeGui::AllTheme.end())
-        {
-            vColor = ThemeGui::AllTheme.at(NameTheme);
-        }
-        UI_Rectangle.setOutlineColor(vColor[4]);
+		if (ThemeGui::allTheme.find(m_nameTheme) != ThemeGui::allTheme.end())
+		{
+			vColor = ThemeGui::allTheme.at(m_nameTheme);
+		}
+		m_UIRectangle.setOutlineColor(vColor[4]);
 
-        if (TextureReleasedButton)
-        {
-            UI_Rectangle.setTexture(TextureReleasedButton.get());
-        }
+		if (m_textureReleasedButton)
+		{
+			m_UIRectangle.setTexture(m_textureReleasedButton.get());
+		}
 
-        is_Pressed = false;
-    }
+		m_isPressed = false;
+	}
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-bool GUI_TextAndRectangle::setTextureButton(const shared_ptr<Texture>& TexturePressedButton, const shared_ptr<Texture>& TextureReleasedButton)
+bool GUITextAndRectangle::setTextureButton(const shared_ptr<Texture>& texturePressedButton, const shared_ptr<Texture>& textureReleasedButton)
 {
-    this->TexturePressedButton = TexturePressedButton;
-    this->TextureReleasedButton = TextureReleasedButton;
+	m_texturePressedButton = texturePressedButton;
+	m_textureReleasedButton = textureReleasedButton;
 
-    setTheme(NameTheme);
-    return true;
+	setTheme(m_nameTheme);
+	return true;
 }
 
-Vector2f GUI_TextAndRectangle::getPositionRectangle()
+//-----------------------------------------------------------------------------------------------------------------------
+
+Vector2f GUITextAndRectangle::getPositionRectangle()
 {
-    return GUI_TextAndRectangle::UI_Rectangle.getPosition();
+	return GUITextAndRectangle::m_UIRectangle.getPosition();
 }
 
-void GUI_TextAndRectangle::setPositionRectangle(Vector2f position)
+//-----------------------------------------------------------------------------------------------------------------------
+
+void GUITextAndRectangle::setPositionRectangle(Vector2f position)
 {
-    GUI_TextAndRectangle::UI_Rectangle.setPosition(position);
-    centerText();
+	GUITextAndRectangle::m_UIRectangle.setPosition(position);
+	centerText();
 }
 
-const RectangleShape& GUI_TextAndRectangle::getRectangle()
+//-----------------------------------------------------------------------------------------------------------------------
+
+const RectangleShape& GUITextAndRectangle::getRectangle()
 {
-    return UI_Rectangle;
-}
-bool GUI_TextAndRectangle::isButton()
-{
-    return is_Button;
-}
-bool GUI_TextAndRectangle::isPressed()
-{
-    return is_Pressed;
-}
-///////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-/// UI_Text
-///////////////////////////////////////////////////////////////////
-const Text& GUI_TextAndRectangle::getText()
-{
-    return *UI_Text.get();
+	return m_UIRectangle;
 }
 
-void GUI_TextAndRectangle::setColorText(Color TextColor)
+//-----------------------------------------------------------------------------------------------------------------------
+
+bool GUITextAndRectangle::isButton()
 {
-    UI_Text.get()->setFillColor(TextColor);
-    DefaultTextColor = false;
+	return m_isButton;
 }
 
-void GUI_TextAndRectangle::resetColorText()
-{
-    auto vColor = ThemeGui::AllTheme.begin()->second;
+//-----------------------------------------------------------------------------------------------------------------------
 
-    if (ThemeGui::AllTheme.find(NameTheme) != ThemeGui::AllTheme.end())
-    {
-        vColor = ThemeGui::AllTheme.at(NameTheme);
-    }
-    DefaultTextColor = true;
-    UI_Text.get()->setFillColor(vColor[0]);
+bool GUITextAndRectangle::isPressed()
+{
+	return m_isPressed;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-///////////////////////////////////////////////////////////////////
-
-GUI_TextAndRectangle GUI_TextAndRectangle::operator=(const GUI_TextAndRectangle& other)
+const Text& GUITextAndRectangle::getText()
 {
-    instancesGui.insert(this);
+	return *m_UIText.get();
+}
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-    this->KeyString_and_TextWstring = other.KeyString_and_TextWstring;
+void GUITextAndRectangle::setColorText(Color textColor)
+{
+	m_UIText.get()->setFillColor(textColor);
+	m_defaultTextColor = false;
+}
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-    Text CurrentText = *other.UI_Text.get();
-    this->UI_Text = make_unique<Text>(CurrentText);
+void GUITextAndRectangle::resetColorText()
+{
+	auto vColor = ThemeGui::allTheme.begin()->second;
 
+	if (ThemeGui::allTheme.find(m_nameTheme) != ThemeGui::allTheme.end())
+	{
+		vColor = ThemeGui::allTheme.at(m_nameTheme);
+	}
+	m_defaultTextColor = true;
+	m_UIText.get()->setFillColor(vColor[0]);
+}
 
-    this->UI_Rectangle = other.UI_Rectangle;
+//-----------------------------------------------------------------------------------------------------------------------
 
+GUITextAndRectangle& GUITextAndRectangle::operator=(const GUITextAndRectangle& other)
+{
+    if (this == &other)
+        return *this;
 
-    this->is_Button = other.is_Button;
-    this->is_Pressed = other.is_Pressed;
+    m_instancesGui.insert(this);
 
+    m_KeyStringTextWstring = other.m_KeyStringTextWstring;
 
-    this->DefaultTextColor = other.DefaultTextColor;
+    m_UIText = other.m_UIText
+        ? std::make_unique<Text>(*other.m_UIText)
+        : nullptr;
 
+    m_UIRectangle = other.m_UIRectangle;
 
-    this->NameTheme = other.NameTheme;
+    m_isButton = other.m_isButton;
+    m_isPressed = other.m_isPressed;
 
+    m_defaultTextColor = other.m_defaultTextColor;
+    m_nameTheme = other.m_nameTheme;
 
-    this->TexturePressedButton = other.TexturePressedButton;
-    this->TextureReleasedButton = other.TexturePressedButton;
-
-
+    m_texturePressedButton = other.m_texturePressedButton;
+    m_textureReleasedButton = other.m_textureReleasedButton;
 
     return *this;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-GUI_TextAndRectangle::GUI_TextAndRectangle(const GUI_TextAndRectangle& other)
+GUITextAndRectangle::GUITextAndRectangle(const GUITextAndRectangle& other) : m_KeyStringTextWstring(other.m_KeyStringTextWstring),
+	m_UIText(other.m_UIText  ? std::make_unique<Text>(*other.m_UIText): nullptr),
+	m_UIRectangle(other.m_UIRectangle),
+	m_isButton(other.m_isButton),
+	m_isPressed(other.m_isPressed),
+	m_defaultTextColor(other.m_defaultTextColor),
+	m_nameTheme(other.m_nameTheme),
+	m_texturePressedButton(other.m_texturePressedButton),
+	m_textureReleasedButton(other.m_textureReleasedButton)
 {
-    instancesGui.insert(this);
-
-    this->KeyString_and_TextWstring = other.KeyString_and_TextWstring;
-
-
-    Text CurrentText = *other.UI_Text.get();
-    this->UI_Text = make_unique<Text>(CurrentText);
-
-
-    this->UI_Rectangle = other.UI_Rectangle;
-
-
-    this->is_Button = other.is_Button;
-    this->is_Pressed = other.is_Pressed;
-
-
-    this->DefaultTextColor = other.DefaultTextColor;
-
-
-    this->NameTheme = other.NameTheme; 
-
-
-    this->TexturePressedButton = other.TexturePressedButton;
-    this->TextureReleasedButton = other.TexturePressedButton;
+	m_instancesGui.insert(this);
 }
 
-GUI_TextAndRectangle::~GUI_TextAndRectangle()
+//-----------------------------------------------------------------------------------------------------------------------
+
+GUITextAndRectangle::~GUITextAndRectangle()
 {
-    instancesGui.erase(this);
+	m_instancesGui.erase(this);
 }
 
-
-///////////////////////////////////////////////////////////////////
-
-
+//-----------------------------------------------------------------------------------------------------------------------

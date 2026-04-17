@@ -1,51 +1,34 @@
 ﻿#include "CharacteristicGun.h"
 
 
-bool CharacteristicGun::load(path PathToInfo_JS, wstring namegun)
+bool CharacteristicGun::load(path pathToInfoJS, wstring namegun)
 {
-
-    // чистим перед новой загрузкой
+    // очищаем перед новой загрузкой
     CharacteristicGun::clear();
 
-
-    ifstream JSON_File_IFS(PathToInfo_JS);
-
-
-    if (!JSON_File_IFS)
+    ifstream jsonFileIFS(pathToInfoJS);
+    if (!jsonFileIFS)
     {
-        OutputLog("CharacteristicGun -> Failed to open file: " + WstringToString(PathToInfo_JS));
+        OUTPUT_LOG("CharacteristicGun -> Failed to open file: " + WstringToString(pathToInfoJS));
         return false;
     }
-    
 
+    nlohmann::json jsonStat;
+    jsonFileIFS >> jsonStat;
+    jsonFileIFS.close();
 
-    nlohmann::json JSON_STAT;
-    JSON_File_IFS >> JSON_STAT;
-    JSON_File_IFS.close();
+    for (const auto& currentSelectGun : jsonStat)
+    {        
+        auto jsonNameGunB = currentSelectGun.contains("NameGun");
+        wstring jsonNameGun = StringToWString(currentSelectGun["NameGun"]);
 
-
-
-    for (const auto& CurrentSelectGun : JSON_STAT)
-    {
-        
-        auto JSON_NameGunB = CurrentSelectGun.contains("NameGun");
-
-
-        wstring JSON_NameGun = StringToWString(CurrentSelectGun["NameGun"]);
-
-
-        if (JSON_NameGunB && JSON_NameGun == namegun)
+        if (jsonNameGunB && jsonNameGun == namegun)
         {
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-
             // считываем первый массив ALLSTATGUN
-            auto& ALLSTATGUN = CurrentSelectGun["ALLSTATGUN"];
+            auto& allStatGun = currentSelectGun["ALLSTATGUN"];
 
-
-
-            /// сичтываем 6 строк chance_points (и некоторых других данных)
-            for (size_t lineCount = 0; lineCount < ALLSTATGUN.size(); lineCount++)
+            /// сичтываем 6 строк chancePoints (и некоторых других данных)
+            for (size_t lineCurrent = 0; lineCurrent < allStatGun.size(); lineCurrent++)
             {
                 /// текущий индекс
                 /// параметр в колличестве
@@ -53,105 +36,51 @@ bool CharacteristicGun::load(path PathToInfo_JS, wstring namegun)
                 /// текущий процент
                 vector<AllStat> result;
 
-
-
-                /////////////////////////////////////////////////////////////////////////
                 // получаем строку chance_points
                 vector<pair<int, double>> pairs;
+                auto& chancePoints = allStatGun[to_string(lineCurrent)]["ChanceVector"];
 
-
-                auto& chance_points = ALLSTATGUN[to_string(lineCount)]["ChanceVector"];
-
-                for (auto& item : chance_points)
+                for (auto& item : chancePoints)
                 {                    
                     int    first  = item[0].get<int>();
                     double second = item[1].get<double>();
                     pairs.emplace_back(first, second);
                 }
-                /////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-                /////////////////////////////////////////////////////////////////////////
                
                 // максимальное коллличество единиц характеристики для текущей статы
-                const int MAX_COUNT_UNITS = GunStats::GET_COUNT_UNITS_FOR_CHARACTERISTIC[lineCount];
+                const int maxCountUnits = GunStats::getCountUnitsForCharacteristic[lineCurrent];
 
-                /////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-                /////////////////////////////////////////////////////////////////////////
-                for (int Real_Position = 0; Real_Position <= MAX_COUNT_UNITS; Real_Position++)
+                for (int realPosition = 0; realPosition <= maxCountUnits; realPosition++)
                 {
                     // позиция известна Real_Position
-
                     // получаем шанс по позиции getChance()
-
                     // ВИЗУАЛЬНЫЙ ПРОЦЕНТ АПГРЕЙДА ПОЗЖЕ //////  СЕЙЧАС - 0.0 
-
                     //реальный параметр = parametr например темп огня parametr = 650
-                    float ValueCharacteristic;
+                    float valueCharacteristic = 0;
 
-                    if      (lineCount == 0) { ValueCharacteristic = static_cast<double>(36 - (0.6 * Real_Position)); }
-                    else if (lineCount == 1) { ValueCharacteristic = static_cast<double>(50 + (25 * Real_Position)); }
-                    else if (lineCount == 4) { ValueCharacteristic = static_cast<double>(-100 + (5 * Real_Position)); }
+                    if      (lineCurrent == 0) { valueCharacteristic = static_cast<double>(36 - (0.6 * realPosition)); }
+                    else if (lineCurrent == 1) { valueCharacteristic = static_cast<double>(50 + (25 * realPosition)); }
+                    else if (lineCurrent == 4) { valueCharacteristic = static_cast<double>(-100 + (5 * realPosition)); }
 
-                    else    { ValueCharacteristic = static_cast<double>(Real_Position); }
+                    else    { valueCharacteristic = static_cast<double>(realPosition); }
 
-                    auto ALLSTAT = AllStat(Real_Position, ValueCharacteristic, (GetChance(Real_Position - 1, pairs)), 0.0);
-
-                    result.push_back(ALLSTAT);
+                    auto allStatCurrent = AllStat(realPosition, valueCharacteristic, (getChance(realPosition - 1, pairs)), 0.0);
+                    result.push_back(allStatCurrent);
                 }
-                /////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 //  КАЛИБРОВКА ВИЗУАЛЬНОГО ПРОЦЕНТА ДЛЯ ТЕКУЩЕГО ОРУЖИЯ \\
                 //  НАПРИМЕР ЧТОБЫ 650 ТЕМП ОГНЯ БЫЛ 0% -> ТО ЕСТЬ ДЕФОЛТ СОСТОЯНИЕ
 
-
                 // размечаем проценты по позициям
-                vector<double> Percent;
-                for (int position = 0; position < MAX_COUNT_UNITS * 2; position++)
+                vector<double> percent;
+                for (int position = 0; position < maxCountUnits * 2; position++)
                 {
-                    Percent.push_back(GetChance(position, { {0, -100}, {MAX_COUNT_UNITS, 0}, {MAX_COUNT_UNITS * 2, 100} }));
+                    percent.push_back(getChance(position, { {0, -100}, {maxCountUnits, 0}, {maxCountUnits * 2, 100} }));
                 }
 
-
                 // текущая позиция относительно максимально
-                int СurrentPositionRelative_MAX_COUNT_UNITS_STAT;
+                int currentPositionRelativeMax = 0;
+
                 /////////////////////
                 // 0 куч
                 // 1 темп            
@@ -162,362 +91,314 @@ bool CharacteristicGun::load(path PathToInfo_JS, wstring namegun)
                 // 3 качание    
                 // 5 сост
                 // 6 грязь
-                //
                 /////////////////////
                 
                 // получаем реальную позицию относительно максимальной
-                switch (lineCount)
-                {
-                // кучность
-                case 0: 
-                    СurrentPositionRelative_MAX_COUNT_UNITS_STAT = static_cast<int>(round((0.6f - CurrentSelectGun["AccuracyDefault"].get<float>()) * 100));
+                switch (lineCurrent)
+                {                
+                case 0: // кучность
+                    currentPositionRelativeMax = static_cast<int>(round((0.6f - currentSelectGun["AccuracyDefault"].get<float>()) * 100));
                     break;
 
-                //  темп огня 
-                case 1:                    
+                case 1: //  темп огня 
                     //  -50 потому что минимаоьный темп = 50  \\\\\  делим на 25 т.к. одна прибавка дает +25
                     // в итоге получаем реальную позицию относительно максимальной
-                    СurrentPositionRelative_MAX_COUNT_UNITS_STAT = (CurrentSelectGun["RateFireDefault"].get<int>() -50) / 25;
+                    currentPositionRelativeMax = (currentSelectGun["RateFireDefault"].get<int>() -50) / 25;
                     break;
-
-                // пробитие
-                case 4:
+                
+                case 4: // пробитие
                     // +100 потому что минимальное пробитие = -100 
                     // прибавляем текущеей пробитие и делим на 5 потому что один апгрейд дает +5 единици пробития
                     // в итоге получаем реальную позицию относительно максимальной
-                    СurrentPositionRelative_MAX_COUNT_UNITS_STAT = (100 + CurrentSelectGun["PenetrationDefault"].get<int>()) / 5 ;
+                    currentPositionRelativeMax = (100 + currentSelectGun["PenetrationDefault"].get<int>()) / 5 ;
                     break;
 
-                // в других случаях есть CurrentPosition             
-                // 2 отдача
-                case 2:
-                // 3 кач
-                case 3:
-                // 5 сост
-                case 5:
-                // 6 грязь
-                case 6:
-                    СurrentPositionRelative_MAX_COUNT_UNITS_STAT = ALLSTATGUN[to_string(lineCount)]["CurrentPosition"].get<int>();
+                // в других случаях есть CurrentPosition                               
+                case 2: // 2 отдача        
+                case 3: // 3 кач            
+                case 5: // 5 сост       
+                case 6: // 6 грязь
+                    currentPositionRelativeMax = allStatGun[to_string(lineCurrent)]["CurrentPosition"].get<int>();
                     break;
 
                 default:
-                    СurrentPositionRelative_MAX_COUNT_UNITS_STAT = 0;
+                    currentPositionRelativeMax = 0;
                     break;
                 }
 
-
                 // размечаем ВИЗУАЛЬНЫЕ проценты апгрейда
                 // выше нуля
-                for (int PositionPlus = СurrentPositionRelative_MAX_COUNT_UNITS_STAT, it = 0; PositionPlus < result.size() && MAX_COUNT_UNITS + it < Percent.size(); PositionPlus++, it++)
+                for (int positionPlus = currentPositionRelativeMax, it = 0; positionPlus < result.size() && maxCountUnits + it < percent.size(); positionPlus++, it++)
                 {
 
-                    result[PositionPlus].VisualPercentStat = Percent[MAX_COUNT_UNITS + it];
+                    result[positionPlus].m_visualPercentStat = percent[maxCountUnits + it];
                 }
 
                 // ниже нуля
-                for (int PositionMinus = СurrentPositionRelative_MAX_COUNT_UNITS_STAT - 1, it = 0; PositionMinus >= 0; PositionMinus--, it++)
+                for (int positionMinus = currentPositionRelativeMax - 1, it = 0; positionMinus >= 0; positionMinus--, it++)
                 {
-                    auto stat = Percent[MAX_COUNT_UNITS - it - 1];
-                    result[PositionMinus].VisualPercentStat = stat;
+                    auto stat = percent[maxCountUnits - it - 1];
+                    result[positionMinus].m_visualPercentStat = stat;
                 }
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-                CurrentStatPosition.push_back(СurrentPositionRelative_MAX_COUNT_UNITS_STAT);
-                FulAllStat.push_back(result);
-                /// конец считывания строки lineCount 0й ...... 6й  из ALLSTATGUN
+                m_currentStatPosition.push_back(currentPositionRelativeMax);
+                m_fullAllStat.push_back(result);
+                /// конец считывания строки lineCurrent 0й ...... 6й  из ALLSTATGUN
             }
 
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-
             // считываем DecreaseStat
-           
-
-            auto& DecreaseStat = CurrentSelectGun["DecreaseStat"];
-
+            auto& decreaseStat = currentSelectGun["DecreaseStat"];
             
-            for (int Line = 0; Line < DecreaseStat.size(); Line++)
+            for (int line = 0; line < decreaseStat.size(); line++)
             {
                 vector<DecreaseStatST> result;
+                auto& chancePoints = decreaseStat[to_string(line)];
 
-                auto& chance_points = DecreaseStat[to_string(Line)];
-
-                for (auto& triple : chance_points)
+                for (auto& triple : chancePoints)
                 {
                     //  что уменьшать?
-                    int PositionLower      = triple[0].get<int>();
+                    int positionLower      = triple[0].get<int>();
+
                     //  насколько уменьшать?
-                    int HowMany            = triple[1].get<int>();
+                    int howMany            = triple[1].get<int>();
+
                     /// после какой позиции начать уменьшать
-                    int PositionStartLower = triple[2].get<int>();
-                    
+                    int positionStartLower = triple[2].get<int>();                    
 
-                    if (PositionLower == 7)
+                    if (positionLower == 7)
                     {
-                        PositionLower = 0;
-                        HowMany = 0;
-                        PositionStartLower = 0;
+                        positionLower = 0;
+                        howMany = 0;
+                        positionStartLower = 0;
                     }
-
-                    result.emplace_back(PositionLower, HowMany, PositionStartLower);
+                    result.emplace_back(positionLower, howMany, positionStartLower);
                 }
-
-                FullDecreaseStat.push_back(result);
-
-
+                m_fullDecreaseStat.push_back(result);
                 /// конец считывания строки Line 0й ...... 6й  из DecreaseStat
             }
 
+            auto& maxStatSelectGun = currentSelectGun["MaxStat"];
 
-            auto& MaxStat = CurrentSelectGun["MaxStat"];
+            m_maxStatPosition = { 
 
-            MaxStatPosition = { 
-
-                (360 - MaxStat[0].get<int>()) / 6,                     // куч 
-                (MaxStat[1].get<int>() - 50)  / 25,                    // темп
-                (MaxStat[3].get<int>() / 25 + CurrentStatPosition[2]), // отдача
-                (MaxStat[4].get<int>() / 25 + CurrentStatPosition[3]), // качание
-                (MaxStat[2].get<int>() + 100) / 5,                     // пробой
-                (MaxStat[5].get<int>() / 25 + CurrentStatPosition[5]), // состояние
-                (MaxStat[6].get<int>() / 25 + CurrentStatPosition[6])  // грязь
-
+                (360 - maxStatSelectGun[0].get<int>()) / 6,                     // куч 
+                (maxStatSelectGun[1].get<int>() - 50)  / 25,                    // темп
+                (maxStatSelectGun[3].get<int>() / 25 + m_currentStatPosition[2]), // отдача
+                (maxStatSelectGun[4].get<int>() / 25 + m_currentStatPosition[3]), // качание
+                (maxStatSelectGun[2].get<int>() + 100) / 5,                     // пробой
+                (maxStatSelectGun[5].get<int>() / 25 + m_currentStatPosition[5]), // состояние
+                (maxStatSelectGun[6].get<int>() / 25 + m_currentStatPosition[6])  // грязь
             };
 
+            //m_fullAllStat;
+            //m_fullDecreaseStat;
+            //m_сurrentStatPosition;
+            //MaxStatPosition;
 
+            m_defaultStatPosition = m_currentStatPosition;
 
-            FulAllStat;
-            FullDecreaseStat;
-            CurrentStatPosition;
-            MaxStatPosition;
-
-
-            DefaultStatPosition = CurrentStatPosition;
-
-            Empty = false;
+            m_empty = false;
             return true;
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
         }
     }
-
-
-
-
-    OutputLog("Gun not found: " + string(namegun.begin(), namegun.end()));
+    OUTPUT_LOG("Gun not found: " + path(namegun).string());
     return false;    
 }
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-CharacteristicGun::CharacteristicGun(vector<int> MaxStatPosition)
+CharacteristicGun::CharacteristicGun(vector<int> maxStatPosition)
 {
-    CountOption = static_cast<unsigned int>(MaxStatPosition.size());
+    m_countOption = static_cast<unsigned int>(maxStatPosition.size());
 
-    CurrentStatPosition.resize(CountOption, 0);
-    DefaultStatPosition.resize(CountOption, 0);
+    m_currentStatPosition.resize(m_countOption, 0);
+    m_defaultStatPosition.resize(m_countOption, 0);
 
-    this->MaxStatPosition = MaxStatPosition;
+    m_maxStatPosition = maxStatPosition;
 
     // пуст
-    Empty = true;
+    m_empty = true;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 CharacteristicGun::CharacteristicGun(const CharacteristicGun& other)
-{
+    : m_fullAllStat(other.m_fullAllStat),
+    m_fullDecreaseStat(other.m_fullDecreaseStat),
+    m_currentStatPosition(other.m_currentStatPosition),
+    m_maxStatPosition(other.m_maxStatPosition),
+    m_defaultStatPosition(other.m_defaultStatPosition),
+    m_empty(other.m_empty),
+    m_countOption(other.m_countOption),
+    m_upgradeHistory(other.m_upgradeHistory)
+{}
 
-    this->FulAllStat = other.FulAllStat;
+//-----------------------------------------------------------------------------------------------------------------------
 
-    this->FullDecreaseStat = other.FullDecreaseStat;
-
-    this->CurrentStatPosition = other.CurrentStatPosition;
-
-    this->MaxStatPosition = other.MaxStatPosition;
-
-    this->DefaultStatPosition = other.DefaultStatPosition;
-
-    this->Empty = other.Empty;
-
-    this->CountOption = other.CountOption;
-
-    this->UpgradeHistory = other.UpgradeHistory;
-}
-
-
-
-
-
-bool CharacteristicGun::upStat(int stat_No)
+bool CharacteristicGun::upStat(int statNo)
 {
     // если текущая позиция больше максимума не подымаем
-    if (CurrentStatPosition[stat_No] + 1 > MaxStatPosition[stat_No])
+    if (m_currentStatPosition[statNo] + 1 > m_maxStatPosition[statNo])
     {
         return false;
     }
 
     // увеличиваем
-    CurrentStatPosition[stat_No]++;
+    m_currentStatPosition[statNo]++;
 
 
     // уменьшаем другие статы если есть указаны
 
     // проходимся по вектору указанных статов
-    for (int i = 0; i < FullDecreaseStat[stat_No].size(); i++)
+    for (int i = 0; i < m_fullDecreaseStat[statNo].size(); i++)
     {
         // если текущая стата больше началу уменьшения одного из GradeStat
-        if (CurrentStatPosition[stat_No] > DefaultStatPosition[stat_No] + FullDecreaseStat[stat_No][i].PositionStartLower)
+        if (m_currentStatPosition[statNo] > m_defaultStatPosition[statNo] + m_fullDecreaseStat[statNo][i].m_positionStartLower)
         {
             // нельзя уменьшить позицию ниже нуля
-            if (CurrentStatPosition[FullDecreaseStat[stat_No][i].PositionLower] > 0)
+            if (m_currentStatPosition[m_fullDecreaseStat[statNo][i].m_positionLower] > 0)
             {
                 // уменьшаем позицию, на которую GradeStat указывает на единицы которые прописаны
-                CurrentStatPosition[FullDecreaseStat[stat_No][i].PositionLower] -= FullDecreaseStat[stat_No][i].HowMany;
+                m_currentStatPosition[m_fullDecreaseStat[statNo][i].m_positionLower] -= m_fullDecreaseStat[statNo][i].m_howMany;
             }
         }
     }
 
-    UpgradeHistory.push_back(CurrentStatPosition);
+    m_upgradeHistory.push_back(m_currentStatPosition);
     return true;
 }
 
-bool CharacteristicGun::upgradeStat(int stat_no)
+//-----------------------------------------------------------------------------------------------------------------------
+
+bool CharacteristicGun::upgradeStat(int statNo)
 {
-    if (stat_no < 0 || stat_no > CurrentStatPosition.size())
+    if (statNo < 0 || statNo > m_currentStatPosition.size())
     {
-        OutputLog("CharacteristicGun UpgradeStat -> going beyond");
+        OUTPUT_LOG("CharacteristicGun UpgradeStat -> going beyond");
         return false;
     }
-    return upStat(stat_no);
+    return upStat(statNo);
 }
 
-
-
-
-
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 void CharacteristicGun::clear()
 {
-    FulAllStat.clear();
-    FullDecreaseStat.clear();
-    CurrentStatPosition.clear();
-    MaxStatPosition.clear();
-    DefaultStatPosition.clear();
-    UpgradeHistory.clear();
-    Empty = true;
+    m_fullAllStat.clear();
+    m_fullDecreaseStat.clear();
+    m_currentStatPosition.clear();
+    m_maxStatPosition.clear();
+    m_defaultStatPosition.clear();
+    m_upgradeHistory.clear();
+    m_empty = true;
 }
 
-bool CharacteristicGun::is_Empty() const
+//-----------------------------------------------------------------------------------------------------------------------
+
+bool CharacteristicGun::isEmpty() const
 {
-    return Empty;
+    return m_empty;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 bool CharacteristicGun::returnDefaultPosition() 
 {
-    CurrentStatPosition = DefaultStatPosition;
+    m_currentStatPosition = m_defaultStatPosition;
 
-    return CurrentStatPosition == DefaultStatPosition ? true : false;    
+    return m_currentStatPosition == m_defaultStatPosition ? true : false;    
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 vector<int>    CharacteristicGun::getDefaultPosition() const
 {
-    return CharacteristicGun::DefaultStatPosition;
+    return CharacteristicGun::m_defaultStatPosition;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 vector<int>    CharacteristicGun::getMaxPositionCharacteristic() const
 {
-    return MaxStatPosition;
+    return m_maxStatPosition;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 vector<double> CharacteristicGun::getFullCurrentVisualStat() const
 {
     vector<double> result;
-
-
-    for (int i = 0; i < CurrentStatPosition.size(); i++)
+    for (int it = 0; it < m_currentStatPosition.size(); it++)
     {
-        result.push_back(CharacteristicGun::getVisualPercentUpgradeCharacteristic(i));
+        result.push_back(CharacteristicGun::getVisualPercentUpgradeCharacteristic(it));
     }
     return result;
 }
 
-vector<int>    CharacteristicGun::getCurrentPosition() const
+//-----------------------------------------------------------------------------------------------------------------------
+
+vector<int> CharacteristicGun::getCurrentPosition() const
 {
-    return CharacteristicGun::CurrentStatPosition;
+    return CharacteristicGun::m_currentStatPosition;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 double CharacteristicGun::getValueCharacteristic(size_t stat) const
 {
-    return FulAllStat[stat][CurrentStatPosition[stat]].ValueCharacteristic;
+    return m_fullAllStat[stat][m_currentStatPosition[stat]].m_valueCharacteristic;
 }
-               
-double         CharacteristicGun::getMaxStatVisualPercent(size_t stat)  const
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+double CharacteristicGun::getMaxStatVisualPercent(size_t stat)  const
 {
-    return FulAllStat[stat][MaxStatPosition[stat]].VisualPercentStat;
+    return m_fullAllStat[stat][m_maxStatPosition[stat]].m_visualPercentStat;
 }
-               
-double         CharacteristicGun::getVisualPercentUpgradeCharacteristic(size_t stat) const
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+double CharacteristicGun::getVisualPercentUpgradeCharacteristic(size_t stat) const
 {
-    auto result = FulAllStat[stat][CurrentStatPosition[stat]].VisualPercentStat;
-    return result;
+    return m_fullAllStat[stat][m_currentStatPosition[stat]].m_visualPercentStat;
 }
-               
-double         CharacteristicGun::getChanceFor_NEXT_Stat(size_t stat)   const
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+double CharacteristicGun::getChanceForNextStat(size_t stat) const
 {
-    if (CurrentStatPosition[stat] + 1 > MaxStatPosition[stat])
+    const auto next = m_currentStatPosition[stat] + 1;
+
+    if (next > m_maxStatPosition[stat])
     {
-        OutputLog("CharacteristicGun -> can't get a chance greater than the maximum");
+        OUTPUT_LOG("CharacteristicGun -> can't get a chance greater than the maximum");
         return 0.0;
     }
-    if (CurrentStatPosition[stat] + 1 > FulAllStat[stat].size())
+
+    if (next > m_fullAllStat[stat].size())
     {
-        OutputLog("CharacteristicGun -> can't get a chance, go beyond");
+        OUTPUT_LOG("CharacteristicGun -> can't get a chance, go beyond");
         return -1.0;
     }
 
-    double result;
-
-    unsigned int v2 = CurrentStatPosition[stat] + 1;
-
-
-    result = FulAllStat[stat][v2].CurrentChance;
-    return result;
+    return m_fullAllStat[stat][next].m_currentChance;
 }
 
-bool           CharacteristicGun::stepBack()
+//-----------------------------------------------------------------------------------------------------------------------
+
+bool CharacteristicGun::stepBack()
 {
     // если вектор пуст выходим
-    if (UpgradeHistory.empty()) { return false; }
+    if (m_upgradeHistory.empty()) { return false; }
 
     // иначе удаляем из истории текущий
-    UpgradeHistory.pop_back();
-
-    // устанавливаем предыдущий если не пустой
-    if (!UpgradeHistory.empty())
+    m_upgradeHistory.pop_back();
+    
+    if (!m_upgradeHistory.empty()) // устанавливаем предыдущий если не пустой
     {
-        CurrentStatPosition = UpgradeHistory[UpgradeHistory.size() - 1];
-    }
-    // иначе дефолтные характеристики
-    else
+        m_currentStatPosition = m_upgradeHistory[m_upgradeHistory.size() - 1];
+    }    
+    else // иначе дефолтные характеристики
     {
         CharacteristicGun::returnDefaultPosition();
     }
@@ -525,24 +406,23 @@ bool           CharacteristicGun::stepBack()
     return true;
 }
 
-///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----///-----
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-vector<int>    CharacteristicGun::getDecreaseForCurrentStat(size_t stat) const
+std::vector<int> CharacteristicGun::getDecreaseForCurrentStat(size_t stat) const
 {
-    vector<int> result(CountOption, 0);
+    std::vector<int> result(m_countOption, 0);
 
-    // проходимся по вектору указанных статов
-    for (int i = 0; i < FullDecreaseStat[stat].size(); i++)
+    const auto current = m_currentStatPosition[stat];
+    const auto base = m_defaultStatPosition[stat];
+
+    for (const auto& dec : m_fullDecreaseStat[stat])
     {
-        // если текущая стата больше началу уменьшения одного из GradeStat
-        if (CurrentStatPosition[stat] > DefaultStatPosition[stat] + FullDecreaseStat[stat][i].PositionStartLower)
+        if (current > base + dec.m_positionStartLower)
         {
-            // уменьшаем позицию, на которую GradeStat указывает на единицы которые прописаны
-            result[FullDecreaseStat[stat][i].PositionLower] += FullDecreaseStat[stat][i].HowMany;
+            result[dec.m_positionLower] += dec.m_howMany;
         }
     }
-
-
     return result;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------

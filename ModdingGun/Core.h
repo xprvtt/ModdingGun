@@ -33,9 +33,7 @@
 
 #include "Define.h"
 
-
 #pragma comment(lib, "User32.lib")
-
 
 using namespace sf;
 using namespace std;
@@ -54,29 +52,29 @@ Font LoadFont(path PathToFont);
 /// <param name="SearchInPath">путь</param>
 /// <param name="Extension">расширение файла(ов) / если не указано ищет всё </param>
 /// <returns>вектор</returns>
-vector<path> SearchFile(path SearchInPath, string Extension);
+vector<path> searchFile(path SearchInPath, string Extension);
 
 /// <summary>
 /// Функция выводит сообщение в файл Log/log.txt
 /// </summary>
 /// <param name="message">Сообщение которое необходимо вывести</param>
 /// <returns>true если выведен</returns>
-bool OutputMessage(string message);
+bool outputMessage(string message);
 
 /// <summary>
 /// Функция возвращает строку веремени 
 /// </summary>
 /// <returns>дата и время</returns>
-string GetCurrentTimeMG();
+string getCurrentTimeMG();
 
 
 
 
-double GetRandomDouble(double range);
+double getRandomDouble(double range);
 
-double GetChance(int position, const vector<pair<int, double>>& chancePoints);
+double getChance(int position, const vector<pair<int, double>>& chancePoints);
 
-double CalculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
+double calculateSuccessChance(double baseChance, double toolFactor, double KitFactor, double skillFactor);
 
 wstring StringToWString(const string& str);
 string  WstringToString(const wstring& wstr);

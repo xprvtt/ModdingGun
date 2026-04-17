@@ -5,11 +5,11 @@ Font LoadFont(path PathToFont)
     Font font;
     if (!font.openFromFile(PathToFont))
     {
-        OutputLog("Error loading Font: " + PathToFont.string());
+        OUTPUT_LOG("Error loading Font: " + PathToFont.string());
     }
     else
     {
-        OutputLog("Font Loaded");
+        OUTPUT_LOG("Font Loaded");
     }
     return font;
 }

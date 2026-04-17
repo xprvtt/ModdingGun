@@ -1,149 +1,118 @@
 ﻿#include "LangManager.h"
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 LangManager& LangManager::Instance()
 {
-	static LangManager LANGUAGE;
-	return LANGUAGE;
+	static LangManager language;
+	return language;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 bool LangManager::loadLangInFolder(path PathToLanguage_json)
 {
 	if (PathToLanguage_json.empty())
 	{
-		OutputLog("PathToLanguage_json emty");
+		OUTPUT_LOG("PathToLanguage_json emty");
 		return false;
 	}
 
-	PathToAllLanguage = SearchFile(PathToLanguage_json, ".json");
-	CountLan = PathToAllLanguage.size();
+	m_allLanguagePaths = searchFile(PathToLanguage_json, ".json");
+	m_countLan = m_allLanguagePaths.size();
 
-	if (CountLan == 0)
+	if (m_countLan == 0)
 	{
-		OutputLog("LangManager -> json not exist in path: " + WstringToString(PathToLanguage));
+		OUTPUT_LOG("LangManager -> json not exist in path: " + WstringToString(m_currentLanguagePath));
 		return false;
 	}
 
-	this->PathToLanguage = PathToLanguage_json;
+	this->m_currentLanguagePath = PathToLanguage_json;
 	empty = false;
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
 size_t LangManager::getCountlang()
 {
-    return CountLan;
+	return m_countLan;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 size_t LangManager::getCurrent_it_lang()
 {
-	return it_lang;
+	return m_itLang;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 unordered_map<size_t, wstring> LangManager::getLoadedLanguages()
 {
-	if (CountLan == 0)
+	if (m_countLan == 0)
 	{
-		OutputLog("LangManager -> json not loaded");
+		OUTPUT_LOG("LangManager -> json not loaded");
 		return unordered_map<size_t, wstring>();
 	}
 
-
 	unordered_map<size_t, wstring> Result;
-
-	for (size_t i = 0; i < PathToAllLanguage.size(); i++)
+	for (size_t i = 0; i < m_allLanguagePaths.size(); i++)
 	{
-		Result.emplace(i, PathToAllLanguage[i].stem());
+		Result.emplace(i, m_allLanguagePaths[i].stem());
 	}
-
 
 	return Result;
 }
-///////////////////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-bool LangManager::setLanguage(size_t it_lang)
+bool LangManager::setLanguage(size_t itLang)
 {
-	if (CountLan == 0)
+	if (m_countLan == 0)
 	{
-		OutputLog("LangManager -> json not loaded");
+		OUTPUT_LOG("LangManager -> json not loaded");
 		return false;
 	}
 
-	ifstream JSON_File_lang(PathToAllLanguage[it_lang]);
-	if (!JSON_File_lang)
+	ifstream languageJsonFile(m_allLanguagePaths[itLang]);
+	if (!languageJsonFile)
 	{
-		OutputLog("LangManager -> json failed to open");
+		OUTPUT_LOG("LangManager -> json failed to open");
 		return false;
 	}
 
-	Map_Translate.clear();
+	m_translates.clear();
 
-	nlohmann::json JSON_LANG;
-	JSON_File_lang >> JSON_LANG;
-	
-	for (const auto& [json_key, translate] : JSON_LANG.items())
+	nlohmann::json jsonLang;
+	languageJsonFile >> jsonLang;
+
+	for (const auto& [json_key, translate] : jsonLang.items())
 	{
-		Map_Translate.emplace(json_key, StringToWString(translate.get<string>()));
+		m_translates.emplace(json_key, StringToWString(translate.get<string>()));
 	}
 
-	this->it_lang = it_lang;
-    return false;
+	this->m_itLang = itLang;
+	return false;
 }
-///////////////////////////////////////////////////////////////////////////////////////
 
+//-----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-wstring LangManager::GetTranslate(const string& key)
+wstring LangManager::getTranslate(const string& key)
 {
-	if (key.empty())
-	{
-		return wstring();
-	}
+	if (key.empty()) { return wstring(); }
 
-	auto it_map = Map_Translate.find(key);
-
-	if (it_map != Map_Translate.end())
+	auto itMap = m_translates.find(key);
+	if (itMap != m_translates.end())
 	{
-		return it_map->second;
+		return itMap->second;
 	}
 	else
 	{
-		OutputLog("LangManager -> Key not found: " + key);
-		wstring Error = L"[" + StringToWString(key) + L"]";
-		return Error;
+		OUTPUT_LOG("LangManager -> Key not found: " + key);
+		wstring error = L"[" + StringToWString(key) + L"]";
+		return error;
 	}
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------------------------------------------------------------

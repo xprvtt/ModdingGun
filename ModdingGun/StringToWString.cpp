@@ -2,7 +2,7 @@
 
 wstring StringToWString(const string& str)
 {
-    if (str.empty()) return L"";
+    if (str.empty()) { return L""; }
 
     int size_needed = MultiByteToWideChar(
         CP_UTF8,            // Кодировка исходной строки (UTF-8)

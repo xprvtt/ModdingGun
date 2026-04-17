@@ -1,71 +1,16 @@
 ﻿#pragma once
 
-
 #include "Core.h"
-
 #include "CharacteristicGun.h"
-
 #include "GunStats.h"
-
 #include "ThreadAssemble.h"
-
 #include "DrawGraph.h"
-
 #include "LangManager.h"
-
 #include "GulText.h"
 
+struct GeneralStat;
 
-
-///////////////////////////////////////////////////////////////////////////////////
-
-/// <summary>
-/// основные элементы главного окна отображения модов
-/// </summary>
-struct GeneralStat
-{
-    /// <summary>
-    /// имя характеристики \ первое
-    /// </summary>
-    GUI_TextAndRectangle    TextCharacteristicName;
-
-    /// <summary>
-    /// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
-    /// </summary>
-    GUI_TextAndRectangle    TextVisualCharacteristic;
-
-    /// <summary>
-    /// визуальное отображения процента апгрейда
-    /// </summary>
-    GUI_TextAndRectangle    TextCharacteristicVisualPercent;
-
-
-
-
-
-    /// <summary>
-    /// Общий "прямоугольник" в котором распалагаютися все юниты
-    /// </summary>
-    RectangleShape         ShapeCharacteristic;
-
-    /// <summary>
-    /// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
-    /// </summary>
-    vector<RectangleShape> ShaheUnitsInCharacteristic;
-
-
-
-
-
-    /// <summary>
-    /// кнопка для выбора
-    /// </summary>
-    GUI_TextAndRectangle    MarkButtonCharacteristic;
-};
-///////////////////////////////////////////////////////////////////////////////////
-
-
-
+//-----------------------------------------------------------------------------------------------------------------------
 
 /// <summary>
 /// перемешаем местами элементы из вектора характеристик CharacteristicGun и Обратно
@@ -84,32 +29,69 @@ void moveElement(vector<T>& vec, size_t from, size_t to);
 /// <param name="CurrentCharacteristicGun"></param>
 /// <param name="InitialPosition"></param>
 /// <param name="ModPosition"></param>
-void EditShaheUnits(vector<GeneralStat>& GeneralModOption, CharacteristicGun& CurrentCharacteristicGun, vector<int> InitialPosition, vector<int> ModPosition);
+void editShaheUnits(std::vector<GeneralStat>& generalModOption, CharacteristicGun& currentCharacteristicGun, std::vector<int> initialPosition, std::vector<int> modPosition);
 
+bool setChahceUpgrade(const CharacteristicGun& currentCharacteristicGun, const SelectModifiers& currentModifiers, GUITextAndRectangle& guiChance, size_t it);
 
+unsigned getPrice(const path& pathToPriceModifiersJs, const SelectModifiers& currentModifiers);
 
-bool Set_Chahce_upgrade(const CharacteristicGun& CurrentCharacteristicGun, const Select_Modifiers& CurrentModifiers, GUI_TextAndRectangle& GUI_Chance, size_t it);
+unsigned getPrice(const path& pathToPriceModifiersJs, const SelectModifiers& currentModifiers, string nameGun);
 
+bool setPriceTool(const path& pathToPriceModifiersJs, GunStats::Modifiers::ToolType tool, unsigned price);
 
-unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers);
-unsigned Get_Price(const path& PathToPriceModifiers_JS, const Select_Modifiers& CurrentModifiers, string NameGun);
-
-
-
-
-bool Set_Price_Tool(const path& PathToPriceModifiers_JS, GunStats::Modifiers::ToolType Tool, unsigned Price);
-bool Set_Price_Kit(const path& PathToPriceModifiers_JS, GunStats::Modifiers::KitType Kit, string nameGun, unsigned Price);
-
-
-
-
-
+bool setPriceKit(const path& pathToPriceModifiersJs, GunStats::Modifiers::KitType kit, string nameGun, unsigned price);
 
 /// <summary>
 /// получаем инфу о кол-вах модификаторов из CountModifiers
 /// </summary>
 /// <param name="MODIFIERS"></param>
 /// <returns></returns>
-vector<pair<string,unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
+vector<pair<string, unsigned long long>> GetInfoForModifiers(const CountModifiers& MODIFIERS);
 
+//-----------------------------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// основные элементы главного окна отображения модов
+/// </summary>
+struct GeneralStat
+{
+	/// <summary>
+	/// имя характеристики \ первое
+	/// </summary>
+	GUITextAndRectangle    m_textCharacteristicName;
+
+	/// <summary>
+	/// отображение характеристики \ текущий темп . текущая отдача  . и тд \\\
+    /// </summary>
+	GUITextAndRectangle    m_textVisualCharacteristic;
+
+	/// <summary>
+	/// визуальное отображения процента апгрейда
+	/// </summary>
+	GUITextAndRectangle    m_textCharacteristicVisualPercent;
+
+	/// <summary>
+	/// Общий "прямоугольник" в котором распалагаютися все юниты
+	/// </summary>
+	RectangleShape         m_shapeCharacteristic;
+
+	/// <summary>
+	/// вектор с юнитами 60 \\\\\ 48 \\\\ 40  и тд.
+	/// </summary>
+	vector<RectangleShape> m_shaheUnitsInCharacteristic;
+
+	/// <summary>
+	/// кнопка для выбора
+	/// </summary>
+	GUITextAndRectangle    m_markButtonCharacteristic;
+};
+
+struct RectangleModifiers
+{
+	vector<GUITextAndRectangle> m_toolRectangleGUI;
+	vector<GUITextAndRectangle> m_kitRectangleGUI;
+	vector<GUITextAndRectangle> m_skillRectangleGUI;
+
+};
+
+//-----------------------------------------------------------------------------------------------------------------------

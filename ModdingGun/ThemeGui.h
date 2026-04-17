@@ -14,12 +14,11 @@ namespace ThemeGui
 	/// <para> v4 - цвет нажатой кнопки OutlineRectangle </para> 
 	/// 
 	/// </summary>
-	extern const map< string_view, array<Color, 5>> AllTheme;
+	extern const map< string_view, array<Color, 5>> allTheme;
 
+    extern const unsigned int characterSizeGUI;
 
-    extern const unsigned int CharacterSize;
+    extern const float outlineThicknessSizeGUI;
 
-    extern const float OutlineThicknessSize;
-
-	extern const Font CurrentFont;
+	extern const Font currentFontGUI;
 }
